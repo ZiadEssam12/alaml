@@ -1,9 +1,12 @@
+import "./globals.css";
+
 import { ThemeProvider } from "../../Contexts/Theme";
+import Navbar from "@/components/Layout/Navbar";
 
 export default function RootLayout({ children }) {
   return (
     <>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="ar" dir="rtl" suppressHydrationWarning>
         <head />
         <body>
           <ThemeProvider
@@ -12,7 +15,8 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <Navbar />
+            <main className="container mt-[60px]">{children}</main>
           </ThemeProvider>
         </body>
       </html>
