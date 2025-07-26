@@ -77,7 +77,7 @@ export default function Hero() {
             asChild
             variant="outline"
             size="lg"
-            className="font-semibold rounded-full" 
+            className="font-semibold rounded-full dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 transition-colors"
           >
             <Link href="/products">تصفح المنتجات</Link>
           </Button>

@@ -163,7 +163,7 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        "absolute size-8 rounded-full dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 transition-colors",
         orientation === "horizontal"
           ? "top-1/2 right-2 -translate-y-1/2" // Right side for previous in RTL
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -193,7 +193,7 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        "absolute size-8 rounded-full dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 transition-colors",
         orientation === "horizontal"
           ? "top-1/2 left-2 -translate-y-1/2" // Left side for next in RTL
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",

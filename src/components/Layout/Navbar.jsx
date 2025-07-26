@@ -1,13 +1,16 @@
 import React from "react";
 import { ModeToggle } from "../Theme";
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
 
 export default function Navbar() {
   return (
     <div className="fixed top-0 right-0  w-screen bg-white dark:bg-slate-800 shadow-md z-50">
       <div className="container h-[60px] flex items-center justify-between">
-        <div className="text-lg font-semibold">مكتبة الأمل</div>
-        <nav className="space-x-4 flex items-center gap-2">
+        <Link href="/" className="text-lg font-semibold">
+          مكتبة الأمل
+        </Link>
+        <nav className="space-x-4 flex items-center gap-2 text-sm">
           <Link href="/products" className="text-gray-800 dark:text-gray-200 ">
             المنتجات
           </Link>
@@ -16,9 +19,14 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        <div>
+        <div className="flex gap-2 items-center">
           {/* cart */}
-
+          <Link
+            href="/cart"
+            className="text-gray-800 dark:text-gray-200 border p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <ShoppingCart className="h-5 w-5" />
+          </Link>
           {/* Theme */}
           <ModeToggle />
         </div>
