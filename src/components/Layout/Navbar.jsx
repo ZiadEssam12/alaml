@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { MobileMenuToggle } from "./mobile-menu";
 
 export default function Navbar() {
   const cartItemsCount = 0; // Placeholder for cart items count
@@ -32,18 +33,6 @@ export default function Navbar() {
             <span className="text-xl font-bold">مكتبة الأمل</span>
           </Link>
 
-          {/* Search Bar - Desktop */}
-          {/* <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                type="search"
-                placeholder="ابحث عن المنتجات..."
-                className="pr-10"
-              />
-            </div>
-          </div> */}
-
           {/* Actions */}
           <div className="flex items-center space-x-4 space-x-reverse">
             {/* Wishlist */}
@@ -65,20 +54,10 @@ export default function Navbar() {
               </Button>
             </Link>
 
-            {/* Mobile Menu Toggle
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-              <Menu className="h-5 w-5" />
-            </Button> */}
+            {/* Mobile Menu Toggle */}
+            <MobileMenuToggle />
           </div>
         </div>
-
-        {/* Search Bar - Mobile
-        <div className="md:hidden mt-4">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input type="search" placeholder="ابحث عن المنتجات..." className="pr-10" />
-          </div>
-        </div> */}
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-8 space-x-reverse mt-4 pt-4 border-t">
@@ -114,9 +93,6 @@ export default function Navbar() {
           </Link>
         </nav>
       </div>
-
-      {/* Mobile Menu */}
-      {/* <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} /> */}
     </header>
   );
 }
