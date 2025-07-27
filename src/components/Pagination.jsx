@@ -9,8 +9,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Suspense } from "react";
 
-export function PaginationClient({ maxPage }) {
+function PaginationClientCode({ maxPage }) {
   const searchParams = useSearchParams();
   const currentPage = parseInt(searchParams.get("page")) || 1;
 
@@ -22,7 +24,7 @@ export function PaginationClient({ maxPage }) {
   };
 
   return (
-    <Pagination className="py-10 ">
+    <Pagination className="py-10">
       <PaginationContent>
         {/* Previous button */}
         <PaginationItem>
@@ -56,5 +58,33 @@ export function PaginationClient({ maxPage }) {
         </PaginationItem>
       </PaginationContent>
     </Pagination>
+  );
+}
+
+// Skeleton component for pagination loading state
+function PaginationSkeleton() {
+  return (
+    <div className="py-10">
+      <div className="flex items-center justify-center space-x-1">
+        {/* Previous button skeleton */}
+        <Skeleton className="h-10 w-20" />
+
+        {/* Page number skeletons */}
+        {Array.from({ length: 5 }, (_, index) => (
+          <Skeleton key={index} className="h-10 w-10" />
+        ))}
+
+        {/* Next button skeleton */}
+        <Skeleton className="h-10 w-20" />
+      </div>
+    </div>
+  );
+}
+
+export function PaginationClient({ maxPage }) {
+  return (
+    <Suspense fallback={<PaginationSkeleton />}>
+      <PaginationClientCode maxPage={maxPage} />
+    </Suspense>
   );
 }
