@@ -58,7 +58,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between mt-4 border-t">
+        <div className="w-full flex items-center justify-between mt-4 pt-2 border-t">
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-sm font-medium hover:text-primary">
@@ -69,12 +69,6 @@ export default function Navbar() {
               className="text-sm font-medium hover:text-primary"
             >
               المنتجات
-            </Link>
-            <Link
-              href="/categories"
-              className="text-sm font-medium hover:text-primary"
-            >
-              الأقسام
             </Link>
             <Link
               href="/custom-order"

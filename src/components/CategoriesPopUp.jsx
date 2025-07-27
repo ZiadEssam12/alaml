@@ -52,7 +52,7 @@ export default function CategoriesPopUp() {
 
         {/* Dropdown */}
         {open && (
-          <div className="absolute right-0 py-2 mt-4 z-30 bg-background rounded shadow-lg min-w-[180px]">
+          <div className="absolute right-0 h-[300px] overflow-auto py-2 mt-4 z-30 bg-background rounded shadow-lg min-w-[180px]">
             {categories.map((category) => {
               const IconComponent = category.icon;
               return (
