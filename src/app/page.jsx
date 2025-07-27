@@ -7,6 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Categories from "@/components/Home/Categories";
 
 export default function Home() {
   return (
@@ -14,9 +15,11 @@ export default function Home() {
       <main>
         <Hero />
 
+        <Categories />
+
         <section>
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">المنتجات المقترحة</h2>
+          <div className="mb-8">
+            <h2 className="text-base  font-bold mb-4">المنتجات المقترحة</h2>
           </div>
           <Carousel autoPlay autoPlayDelay={"10000"}>
             <CarouselContent>
