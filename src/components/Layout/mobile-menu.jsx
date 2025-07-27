@@ -10,7 +10,6 @@ export function MobileMenu({ isOpen, onClose }) {
     { href: "/", label: "الرئيسية" },
     { href: "/products", label: "المنتجات" },
     { href: "/categories", label: "الأقسام" },
-    { href: "/blog", label: "المدونة" },
     { href: "/custom-order", label: "اطلب منتجك" },
     { href: "/contact", label: "اتصل بنا" },
   ];

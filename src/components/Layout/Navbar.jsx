@@ -5,6 +5,7 @@ import { ShoppingCart } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { MobileMenuToggle } from "./mobile-menu";
+import CategoriesPopUp from "../CategoriesPopUp";
 
 export default function Navbar() {
   const cartItemsCount = 0; // Placeholder for cart items count
@@ -32,6 +33,8 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center space-x-4 ">
+            <CategoriesPopUp />
+
             {/* Wishlist */}
             <ModeToggle className="h-5 w-5" />
 
@@ -72,9 +75,6 @@ export default function Navbar() {
             className="text-sm font-medium hover:text-primary"
           >
             الأقسام
-          </Link>
-          <Link href="/blog" className="text-sm font-medium hover:text-primary">
-            المدونة
           </Link>
           <Link
             href="/custom-order"

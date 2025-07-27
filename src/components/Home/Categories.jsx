@@ -21,7 +21,7 @@ import {
 import Link from "next/link";
 
 // Categories data
-const categories = [
+export const categories = [
   {
     id: 1,
     name: "الكتب والدفاتر",
