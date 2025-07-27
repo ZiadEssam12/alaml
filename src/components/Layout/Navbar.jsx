@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { MobileMenuToggle } from "./mobile-menu";
 import CategoriesPopUp from "../CategoriesPopUp";
+import { Separator } from "../ui/separator";
 
 export default function Navbar() {
   const cartItemsCount = 0; // Placeholder for cart items count
@@ -57,9 +58,9 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between">
+        <div className="w-full flex items-center justify-between mt-4 border-t">
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8 mt-4 pt-4 border-t">
+          <nav className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-sm font-medium hover:text-primary">
               الرئيسية
             </Link>

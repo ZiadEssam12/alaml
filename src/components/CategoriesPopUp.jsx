@@ -27,18 +27,19 @@ export default function CategoriesPopUp() {
       {/* Overlay */}
       {open && (
         <div
-          className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 z-10 p-0 m-0"
+          className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 -z-[1] p-0 m-0"
           // Optionally, you can add onClick={handleClose} to close when clicking overlay
         ></div>
       )}
 
-      <div className="relative inline-block z-20">
+      <div
+        className="relative inline-block z-50 bg-background rounded py-3 px-3"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={handleClose}
+      >
+        <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
         {/* Trigger */}
-        <div
-          className="flex items-center gap-1 cursor-pointer z-30"
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={handleClose}
-        >
+        <div className="flex items-center gap-1 cursor-pointer relative z-30">
           <p>تصفح الأقسام</p>
           <span>
             <ChevronDown
@@ -51,11 +52,7 @@ export default function CategoriesPopUp() {
 
         {/* Dropdown */}
         {open && (
-          <div
-            className="absolute py-2 z-30 mt-2 bg-white rounded shadow-lg min-w-[180px]"
-            onMouseLeave={handleClose}
-            onMouseEnter={() => setOpen(true)}
-          >
+          <div className="absolute right-0 py-2 mt-4 z-30 bg-background rounded shadow-lg min-w-[180px]">
             {categories.map((category) => {
               const IconComponent = category.icon;
               return (
