@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import {
   BookOpen,
   Pencil,
@@ -15,35 +17,61 @@ import { categories } from "./Home/Categories";
 import Link from "next/link";
 
 export default function CategoriesPopUp() {
+  const [open, setOpen] = useState(false);
+
+  // Handles mouse leave for both trigger and dropdown
+  const handleClose = () => setOpen(false);
+
   return (
-    <div className="relative inline-block group z-20">
-      {/* Trigger */}
-      <div className="flex items-center gap-1 cursor-pointer z-30">
-        <p>تصفح الأقسام</p>
-        <span>
-          <ChevronDown className="h-4 w-4 inline-block ml-1 transition-transform duration-200 group-hover:rotate-180" />
-        </span>
-      </div>
-
+    <>
       {/* Overlay */}
-      <div className="hidden group-hover:block group-hover:opacity-10 fixed inset-0 bg-black  z-10"></div>
+      {open && (
+        <div
+          className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 z-10 p-0 m-0"
+          // Optionally, you can add onClick={handleClose} to close when clicking overlay
+        ></div>
+      )}
 
-      {/* Dropdown */}
-      <div className="hidden group-hover:block absolute py-2 z-30 mt-2 bg-white rounded shadow-lg min-w-[180px]">
-        {categories.map((category) => {
-          const IconComponent = category.icon;
-          return (
-            <Link
-              key={category.id}
-              href={category.href}
-              className="flex items-center gap-2 p-2 text-sm text-muted-foreground hover:bg-muted"
-            >
-              <IconComponent className="h-4 w-4" />
-              {category.name}
-            </Link>
-          );
-        })}
+      <div className="relative inline-block z-20">
+        {/* Trigger */}
+        <div
+          className="flex items-center gap-1 cursor-pointer z-30"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={handleClose}
+        >
+          <p>تصفح الأقسام</p>
+          <span>
+            <ChevronDown
+              className={`h-4 w-4 inline-block ml-1 transition-transform duration-200 ${
+                open ? "rotate-180" : ""
+              }`}
+            />
+          </span>
+        </div>
+
+        {/* Dropdown */}
+        {open && (
+          <div
+            className="absolute py-2 z-30 mt-2 bg-white rounded shadow-lg min-w-[180px]"
+            onMouseLeave={handleClose}
+            onMouseEnter={() => setOpen(true)}
+          >
+            {categories.map((category) => {
+              const IconComponent = category.icon;
+              return (
+                <Link
+                  key={category.id}
+                  href={category.href}
+                  className="flex items-center gap-2 p-2 text-sm text-muted-foreground hover:bg-muted"
+                >
+                  <IconComponent className="h-4 w-4" />
+                  {category.name}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }

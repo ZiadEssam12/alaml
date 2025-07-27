@@ -33,8 +33,6 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center space-x-4 ">
-            <CategoriesPopUp />
-
             {/* Wishlist */}
             <ModeToggle className="h-5 w-5" />
 
@@ -59,36 +57,40 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center space-x-8 mt-4 pt-4 border-t">
-          <Link href="/" className="text-sm font-medium hover:text-primary">
-            الرئيسية
-          </Link>
-          <Link
-            href="/products"
-            className="text-sm font-medium hover:text-primary"
-          >
-            المنتجات
-          </Link>
-          <Link
-            href="/categories"
-            className="text-sm font-medium hover:text-primary"
-          >
-            الأقسام
-          </Link>
-          <Link
-            href="/custom-order"
-            className="text-sm font-medium hover:text-primary"
-          >
-            اطلب منتجك
-          </Link>
-          <Link
-            href="/contact"
-            className="text-sm font-medium hover:text-primary"
-          >
-            اتصل بنا
-          </Link>
-        </nav>
+        <div className="w-full flex items-center justify-between">
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8 mt-4 pt-4 border-t">
+            <Link href="/" className="text-sm font-medium hover:text-primary">
+              الرئيسية
+            </Link>
+            <Link
+              href="/products"
+              className="text-sm font-medium hover:text-primary"
+            >
+              المنتجات
+            </Link>
+            <Link
+              href="/categories"
+              className="text-sm font-medium hover:text-primary"
+            >
+              الأقسام
+            </Link>
+            <Link
+              href="/custom-order"
+              className="text-sm font-medium hover:text-primary"
+            >
+              اطلب منتجك
+            </Link>
+            <Link
+              href="/contact"
+              className="text-sm font-medium hover:text-primary"
+            >
+              اتصل بنا
+            </Link>
+          </nav>
+
+          <CategoriesPopUp />
+        </div>
       </div>
     </header>
   );
