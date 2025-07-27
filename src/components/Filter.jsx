@@ -1,0 +1,252 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Star, Filter, X } from "lucide-react";
+
+export function ProductFilters({ categories = [] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [filters, setFilters] = useState({
+    categories: [],
+    minPrice: "",
+    maxPrice: "",
+    rating: 0,
+    inStock: false,
+  });
+
+  useEffect(() => {
+    // Initialize filters from URL params
+    initializeFiltersFromURL();
+  }, []);
+
+  const initializeFiltersFromURL = () => {
+    const urlCategories = searchParams.get("categories")?.split(",") || [];
+    const minPrice = searchParams.get("minPrice") || "";
+    const maxPrice = searchParams.get("maxPrice") || "";
+    const rating = parseInt(searchParams.get("rating")) || 0;
+    const inStock = searchParams.get("inStock") === "true";
+
+    setFilters({
+      categories: urlCategories,
+      minPrice,
+      maxPrice,
+      rating,
+      inStock,
+    });
+  };
+
+  const applyFilters = () => {
+    updateURLAndNavigate();
+  };
+
+  const updateURLAndNavigate = () => {
+    const params = new URLSearchParams();
+
+    if (filters.categories.length > 0) {
+      params.set("categories", filters.categories.join(","));
+    }
+    if (filters.minPrice) {
+      params.set("minPrice", filters.minPrice);
+    }
+    if (filters.maxPrice) {
+      params.set("maxPrice", filters.maxPrice);
+    }
+    if (filters.rating > 0) {
+      params.set("rating", filters.rating.toString());
+    }
+    if (filters.inStock) {
+      params.set("inStock", "true");
+    }
+
+    const queryString = params.toString();
+    const newURL = queryString ? `?${queryString}` : window.location.pathname;
+
+    router.push(newURL);
+  };
+
+  const handleCategoryChange = (categoryId, checked) => {
+    setFilters((prev) => ({
+      ...prev,
+      categories: checked
+        ? [...prev.categories, categoryId]
+        : prev.categories.filter((id) => id !== categoryId),
+    }));
+  };
+
+  const handlePriceChange = (field, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      categories: [],
+      minPrice: "",
+      maxPrice: "",
+      rating: 0,
+      inStock: false,
+    });
+
+    // Clear URL params and navigate
+    router.push(window.location.pathname);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center space-x-2 ">
+            <Filter className="h-5 w-5" />
+            <span>تصفية المنتجات</span>
+          </CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Categories Filter */}
+        <div>
+          <Label className="text-sm font-medium mb-3 block">الأقسام</Label>
+          <div className="space-y-2">
+            {categories?.map((category) => (
+              <div key={category.id} className="flex items-center space-x-2 ">
+                <Checkbox
+                  id={category.id}
+                  checked={filters.categories.includes(category.id)}
+                  onCheckedChange={(checked) =>
+                    handleCategoryChange(category.id, checked)
+                  }
+                />
+                <Label htmlFor={category.id} className="text-sm cursor-pointer">
+                  {category.name}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Price Range Filter */}
+        <div>
+          <Label className="text-sm font-medium mb-3 block">نطاق السعر</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label
+                htmlFor="minPrice"
+                className="text-xs text-muted-foreground"
+              >
+                الحد الأدنى
+              </Label>
+              <Input
+                id="minPrice"
+                type="number"
+                placeholder="0"
+                value={filters.minPrice}
+                onChange={(e) => handlePriceChange("minPrice", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="maxPrice"
+                className="text-xs text-muted-foreground"
+              >
+                الحد الأقصى
+              </Label>
+              <Input
+                id="maxPrice"
+                type="number"
+                placeholder="1000"
+                value={filters.maxPrice}
+                onChange={(e) => handlePriceChange("maxPrice", e.target.value)}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
+            <span>ر.س</span>
+            <span>ر.س</span>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Rating Filter */}
+        <div>
+          <Label className="text-sm font-medium mb-3 block">التقييم</Label>
+          <div className="space-y-2">
+            {[4, 3, 2, 1].map((rating) => (
+              <div key={rating} className="flex items-center space-x-2 ">
+                <Checkbox
+                  id={`rating-${rating}`}
+                  checked={filters.rating === rating}
+                  onCheckedChange={(checked) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      rating: checked ? rating : 0,
+                    }))
+                  }
+                />
+                <Label
+                  htmlFor={`rating-${rating}`}
+                  className="flex items-center space-x-1  cursor-pointer"
+                >
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${
+                          i < rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm">فأكثر</span>
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Stock Filter */}
+        <div className="flex items-center space-x-2 ">
+          <Checkbox
+            id="inStock"
+            checked={filters.inStock}
+            onCheckedChange={(checked) =>
+              setFilters((prev) => ({ ...prev, inStock: checked }))
+            }
+          />
+          <Label htmlFor="inStock" className="text-sm cursor-pointer">
+            متوفر في المخزون فقط
+          </Label>
+        </div>
+
+        <Separator />
+
+        {/* Apply Filters Button */}
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={clearFilters} className="flex-1">
+            مسح الكل
+          </Button>
+          <Button onClick={applyFilters} className="flex-1">
+            تطبيق التصفية
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
