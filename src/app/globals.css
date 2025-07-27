@@ -103,6 +103,11 @@ html[dir="rtl"] * {
     @apply border-border outline-ring/50;
   }
 
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Cairo", sans-serif;
+  }
+
   section {
     @apply my-20 py-5;
   }

@@ -21,10 +21,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center space-x-2 space-x-reverse"
-          >
+          <Link href="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">
                 م
@@ -34,7 +31,7 @@ export default function Navbar() {
           </Link>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4 space-x-reverse">
+          <div className="flex items-center space-x-4 ">
             {/* Wishlist */}
             <ModeToggle className="h-5 w-5" />
 
@@ -60,7 +57,7 @@ export default function Navbar() {
         </div>
 
         {/* Navigation */}
-        <nav className="hidden md:flex items-center space-x-8 space-x-reverse mt-4 pt-4 border-t">
+        <nav className="hidden md:flex items-center space-x-8 mt-4 pt-4 border-t">
           <Link href="/" className="text-sm font-medium hover:text-primary">
             الرئيسية
           </Link>
