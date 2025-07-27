@@ -25,6 +25,9 @@ function Carousel({
   plugins,
   className,
   children,
+  showNavigation = true,
+  autoPlay = false, // Add autoPlay property
+  autoPlayDelay = 3000, // Add delay property (3 seconds default)
   ...props
 }) {
   const [carouselRef, api] = useEmblaCarousel(
@@ -37,6 +40,7 @@ function Carousel({
   );
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
+  const [isPlaying, setIsPlaying] = React.useState(autoPlay);
 
   const onSelect = React.useCallback((api) => {
     if (!api) return;
@@ -52,8 +56,40 @@ function Carousel({
     api?.scrollNext();
   }, [api]);
 
+  // Auto-play timer effect
+  React.useEffect(() => {
+    if (!api || !isPlaying) return;
+
+    const timer = setInterval(() => {
+      // If we can scroll next, go to next slide
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        // If at the end, go back to first slide (loop)
+        api.scrollTo(0);
+      }
+    }, autoPlayDelay);
+
+    return () => clearInterval(timer);
+  }, [api, isPlaying, autoPlayDelay]);
+
+  // Pause auto-play on hover/focus
+  const handleMouseEnter = React.useCallback(() => {
+    if (autoPlay) setIsPlaying(false);
+  }, [autoPlay]);
+
+  const handleMouseLeave = React.useCallback(() => {
+    if (autoPlay) setIsPlaying(true);
+  }, [autoPlay]);
+
   const handleKeyDown = React.useCallback(
     (event) => {
+      // Only handle keyboard if navigation is enabled
+      if (!showNavigation) return;
+
+      // Pause auto-play when user interacts
+      if (autoPlay) setIsPlaying(false);
+
       // RTL arrow keys: Right for previous, Left for next
       if (event.key === "ArrowRight") {
         event.preventDefault();
@@ -63,8 +99,27 @@ function Carousel({
         scrollNext();
       }
     },
-    [scrollPrev, scrollNext]
+    [scrollPrev, scrollNext, showNavigation, autoPlay]
   );
+
+  // Manual navigation should pause auto-play temporarily
+  const handleManualPrev = React.useCallback(() => {
+    scrollPrev();
+    if (autoPlay) {
+      setIsPlaying(false);
+      // Resume after a delay
+      setTimeout(() => setIsPlaying(true), autoPlayDelay);
+    }
+  }, [scrollPrev, autoPlay, autoPlayDelay]);
+
+  const handleManualNext = React.useCallback(() => {
+    scrollNext();
+    if (autoPlay) {
+      setIsPlaying(false);
+      // Resume after a delay
+      setTimeout(() => setIsPlaying(true), autoPlayDelay);
+    }
+  }, [scrollNext, autoPlay, autoPlayDelay]);
 
   React.useEffect(() => {
     if (!api || !setApi) return;
@@ -90,14 +145,19 @@ function Carousel({
         opts,
         orientation:
           orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
-        scrollPrev,
-        scrollNext,
+        scrollPrev: handleManualPrev,
+        scrollNext: handleManualNext,
         canScrollPrev,
         canScrollNext,
+        showNavigation,
+        isPlaying,
+        setIsPlaying,
       }}
     >
       <div
         onKeyDownCapture={handleKeyDown}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className={cn("relative", className)}
         role="region"
         aria-roledescription="carousel"
@@ -155,7 +215,11 @@ function CarouselPrevious({
   size = "icon",
   ...props
 }) {
-  const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+  const { orientation, scrollPrev, canScrollPrev, showNavigation } =
+    useCarousel();
+
+  // Don't render if navigation is disabled
+  if (!showNavigation) return null;
 
   return (
     <Button
@@ -185,7 +249,11 @@ function CarouselNext({
   size = "icon",
   ...props
 }) {
-  const { orientation, scrollNext, canScrollNext } = useCarousel();
+  const { orientation, scrollNext, canScrollNext, showNavigation } =
+    useCarousel();
+
+  // Don't render if navigation is disabled
+  if (!showNavigation) return null;
 
   return (
     <Button

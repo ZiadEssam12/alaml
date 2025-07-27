@@ -2,6 +2,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "../../Contexts/Theme";
 import Navbar from "@/components/Layout/Navbar";
+import Footer from "@/components/Layout/Footer";
 
 export default function RootLayout({ children }) {
   return (
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
           >
             <Navbar />
             <main className="container mt-[60px]">{children}</main>
+            <Footer />
           </ThemeProvider>
         </body>
       </html>
