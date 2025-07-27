@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Star, Filter, X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function ProductFilters({ categories = [] }) {
+function ProductFiltersCode({ categories = [] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -248,5 +249,73 @@ export function ProductFilters({ categories = [] }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// Skeleton fallback for the filter
+function ProductFiltersSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-6 w-32 mb-2" />
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Categories Skeleton */}
+        <div>
+          <Skeleton className="h-4 w-24 mb-3" />
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-2">
+                <Skeleton className="h-5 w-5" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <Separator />
+        {/* Price Skeleton */}
+        <div>
+          <Skeleton className="h-4 w-24 mb-3" />
+          <div className="grid grid-cols-2 gap-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+        <Separator />
+        {/* Rating Skeleton */}
+        <div>
+          <Skeleton className="h-4 w-24 mb-3" />
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-2">
+                <Skeleton className="h-5 w-5" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <Separator />
+        {/* Stock Skeleton */}
+        <div className="flex items-center space-x-2">
+          <Skeleton className="h-5 w-5" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <Separator />
+        {/* Buttons Skeleton */}
+        <div className="flex gap-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Export with Suspense wrapper
+export function ProductFilters(props) {
+  return (
+    <Suspense fallback={<ProductFiltersSkeleton />}>
+      <ProductFiltersCode {...props} />
+    </Suspense>
   );
 }
