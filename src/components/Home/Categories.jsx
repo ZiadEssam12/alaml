@@ -5,6 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+
 import {
   BookOpen,
   Pencil,
@@ -100,27 +101,41 @@ export default function Categories() {
         <h2 className="text-base font-bold mb-4">تسوق بالأقسام</h2>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {categories.map((category) => {
-          const IconComponent = category.icon;
-          return (
-            <Link
-              key={category.id}
-              href={category.href}
-              className="group flex flex-col items-center p-4 bg-card rounded-lg border hover:shadow-md transition-all duration-200 hover:border-primary/20"
-            >
-              <div
-                className={`p-3 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 transition-colors ${category.color}`}
+      <Carousel
+        opts={{
+          align: "start",
+          loop: false,
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {categories.map((category) => {
+            const IconComponent = category.icon;
+            return (
+              <CarouselItem
+                key={category.id}
+                className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/8"
               >
-                <IconComponent className="w-6 h-6" />
-              </div>
-              <span className="mt-2 text-sm font-medium text-center group-hover:text-primary transition-colors">
-                {category.name}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
+                <Link
+                  href={category.href}
+                  className="group flex flex-col items-center p-4 bg-card rounded-lg border hover:shadow-md transition-all duration-200 hover:border-primary/20 h-full"
+                >
+                  <div
+                    className={`p-3 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 transition-colors ${category.color}`}
+                  >
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                  <span className="mt-2 text-sm font-medium text-center group-hover:text-primary transition-colors">
+                    {category.name}
+                  </span>
+                </Link>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
     </section>
   );
 }

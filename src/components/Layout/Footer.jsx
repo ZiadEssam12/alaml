@@ -11,6 +11,8 @@ export default function Footer() {
     instagramUrl: "https://instagram.com/maktabat_alamal",
   };
 
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-muted/50 border-t">
       <div className="container mx-auto px-4 py-12">
@@ -156,7 +158,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-          <p>&copy; 2024 مكتبة الأمل. جميع الحقوق محفوظة.</p>
+          <p>مكتبة الأمل. جميع الحقوق محفوظة &copy; {currentYear} .</p>
         </div>
       </div>
     </footer>

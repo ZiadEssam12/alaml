@@ -1,54 +1,116 @@
-import React from "react";
+"use client";
+
 import Image from "next/image";
-
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import Link from "next/link";
+import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import toast from "react-hot-toast";
 
-export default function ProductCard({
-  title = "عنوان المنتج",
-  description = "وصف المنتج",
-  slug = "product-slug",
-  image = "/placeholder.jpg",
-  price = 30,
-}) {
-  const inInCart = false; // Placeholder for cart logic
+export default function ProductCard() {
+  // Dummy product
+  const product = {
+    id: "1",
+    name: "Dummy Product",
+    price: 100,
+    imageUrls: ["/placeholder.svg?height=300&width=300"],
+    stockQuantity: 10,
+    averageRating: 4,
+    totalSales: 100,
+  };
+
+  const handleAddToCart = () => {
+    if (product.stockQuantity <= 0) {
+      toast.error("المنتج غير متوفر حالياً");
+      return;
+    }
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrls[0] || "/placeholder.svg?height=300&width=300",
+      maxQuantity: product.stockQuantity,
+    });
+
+    toast.success("تم إضافة المنتج إلى السلة");
+  };
+
+  const isOutOfStock = product.stockQuantity <= 0;
 
   return (
-    <Card className="overflow-hidden !pt-0">
-      {/* Image at the top */}
-      <div className="relative h-48 bg-gray-200">
-        <Image src={image} alt={title} fill className="object-cover" />
+    <div className="group relative bg-card rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+      {/* Product Image */}
+      <div className="relative aspect-square overflow-hidden rounded-t-lg">
+        <Link href={`/products/${product.id}`}>
+          <Image
+            src={
+              product.imageUrls[0] || "/placeholder.svg?height=300&width=300"
+            }
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </Link>
+
+        {/* Stock Badge */}
+        {isOutOfStock && (
+          <Badge variant="destructive" className="absolute top-2 right-2">
+            نفد المخزون
+          </Badge>
+        )}
       </div>
 
-      {/* Title */}
-      <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </CardHeader>
+      {/* Product Info */}
+      <div className="p-4">
+        <Link href={`/products/${product.id}`}>
+          <h3 className="font-semibold text-lg mb-2 hover:text-primary line-clamp-2">
+            {product.name}
+          </h3>
+        </Link>
 
-      {/* Description */}
-      <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {description}
-        </p>
-        <p className="text-lg font-semibold">{price} ر.س</p>
-      </CardContent>
+        {/* Rating */}
+        <div className="flex items-center gap-1 mb-2">
+          <div className="flex">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`h-4 w-4 ${
+                  i < Math.floor(product.averageRating)
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-sm text-muted-foreground">
+            ({product.totalSales})
+          </span>
+        </div>
 
-      {/* Button at the end */}
-      <CardFooter className="pt-0">
+        {/* Price */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xl font-bold text-primary">
+            {product.price} جنيه
+          </span>
+          {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+            <Badge variant="outline" className="text-orange-600">
+              {product.stockQuantity} متبقي
+            </Badge>
+          )}
+        </div>
+
+        {/* Add to Cart Button */}
         <Button
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
           className="w-full"
-          disabled={inInCart}
-          variant={inInCart ? "secondary" : "default"}
+          variant={isOutOfStock ? "secondary" : "default"}
         >
-          {inInCart ? "في السلة" : "أضف للسلة"}
+          <ShoppingCart className="h-4 w-4 ml-2" />
+          {isOutOfStock ? "غير متوفر" : "أضف للسلة"}
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
