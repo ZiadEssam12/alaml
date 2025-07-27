@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export function CartSummary({ itemsLength, total }) {
+export function CartSummary({ itemsLength, total, showConfirmButon = true }) {
   const shippingCost = total >= 200 ? 0 : 30;
   const finalTotal = total + shippingCost;
 
   return (
-    <Card>
+    <Card className="sticky top-[200px]">
       <CardHeader>
         <CardTitle>ملخص الطلب</CardTitle>
       </CardHeader>
@@ -44,11 +44,13 @@ export function CartSummary({ itemsLength, total }) {
           <span>{finalTotal.toFixed(2)} جنيه</span>
         </div>
 
-        <Link href="/checkout">
-          <Button className="w-full" disabled={itemsLength === 0}>
-            إتمام الطلب
-          </Button>
-        </Link>
+        {showConfirmButon && (
+          <Link href="/checkout">
+            <Button className="w-full" disabled={itemsLength === 0}>
+              إتمام الطلب
+            </Button>
+          </Link>
+        )}
       </CardContent>
     </Card>
   );
