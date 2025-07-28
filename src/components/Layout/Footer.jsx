@@ -77,14 +77,6 @@ export default function Footer() {
                   اطلب منتجك
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  المدونة
-                </Link>
-              </li>
             </ul>
           </div>
 
