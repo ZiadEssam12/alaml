@@ -39,7 +39,7 @@ export default function CategoriesPopUp() {
       >
         <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
         {/* Trigger */}
-        <div className="flex items-center gap-1 cursor-pointer relative z-30">
+        <div className="flex items-center gap-1 cursor-pointer relative z-30 selection:bg-transparent">
           <p>
             <span className="hidden lg:block">تصفح الأقسام</span>
             <span className="block lg:hidden">الأقسام</span>
