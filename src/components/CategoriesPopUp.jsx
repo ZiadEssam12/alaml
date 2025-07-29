@@ -22,11 +22,9 @@ export default function CategoriesPopUp() {
   const pathName = usePathname();
 
   useEffect(() => {
-    // Close the popup if the path changes
     setOpen(false);
   }, [pathName]);
 
-  // Handles mouse leave for both trigger and dropdown
   const handleClose = () => setOpen(false);
 
   return (

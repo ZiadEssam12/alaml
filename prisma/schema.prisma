@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id               String    @id @default(uuid())
+  name             String
+  icon             String
+  parentCategoryID String?   // Self-relation for parent category
+  parentCategory   Category? @relation("ParentChild", fields: [parentCategoryID], references: [id])
+  children         Category[] @relation("ParentChild")
+  status           CategoryStatus
+  seoTitle         String
+  seoDescription   String
+  createdAt        DateTime  @default(now())
+  products         Product[] @relation("ProductCategories", references: [id])
+}
+
+model Product {
+  id                  String   @id @default(uuid())
+  name                String
+  description         String
+  price               Float
+  imageUrls           String[] // Array of image URLs
+  stockQuantity       Int
+  maxQuantityPerUser  Int      @default(5) // <-- Add this line
+  category            Category @relation(fields: [categoryID], references: [id])
+  categoryID          String
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  shippingStreet    String
+  shippingCity      String
+  shippingZipCode   String?
+  items             OrderItem[]
+  subtotal          Float
+  shippingCost      Float
+  discount          Float
+  finalAmount       Float
+  paymentMethod     String
+  status            OrderStatus @default(pending)
+  trackingNumber    String?
+  shippingCompanyURL String?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime?   @updatedAt
+}
+
+model OrderItem {
+  id         String  @id @default(uuid())
+  order      Order   @relation(fields: [orderId], references: [id])
+  orderId    String
+  productId  String
+  productName String
+  quantity   Int
+  price      Float
+  total      Float
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  productName String
+  userId     String
+  userName   String
+  rating     Int
+  comment    String
+  status     ReviewStatus @default(pending)
+  createdAt  DateTime @default(now())
+}
+
+model Cart {
+  id         String      @id @default(uuid())
+  userId     String     
+  items      CartItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime?   @updatedAt
+}
+
+model CartItem {
+  id         String   @id @default(uuid())
+  cart       Cart     @relation(fields: [cartId], references: [id])
+  cartId     String
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+  name       String
+  price      Float
+  imageUrl   String
+  quantity   Int
+}
+
+enum CategoryStatus {
+  active
+  inactive
+}
+
+enum OrderStatus {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+
