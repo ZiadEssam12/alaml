@@ -28,6 +28,7 @@ function Carousel({
   showNavigation = true,
   autoPlay = false, // Add autoPlay property
   autoPlayDelay = 3000, // Add delay property (3 seconds default)
+  loop = false,
   ...props
 }) {
   const [carouselRef, api] = useEmblaCarousel(
@@ -35,6 +36,7 @@ function Carousel({
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",
       direction: "rtl", // Always RTL
+      loop,
     },
     plugins
   );

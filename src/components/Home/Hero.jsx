@@ -24,7 +24,7 @@ export default function Hero() {
   return (
     <>
       <div className="relative">
-        <Carousel>
+        <Carousel loop={true}>
           <CarouselContent className="h-96">
             <CarouselItem>
               <div className="relative w-full h-full ">
