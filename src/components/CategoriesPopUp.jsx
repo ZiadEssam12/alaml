@@ -40,7 +40,10 @@ export default function CategoriesPopUp() {
         <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
         {/* Trigger */}
         <div className="flex items-center gap-1 cursor-pointer relative z-30">
-          <p>تصفح الأقسام</p>
+          <p>
+            <span className="hidden lg:block">تصفح الأقسام</span>
+            <span className="block lg:hidden">الأقسام</span>
+          </p>
           <span>
             <ChevronDown
               className={`h-4 w-4 inline-block ml-1 transition-transform duration-200 ${

@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary rounded-lg hidden lg:flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">
                 م
               </span>
@@ -33,7 +33,10 @@ export default function Navbar() {
           </Link>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4 ">
+          <div className="flex items-center space-x-0 lg:space-x-4 ">
+            <div className="block lg:hidden">
+              <CategoriesPopUp />
+            </div>
             {/* Wishlist */}
             <ModeToggle className="h-5 w-5" />
 
@@ -58,7 +61,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="w-full flex items-center justify-between mt-4 pt-2 border-t">
+        <div className="w-full hidden lg:flex items-center justify-between mt-4 pt-2 border-t">
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-sm font-medium hover:text-primary">
@@ -84,7 +87,9 @@ export default function Navbar() {
             </Link>
           </nav>
 
-          <CategoriesPopUp />
+          <div className="hidden lg:block">
+            <CategoriesPopUp />
+          </div>
         </div>
       </div>
     </header>

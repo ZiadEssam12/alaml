@@ -28,7 +28,7 @@ function Carousel({
   showNavigation = true,
   autoPlay = false, // Add autoPlay property
   autoPlayDelay = 3000, // Add delay property (3 seconds default)
-  loop = false,
+  loop = true,
   ...props
 }) {
   const [carouselRef, api] = useEmblaCarousel(
