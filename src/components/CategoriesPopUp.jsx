@@ -33,7 +33,6 @@ export default function CategoriesPopUp() {
       {open && (
         <div
           className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 -z-[1] p-0 m-0"
-          // Optionally, you can add onClick={handleClose} to close when clicking overlay
         ></div>
       )}
 

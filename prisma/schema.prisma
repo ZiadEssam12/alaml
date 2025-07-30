@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -9,94 +8,95 @@ datasource db {
 }
 
 model Category {
-  id               String    @id @default(uuid())
+  id               String         @id @default(uuid())
   name             String
   icon             String
-  parentCategoryID String?   // Self-relation for parent category
-  parentCategory   Category? @relation("ParentChild", fields: [parentCategoryID], references: [id])
-  children         Category[] @relation("ParentChild")
+  parentCategoryID String?
+  parentCategory   Category?      @relation("ParentChild", fields: [parentCategoryID], references: [id])
+  children         Category[]     @relation("ParentChild")
   status           CategoryStatus
   seoTitle         String
   seoDescription   String
-  createdAt        DateTime  @default(now())
-  products         Product[] @relation("ProductCategories", references: [id])
+  createdAt        DateTime       @default(now())
+  products         Product[]
 }
 
 model Product {
-  id                  String   @id @default(uuid())
-  name                String
-  description         String
-  price               Float
-  imageUrls           String[] // Array of image URLs
-  stockQuantity       Int
-  maxQuantityPerUser  Int      @default(5) // <-- Add this line
-  category            Category @relation(fields: [categoryID], references: [id])
-  categoryID          String
+  id                 String     @id @default(uuid())
+  name               String
+  description        String
+  price              Float
+  imageUrls          String[]
+  stockQuantity      Int
+  maxQuantityPerUser Int        @default(5)
+  category           Category   @relation(fields: [categoryID], references: [id])
+  categoryID         String
+  cartItems          CartItem[]
 }
 
 model Order {
-  id                String      @id @default(uuid())
-  customerName      String
-  customerEmail     String
-  customerPhone     String
-  shippingStreet    String
-  shippingCity      String
-  shippingZipCode   String?
-  items             OrderItem[]
-  subtotal          Float
-  shippingCost      Float
-  discount          Float
-  finalAmount       Float
-  paymentMethod     String
-  status            OrderStatus @default(pending)
-  trackingNumber    String?
+  id                 String      @id @default(uuid())
+  customerName       String
+  customerEmail      String
+  customerPhone      String
+  shippingStreet     String
+  shippingCity       String
+  shippingZipCode    String?
+  items              OrderItem[]
+  subtotal           Float
+  shippingCost       Float
+  discount           Float
+  finalAmount        Float
+  paymentMethod      String
+  status             OrderStatus @default(pending)
+  trackingNumber     String?
   shippingCompanyURL String?
-  notes             String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime?   @updatedAt
+  notes              String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime?   @updatedAt
 }
 
 model OrderItem {
-  id         String  @id @default(uuid())
-  order      Order   @relation(fields: [orderId], references: [id])
-  orderId    String
-  productId  String
+  id          String @id @default(uuid())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     String
+  productId   String
   productName String
-  quantity   Int
-  price      Float
-  total      Float
+  quantity    Int
+  price       Float
+  total       Float
 }
 
 model Review {
-  id         String   @id @default(uuid())
-  productId  String
+  id          String       @id @default(uuid())
+  productId   String
   productName String
-  userId     String
-  userName   String
-  rating     Int
-  comment    String
-  status     ReviewStatus @default(pending)
-  createdAt  DateTime @default(now())
+  userId      String
+  userName    String
+  rating      Int
+  comment     String
+  status      ReviewStatus @default(pending)
+  createdAt   DateTime     @default(now())
 }
 
 model Cart {
-  id         String      @id @default(uuid())
-  userId     String     
-  items      CartItem[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime?   @updatedAt
+  id        String     @id @default(uuid())
+  userId    String
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime?  @updatedAt
 }
 
 model CartItem {
-  id         String   @id @default(uuid())
-  cart       Cart     @relation(fields: [cartId], references: [id])
-  cartId     String
-  product    Product  @relation(fields: [productId], references: [id])
-  productId  String
-  name       String
-  price      Float
-  imageUrl   String
-  quantity   Int
+  id        String  @id @default(uuid())
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  name      String
+  price     Float
+  imageUrl  String
+  quantity  Int
 }
 
 enum CategoryStatus {
@@ -117,5 +117,3 @@ enum ReviewStatus {
   approved
   rejected
 }
-
-

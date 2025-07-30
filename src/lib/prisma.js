@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma";
 
-// Properly define the global type to avoid TypeScript errors
-// Note: If using JavaScript (not TypeScript), you can simplify this
 const globalForPrisma = global;
 
 // Create a singleton instance
