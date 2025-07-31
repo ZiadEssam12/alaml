@@ -9,13 +9,13 @@ datasource db {
 
 model Category {
   id               String         @id @default(uuid())
-  name             String
+  name             String         @unique
   icon             String
   parentCategoryID String?
   parentCategory   Category?      @relation("ParentChild", fields: [parentCategoryID], references: [id])
   children         Category[]     @relation("ParentChild")
   status           CategoryStatus
-  seoTitle         String
+  seoTitle         String         @unique
   seoDescription   String
   createdAt        DateTime       @default(now())
   products         Product[]
