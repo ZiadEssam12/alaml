@@ -1,6 +1,6 @@
 import { ProductFilters } from "@/components/Filter";
 import { PaginationClient } from "@/components/Pagination";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCard/ProductCard";
 import React from "react";
 
 export default function page() {

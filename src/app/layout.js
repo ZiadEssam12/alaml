@@ -4,6 +4,7 @@ import { Cairo } from "next/font/google";
 import { ThemeProvider } from "../../Contexts/Theme";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
+import { Toaster } from "react-hot-toast";
 
 // Configure Cairo font
 const cairo = Cairo({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
           <Navbar />
           <main className="container mt-[20px] min-h-screen">{children}</main>
           <Footer />
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

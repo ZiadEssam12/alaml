@@ -1,6 +1,4 @@
 import prisma from "@/lib/prisma";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
   Breadcrumb,
@@ -10,6 +8,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  ProductInfoWrapper,
+} from "@/components/ProductCard/AddtoCartWrapper";
 
 // Fake product data for testing
 const fakeProduct = {
@@ -28,7 +29,7 @@ const fakeProduct = {
 };
 
 export default async function ProductPage({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   // Fetch product by slug
   const product = await prisma.product.findUnique({
@@ -85,37 +86,7 @@ export default async function ProductPage({ params }) {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <div className="flex flex-col gap-4 h-full mt-8">
-            <div className="flex items-center gap-2 mb-2">
-              {displayProduct.category && (
-                <Badge variant="secondary">
-                  {displayProduct.category.name}
-                </Badge>
-              )}
-              <span className="text-2xl font-bold">{displayProduct.name}</span>
-            </div>
-            <p className="text-lg font-semibold text-primary">
-              السعر: {displayProduct.price} جنيه
-            </p>
-            <p className="text-muted-foreground">
-              {displayProduct.description}
-            </p>
-            <p>
-              الكمية المتاحة:{" "}
-              <span className="font-bold">{displayProduct.stockQuantity}</span>
-            </p>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <label className="block mb-2">الكمية:</label>
-                <div className="bg-gray-100 dark:bg-gray-800 flex items-center gap-3 p-2 rounded">
-                  <button className="selection:bg-transparent">-</button>
-                  <span>1</span>
-                  <button className="selection:bg-transparent">+</button>
-                </div>
-              </div>
-              <Button>أضف إلى السلة</Button>
-            </div>
-          </div>
+          <ProductInfoWrapper product={displayProduct} />
         </div>
       </div>
     </div>
