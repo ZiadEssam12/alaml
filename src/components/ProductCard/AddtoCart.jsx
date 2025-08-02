@@ -30,7 +30,7 @@ export default function ProductInfo({ product }) {
   };
 
   return (
-    <div className="flex flex-col justify-evenly gap-4 h-full mt-8">
+    <div className="flex flex-col gap-4 h-full mt-8">
       <div className="flex items-center gap-2 mb-2">
         {product.category && (
           <Badge variant="secondary">{product.category.name}</Badge>
