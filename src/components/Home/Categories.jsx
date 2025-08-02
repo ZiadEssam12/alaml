@@ -86,7 +86,7 @@ import DynamicIcons from "../DynamicIcons";
 export default async function Categories() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
   let categoriesList = await res.json();
-  categoriesList = [];
+  categoriesList = categoriesList.data;
 
   return (
     <section className="mt-0">
@@ -103,23 +103,22 @@ export default async function Categories() {
       >
         <CarouselContent className="-ml-2 md:-ml-4">
           {categoriesList.map((category) => {
-            const IconComponent = category.icon;
             return (
               <CarouselItem
                 key={category.id}
                 className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/8"
               >
                 <Link
-                  href={category.href}
+                  href={`categories/${category.seoTitle}`}
                   className="group flex flex-col items-center p-4 bg-card rounded-lg border hover:shadow-md transition-all duration-200 hover:border-primary/20 h-full"
                 >
                   <div
                     className={`p-3 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 transition-colors ${category.color}`}
                   >
-                    <IconComponent className="w-6 h-6" />
+                    <DynamicIcons icon={category.icon} />
                   </div>
                   <span className="mt-2 text-sm font-medium text-center group-hover:text-primary transition-colors">
-                    <DynamicIcons icon={category.icon} />
+                    {category.name}
                   </span>
                 </Link>
               </CarouselItem>
