@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head />
-      <body className={`${cairo.variable} font-cairo`}>
+      <body className={`${cairo.variable} font-cairo no-scroll`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -9,11 +9,10 @@ export default function Loading() {
   const { cart } = useContext(cartContext);
 
   useEffect(() => {
-    if (loading) {
-      document.body.classList.add("no-scroll");
-    } else {
+    if (!loading) {
       document.body.classList.remove("no-scroll");
     }
+
     return () => {
       document.body.classList.remove("no-scroll");
     };
@@ -30,7 +29,7 @@ export default function Loading() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col gap-6 items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-background flex flex-col gap-6 items-center justify-center">
       <p className="font-bold text-5xl text-primary">مكتبة الأمل</p>
       <p className="text-xl">كل ما تتمناه موجود</p>
     </div>

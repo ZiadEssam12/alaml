@@ -113,6 +113,7 @@ html[dir="rtl"] * {
   }
 }
 
-.no-scroll {
-  overflow-y: hidden !important;
+body.no-scroll {
+  height: 100vh !important;
+  overflow: hidden !important;
 }
