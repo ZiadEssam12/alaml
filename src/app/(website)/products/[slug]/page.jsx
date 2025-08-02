@@ -8,9 +8,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  ProductInfoWrapper,
-} from "@/components/ProductCard/AddtoCartWrapper";
+import { ProductInfoWrapper } from "@/components/ProductCard/AddtoCartWrapper";
+import Link from "next/link";
 
 // Fake product data for testing
 const fakeProduct = {
@@ -69,14 +68,16 @@ export default async function ProductPage({ params }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+                  <BreadcrumbLink asChild>
+                    <Link href="/">الرئيسية</Link>
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink
-                    href={`/categories/${displayProduct.category.name}`}
-                  >
-                    {displayProduct.category.name}
+                  <BreadcrumbLink asChild>
+                    <Link href={`/categories/${displayProduct.category.name}`}>
+                      {displayProduct.category.name}
+                    </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
