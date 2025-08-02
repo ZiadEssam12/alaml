@@ -17,11 +17,7 @@ const fakeProduct = {
   slug: "notebook",
   description: "دفتر ملاحظات عالي الجودة مناسب للمدرسة والعمل.",
   price: 45,
-  imageUrls: [
-    "/images/notebook-main.jpg",
-    "/images/notebook-side.jpg",
-    "/images/notebook-back.jpg",
-  ],
+  imageUrls: ["/notebooks1.jpg", "/notebooks2.jpg", "/notebooks3.webp"],
   stockQuantity: 12,
   maxQuantityPerUser: 5,
   category: { name: "قرطاسية" },
@@ -43,13 +39,14 @@ export default async function ProductPage({ params }) {
     <div className="container mx-auto px-4 py-8 min-h-screen" dir="rtl">
       <div className="flex flex-col md:flex-row gap-8 w-full">
         <div className="flex flex-col items-center justify-center md:w-1/2 w-full">
-          <Image
-            src={displayProduct.imageUrls[0]}
-            alt={displayProduct.name}
-            width={500}
-            height={500}
-            className="rounded-lg object-cover w-full h-auto max-h-[400px]"
-          />
+          <div className="relative w-full h-[400px] max-h-[400px]">
+            <Image
+              src={displayProduct.imageUrls[0]}
+              alt={displayProduct.name}
+              fill
+              className="rounded-lg object-cover"
+            />
+          </div>
           <div className="flex gap-2 mt-4">
             {displayProduct.imageUrls.slice(1).map((img, i) => (
               <Image
