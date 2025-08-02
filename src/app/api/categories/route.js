@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import slugify from "slugify";
 
 export async function GET() {
   try {
@@ -37,6 +38,10 @@ export async function POST(request) {
       );
     }
 
+    if (!data.status) {
+      data.status = "active";
+    }
+
     const existingCategory = await prisma.category.findFirst({
       where: {
         OR: [{ name: name }, { seoTitle: seoTitle }],
@@ -49,6 +54,14 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    data.seoTitle = slugify(name, {
+      decamelize: function (text) {
+        return text;
+      },
+      // Keep all characters including Arabic and special symbols
+      locale: "ar",
+    });
 
     const newCategory = await prisma.category.create({
       data: data,

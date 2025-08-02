@@ -1,25 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  BookOpen,
-  Pencil,
-  Scissors,
-  Calculator,
-  PaintBucket,
-  Ruler,
-  Paperclip,
-  FileText,
-  Briefcase,
-  Palette,
-  ChevronDown,
-} from "lucide-react";
-import { categories } from "./Home/Categories";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import DynamicIcons from "./DynamicIcons";
 
 export default function CategoriesPopUp() {
   const [open, setOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
   const pathName = usePathname();
+
+  useEffect(() => {
+    const getCategories = async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
+      const categoriesList = await res.json();
+      console.log("list : ", categoriesList);
+      setCategories(categoriesList.data);
+    };
+
+    getCategories();
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -31,9 +31,7 @@ export default function CategoriesPopUp() {
     <>
       {/* Overlay */}
       {open && (
-        <div
-          className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 -z-[1] p-0 m-0"
-        ></div>
+        <div className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 -z-[1] p-0 m-0"></div>
       )}
 
       <div
@@ -59,16 +57,15 @@ export default function CategoriesPopUp() {
 
         {/* Dropdown */}
         {open && (
-          <div className="absolute right-0 h-[300px] overflow-auto py-2 mt-4 z-30 bg-background rounded shadow-lg min-w-[180px]">
+          <div className="absolute right-0 h-fit max-h-[300px] overflow-auto py-2 mt-4 z-30 bg-background rounded shadow-lg min-w-[180px]">
             {categories.map((category) => {
-              const IconComponent = category.icon;
               return (
                 <Link
                   key={category.id}
-                  href={category.href}
+                  href={category.seoTitle}
                   className="flex items-center gap-2 p-2 text-sm text-muted-foreground hover:bg-muted"
                 >
-                  <IconComponent className="h-4 w-4" />
+                  <DynamicIcons icon={category.icon} />
                   {category.name}
                 </Link>
               );
