@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button } from "../ui/button";
-import toast from "react-hot-toast";
 import { Badge } from "../ui/badge";
+import { cartContext } from "@/Context/Cart";
 
 export default function ProductInfo({ product }) {
+  const { addToCart, isInCart } = useContext(cartContext);
+  const isIteminCart = isInCart(product.id);
   const handleAddToCart = (e) => {
     e.preventDefault();
-    console.log(product.title);
-    console.log(quantityNumber);
-    toast.success(`تم إضافة ${product.name} إلى السلة!`);
+    addToCart(product, quantityNumber);
+    setQuantityNumber(1);
   };
   const [quantityNumber, setQuantityNumber] = useState(1);
 
@@ -67,7 +68,9 @@ export default function ProductInfo({ product }) {
               </button>
             </div>
           </div>
-          <Button onClick={handleAddToCart}>أضف إلى السلة</Button>
+          <Button disabled={isIteminCart} onClick={handleAddToCart}>
+            {isIteminCart ? "في السلة" : "أضف إلى السلة"}
+          </Button>
         </div>
       </div>
     </div>

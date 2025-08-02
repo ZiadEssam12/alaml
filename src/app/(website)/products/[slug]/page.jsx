@@ -20,6 +20,7 @@ import {
 
 // Fake product data for testing
 const fakeProduct = {
+  id: 1,
   name: "دفتر ملاحظات",
   slug: "notebook",
   description: "دفتر ملاحظات عالي الجودة مناسب للمدرسة والعمل.",
