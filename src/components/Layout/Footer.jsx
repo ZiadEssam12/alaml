@@ -32,6 +32,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"
+                  aria-label="Facebook"
                 >
                   <Facebook className="h-5 w-5" />
                 </a>
@@ -42,6 +43,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary"
+                  aria-label="Instagram"
                 >
                   <Instagram className="h-5 w-5" />
                 </a>
@@ -88,6 +90,7 @@ export default function Footer() {
                 <Link
                   href="/contact"
                   className="text-muted-foreground hover:text-primary"
+                  aria-label="Contact Us"
                 >
                   اتصل بنا
                 </Link>
@@ -96,6 +99,7 @@ export default function Footer() {
                 <Link
                   href="/shipping"
                   className="text-muted-foreground hover:text-primary"
+                  aria-label="Shipping Information"
                 >
                   الشحن والتوصيل
                 </Link>
@@ -104,6 +108,7 @@ export default function Footer() {
                 <Link
                   href="/returns"
                   className="text-muted-foreground hover:text-primary"
+                  aria-label="Returns and Exchanges"
                 >
                   الإرجاع والاستبدال
                 </Link>
@@ -112,6 +117,7 @@ export default function Footer() {
                 <Link
                   href="/privacy"
                   className="text-muted-foreground hover:text-primary"
+                  aria-label="Privacy Policy"
                 >
                   سياسة الخصوصية
                 </Link>
