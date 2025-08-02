@@ -6,11 +6,14 @@ import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
+import { useContext } from "react";
+import { cartContext } from "@/Context/Cart";
 
 export default function ProductCard() {
+  const { addToCart, isInCart } = useContext(cartContext);
   // Dummy product
   const product = {
-    id: "1",
+    id: 1,
     name: "Dummy Product",
     price: 100,
     imageUrls: ["/placeholder.svg?height=300&width=300"],
@@ -18,22 +21,10 @@ export default function ProductCard() {
     averageRating: 4,
     totalSales: 100,
   };
+  const isItemInCart = isInCart(product.id);
 
   const handleAddToCart = () => {
-    if (product.stockQuantity <= 0) {
-      toast.error("المنتج غير متوفر حالياً");
-      return;
-    }
-
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrls[0] || "/placeholder.svg?height=300&width=300",
-      maxQuantity: product.stockQuantity,
-    });
-
-    toast.success("تم إضافة المنتج إلى السلة");
+    addToCart(product, 1);
   };
 
   const isOutOfStock = product.stockQuantity <= 0;
@@ -103,12 +94,12 @@ export default function ProductCard() {
         {/* Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
+          disabled={isItemInCart}
           className="w-full"
-          variant={isOutOfStock ? "secondary" : "default"}
+          variant={isItemInCart ? "secondary" : "default"}
         >
           <ShoppingCart className="h-4 w-4 ml-2" />
-          {isOutOfStock ? "غير متوفر" : "أضف للسلة"}
+          {isItemInCart ? "في السلة" : "أضف للسلة"}
         </Button>
       </div>
     </div>

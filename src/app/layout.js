@@ -6,6 +6,8 @@ import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "@/Context/Cart";
+import { LoadingProvider } from "@/Context/LoadinContext";
+import Loading from "@/components/Loading";
 
 // Configure Cairo font
 const cairo = Cairo({
@@ -31,14 +33,17 @@ export default function RootLayout({ children }) {
           enableSystem
           disableTransitionOnChange
         >
-          <CartProvider>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
-            <Toaster position="bottom-right" />
-          </CartProvider>
+          <LoadingProvider>
+            <CartProvider>
+              <div className="min-h-screen flex flex-col">
+                <Navbar />
+                <main className="container">{children}</main>
+                <Footer />
+              </div>
+              <Toaster position="bottom-right" />
+              <Loading />
+            </CartProvider>
+          </LoadingProvider>
         </ThemeProvider>
       </body>
     </html>
