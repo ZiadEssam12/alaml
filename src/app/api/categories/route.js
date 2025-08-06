@@ -59,7 +59,6 @@ export async function POST(request) {
       decamelize: function (text) {
         return text;
       },
-      // Keep all characters including Arabic and special symbols
       locale: "ar",
     });
 
@@ -77,87 +76,6 @@ export async function POST(request) {
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to create category" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request) {
-  try {
-    const data = await request.json();
-    const { id } = data;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Category ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: id },
-    });
-
-    if (!existingCategory) {
-      return NextResponse.json(
-        { error: "Category not found" },
-        { status: 404 }
-      );
-    }
-
-    const updatedCategory = await prisma.category.update({
-      where: { id: id },
-      data: data,
-    });
-
-    return NextResponse.json(
-      {
-        data: updatedCategory,
-        message: "Category updated successfully",
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update category" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request) {
-  try {
-    const { id } = await request.json();
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Category ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: id },
-    });
-
-    if (!existingCategory) {
-      return NextResponse.json(
-        { error: "Category not found" },
-        { status: 404 }
-      );
-    }
-
-    await prisma.category.delete({
-      where: { id: id },
-    });
-
-    return NextResponse.json(
-      { message: "Category deleted successfully" },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete category" },
       { status: 500 }
     );
   }
