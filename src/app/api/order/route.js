@@ -47,13 +47,24 @@ export async function POST(request) {
       shippingCity,
       shippingZipCode,
       items,
-      subtotal,
-      shippingCost,
       discount,
       finalAmount,
       paymentMethod,
       notes,
     } = body;
+
+    const shippingCost = 30;
+
+    // Calculate item totals and subtotal
+    const itemsWithTotal = items.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      quantity: item.quantity,
+      price: item.price,
+      total: item.price * item.quantity,
+    }));
+    
+    const subtotal = itemsWithTotal.reduce((sum, item) => sum + item.total, 0);
 
     const order = await prisma.order.create({
       data: {
@@ -70,13 +81,7 @@ export async function POST(request) {
         paymentMethod,
         notes,
         items: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            productName: item.productName,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total,
-          })),
+          create: itemsWithTotal,
         },
       },
       include: { items: true },

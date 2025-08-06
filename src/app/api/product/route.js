@@ -7,10 +7,32 @@ export async function GET(request) {
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
 
-    const totalProducts = await prisma.product.count();
+    // Filters
+    const categoryID = searchParams.get("categoryID") || undefined;
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    const inStock = searchParams.get("inStock") === "true";
+
+    // Build Prisma where filter
+    const where = {};
+    if (categoryID) {
+      where.categoryID = categoryID;
+    }
+    if (minPrice) {
+      where.price = { ...(where.price || {}), gte: Number(minPrice) };
+    }
+    if (maxPrice) {
+      where.price = { ...(where.price || {}), lte: Number(maxPrice) };
+    }
+    if (inStock) {
+      where.stockQuantity = { gt: 0 };
+    }
+
+    const totalProducts = await prisma.product.count({ where });
     const maxPage = Math.ceil(totalProducts / limit);
 
     const products = await prisma.product.findMany({
+      where,
       skip: (page - 1) * limit,
       take: limit,
     });
