@@ -9,82 +9,10 @@ import {
 import Link from "next/link";
 import DynamicIcons from "../DynamicIcons";
 
-// // Categories data
-// export const categories = [
-//   {
-//     id: 1,
-//     name: "الكتب والدفاتر",
-//     icon: BookOpen,
-//     href: "/categories/books-notebooks",
-//     color: "text-blue-600",
-//   },
-//   {
-//     id: 2,
-//     name: "أقلام الرصاص والحبر",
-//     icon: Pencil,
-//     href: "/categories/pens-pencils",
-//     color: "text-green-600",
-//   },
-//   {
-//     id: 3,
-//     name: "أدوات القص واللصق",
-//     icon: Scissors,
-//     href: "/categories/cutting-gluing",
-//     color: "text-red-600",
-//   },
-//   {
-//     id: 4,
-//     name: "الآلات الحاسبة",
-//     icon: Calculator,
-//     href: "/categories/calculators",
-//     color: "text-purple-600",
-//   },
-//   {
-//     id: 5,
-//     name: "ألوان ومواد الرسم",
-//     icon: PaintBucket,
-//     href: "/categories/art-supplies",
-//     color: "text-orange-600",
-//   },
-//   {
-//     id: 6,
-//     name: "أدوات القياس",
-//     icon: Ruler,
-//     href: "/categories/measuring-tools",
-//     color: "text-teal-600",
-//   },
-//   {
-//     id: 7,
-//     name: "مشابك وحافظات",
-//     icon: Paperclip,
-//     href: "/categories/clips-holders",
-//     color: "text-indigo-600",
-//   },
-//   {
-//     id: 8,
-//     name: "أوراق ومطبوعات",
-//     icon: FileText,
-//     href: "/categories/papers-prints",
-//     color: "text-yellow-600",
-//   },
-//   {
-//     id: 9,
-//     name: "حقائب مدرسية",
-//     icon: Briefcase,
-//     href: "/categories/school-bags",
-//     color: "text-pink-600",
-//   },
-//   {
-//     id: 10,
-//     name: "مستلزمات فنية",
-//     icon: Palette,
-//     href: "/categories/art-materials",
-//     color: "text-cyan-600",
-//   },
-// ];
-
 export default async function Categories() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`, {
+    cache: "no-store",
+  });
   let categoriesList = await res.json();
   categoriesList = categoriesList.data;
 
