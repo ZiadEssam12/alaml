@@ -7,10 +7,6 @@ export default function page() {
   const cartItems = [];
   const total = 250;
 
-  //   if (!cartItems.length) {
-  //     redirect("/cart");
-  //   }
-
   return (
     <div className="py-8">
       <h1 className="text-2xl font-bold mb-8">إتمام الطلب</h1>

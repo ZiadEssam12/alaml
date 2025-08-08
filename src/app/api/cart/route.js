@@ -38,32 +38,69 @@ export async function GET(request) {
 // POST: Create a new cart
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const { userId, items } = body;
+    const userId = request.headers.get("userid");
 
-    const cart = await prisma.cart.create({
-      data: {
-        userId,
-        items: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            name: item.name,
-            price: item.price,
-            imageUrl: item.imageUrl,
-            quantity: item.quantity,
-          })),
-        },
-      },
+    const body = await request.json();
+    const { item } = body;
+    if (!userId || !item) {
+      return NextResponse.json(
+        { error: "User id and item are required" },
+        { status: 400 }
+      );
+    }
+    // Find or create cart for user
+    let cart = await prisma.cart.findFirst({
+      where: { userId },
       include: { items: true },
     });
+    if (!cart) {
+      cart = await prisma.cart.create({
+        data: { userId },
+        include: { items: true },
+      });
+    }
+    // Check if item already exists in cart
+    const existingItem = await prisma.cartItem.findFirst({
+      where: { cartId: cart.id, productId: item.productId },
+    });
+    if (existingItem) {
+      return NextResponse.json(
+        { error: "Item already exists in cart" },
+        { status: 409 }
+      );
+    }
+    // Add item to cart
+    const product = await prisma.product.findUnique({
+      where: { id: item.productId },
+      select: { name: true, price: true, images: true },
+    });
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+    
+    const cartItem = await prisma.cartItem.create({
+      data: {
+        cartId: cart.id,
+        productId: item.productId,
+        name: product.name,
+        price: product.price,
+        quantity: item.quantity,
+        imageUrl: product.images?.[0] || null,
+      },
+    });
 
+    // Fetch updated cart
+    const updatedCart = await prisma.cart.findUnique({
+      where: { id: cart.id },
+      include: { items: true },
+    });
     return NextResponse.json(
-      { data: cart, message: "Cart created successfully" },
+      { data: updatedCart, message: "Item added to cart" },
       { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to create cart" },
+      { error: "Failed to add item to cart" },
       { status: 500 }
     );
   }

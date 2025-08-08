@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Cairo } from "next/font/google";
-
+import { cookies } from "next/headers";
 import { ThemeProvider } from "../../Contexts/Theme";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
@@ -22,11 +22,12 @@ export const metadata = {
   description: "متجر القرطاسية الإلكتروني",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head />
       <body className={`${cairo.variable} font-cairo no-scroll`}>
+        {/* You can provide userInfo via context/provider here if needed */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

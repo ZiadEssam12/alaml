@@ -5,22 +5,28 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     const body = await request.json();
+    console.log("body :", body);
     const { name, email, role } = body;
-    if (!name || !email) {
-      return NextResponse.json(
-        { error: "Name and email are required" },
-        { status: 400 }
-      );
+    if (!name) {
+      return NextResponse.json({ error: "Name are required" }, { status: 400 });
     }
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        role: role || "user",
+        role: "user",
       },
     });
     return NextResponse.json(
-      { data: user, message: "User created successfully" },
+      {
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        message: "User created successfully",
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -30,8 +36,9 @@ export async function POST(request) {
         { status: 409 }
       );
     }
+    console.log("error:", error.message);
     return NextResponse.json(
-      { error: "Failed to create user" },
+      { error: "Failed to create user", message: error.message },
       { status: 500 }
     );
   }

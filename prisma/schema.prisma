@@ -13,6 +13,7 @@ model Category {
   id               String         @id @default(uuid())
   name             String         @unique
   icon             String
+  color            String         
   parentCategoryID String?
   parentCategory   Category?      @relation("ParentChild", fields: [parentCategoryID], references: [id])
   children         Category[]     @relation("ParentChild")
@@ -85,7 +86,7 @@ model Review {
 model User {
   id    String @id @default(uuid())
   name  String
-  email String @unique
+  email String? 
   role  UserRole @default(user)
 }
 
