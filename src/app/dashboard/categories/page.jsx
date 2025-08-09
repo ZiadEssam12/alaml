@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Folder, FolderOpen } from "lucide-react";
 import toast from "react-hot-toast";
 import DynamicIcons from "@/components/DynamicIcons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CategoriesManagement() {
   const [categories, setCategories] = useState([]);
@@ -145,7 +146,51 @@ export default function CategoriesManagement() {
   };
 
   if (loading) {
-    return <div>جاري التحميل...</div>;
+    return (
+      <div className="space-y-4">
+        {/* Header Skeletons */}
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2 rounded-md" />
+            <Skeleton className="h-4 w-64 rounded-md" />
+          </div>
+          <Skeleton className="h-10 w-36 rounded-lg" />
+        </div>
+
+        {/* Category Card Skeletons (Mimics the layout of an actual category card) */}
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Card
+            key={index}
+            className="rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Skeleton className="h-8 w-8 rounded-full" />{" "}
+                  {/* Icon skeleton */}
+                  <div>
+                    <Skeleton className="h-6 w-32 mb-1 rounded-md" />{" "}
+                    {/* Title skeleton */}
+                    <div className="flex items-center space-x-2">
+                      <Skeleton className="h-5 w-20 rounded-full" />{" "}
+                      {/* Badge skeleton */}
+                      <Skeleton className="h-4 w-24 rounded-md" />{" "}
+                      {/* Order text skeleton */}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Skeleton className="h-8 w-8 rounded-lg" />{" "}
+                  {/* Edit button skeleton */}
+                  <Skeleton className="h-8 w-8 rounded-lg" />{" "}
+                  {/* Delete button skeleton */}
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
+    );
   }
 
   return (
