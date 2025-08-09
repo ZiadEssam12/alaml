@@ -91,7 +91,7 @@ export default function OrderSuccessPage() {
 
           <Card className="mb-8">
             <CardContent className="p-6">
-              <div className="flex items-center justify-center space-x-2 space-x-reverse mb-4">
+              <div className="flex items-center justify-center space-x-2  mb-4">
                 <Phone className="h-5 w-5 text-primary" />
                 <h3 className="font-semibold">سنتواصل معك قريباً</h3>
               </div>

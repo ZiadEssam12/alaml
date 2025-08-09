@@ -13,7 +13,7 @@ export default function ProductCard() {
   const { addToCart, isInCart } = useContext(cartContext);
   // Dummy product
   const product = {
-    id: 1,
+    id: "1",
     name: "Dummy Product",
     price: 100,
     imageUrls: ["/placeholder.svg?height=300&width=300"],

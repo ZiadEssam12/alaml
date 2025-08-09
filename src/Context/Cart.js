@@ -134,7 +134,6 @@ export const CartProvider = ({ children }) => {
       .catch(() => {
         toast.error("حدث خطأ أثناء إفراغ السلة!");
       });
-    // ...existing code...
   };
 
   const totalItemInCart = cart.length;
@@ -179,6 +178,7 @@ export const CartProvider = ({ children }) => {
         total,
         isInCart,
         addToCart,
+        updateCartItem,
         removeCartItem,
         totalItemInCart,
         emptyCart,

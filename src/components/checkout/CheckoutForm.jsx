@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getCookie } from "@/lib/getCookies";
 
 export function CheckoutForm({ items, total }) {
   const router = useRouter();
@@ -98,31 +99,37 @@ export function CheckoutForm({ items, total }) {
     setLoading(true);
 
     try {
+      // Prepare only required customer info for backend
       const orderData = {
-        customerInfo: formData,
-        items: items.map((item) => ({
-          productId: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          total: item.price * item.quantity,
-        })),
-        subtotal: total,
-        shippingCost,
-        finalTotal,
+        customerName: formData.customerName,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        shippingStreet: formData.address,
+        shippingCity: formData.city,
+        shippingZipCode: "", // Add if needed
         paymentMethod: formData.paymentMethod,
-        createdAt: new Date(),
+        notes: formData.notes,
       };
 
-      // TODO: Send orderData to your backend or handle as needed
-      console.log("order data:", orderData);
-      const orderRef = {
-        id: "asdsad6asd5",
-      };
-
+      const res = await fetch("/api/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          userid: getCookie("userid"),
+        },
+        body: JSON.stringify(orderData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(
+          data.error || "حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى"
+        );
+        setLoading(false);
+        return;
+      }
       toast.success("تم إرسال طلبك بنجاح! سنتواصل معك قريباً");
       clearCart();
-      router.push(`/order-success?orderId=${orderRef.id}`);
+      router.push(`/order-success?orderId=${data.data.id}`);
     } catch (error) {
       console.error("Error creating order:", error);
       toast.error("حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى");
@@ -262,7 +269,7 @@ export function CheckoutForm({ items, total }) {
           <CardTitle>طريقة الدفع</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-2 space-x-reverse">
+          <div className="flex items-center space-x-2 ">
             <Label htmlFor="cash">الدفع عند الاستلام فقط</Label>
           </div>
         </CardContent>

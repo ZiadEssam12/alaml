@@ -35,10 +35,10 @@ export async function GET(request) {
   }
 }
 
-// POST: Create a new cart
 export async function POST(request) {
   try {
     const userId = request.headers.get("userid");
+    console.log("userid :", userId);
 
     const body = await request.json();
     const { item } = body;
@@ -61,7 +61,7 @@ export async function POST(request) {
     }
     // Check if item already exists in cart
     const existingItem = await prisma.cartItem.findFirst({
-      where: { cartId: cart.id, productId: item.productId },
+      where: { cartId: cart.id, productId: String(item.productId) },
     });
     if (existingItem) {
       return NextResponse.json(
@@ -72,12 +72,15 @@ export async function POST(request) {
     // Add item to cart
     const product = await prisma.product.findUnique({
       where: { id: item.productId },
-      select: { name: true, price: true, images: true },
+      select: { name: true, price: true, imageUrls: true },
     });
     if (!product) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "المنتج غير موجود في قاعدة البيانات" },
+        { status: 404 }
+      );
     }
-    
+
     const cartItem = await prisma.cartItem.create({
       data: {
         cartId: cart.id,

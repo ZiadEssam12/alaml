@@ -130,21 +130,21 @@ export default function Footer() {
             <h3 className="font-bold text-lg mb-4">معلومات التواصل</h3>
             <div className="space-y-3">
               {settings?.contactPhone && (
-                <div className="flex items-center space-x-3 space-x-reverse">
+                <div className="flex items-center space-x-3 ">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">
                     {settings.contactPhone}
                   </span>
                 </div>
               )}
-              <div className="flex items-center space-x-3 space-x-reverse">
+              <div className="flex items-center space-x-3 ">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
                   info@maktabat-alamal.com
                 </span>
               </div>
               {settings?.address && (
-                <div className="flex items-center space-x-3 space-x-reverse">
+                <div className="flex items-center space-x-3 ">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">
                     {settings.address}

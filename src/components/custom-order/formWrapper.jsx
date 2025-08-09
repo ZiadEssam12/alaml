@@ -8,7 +8,7 @@ export function CustomOrderFormSkeleton() {
     <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2 space-x-reverse">
+          <CardTitle className="flex items-center space-x-2 ">
             <Skeleton className="h-5 w-5" />
             <Skeleton className="h-6 w-40" />
           </CardTitle>

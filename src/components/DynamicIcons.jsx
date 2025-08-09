@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
 
-export default function DynamicIcons({ icon }) {
+export default function DynamicIcons({ icon, color, size = 24 }) {
   const handleJStext = (text) => {
     let newText = text.split("-");
     newText = newText.map(
@@ -29,12 +29,12 @@ export default function DynamicIcons({ icon }) {
     }, [icon]);
 
     if (!Icon) return <Skeleton className="h-6 w-6" />;
-    return <Icon {...props} />;
+    return <Icon {...props} color={color} />;
   };
 
   return (
     <div className="flex items-center gap-2">
-      <LucideIcon iconName={icon} size={24} />
+      <LucideIcon iconName={icon} color={color} size={size} />
     </div>
   );
 }
