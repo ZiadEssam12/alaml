@@ -14,9 +14,6 @@ model Category {
   name             String         @unique
   icon             String
   color            String         
-  parentCategoryID String?
-  parentCategory   Category?      @relation("ParentChild", fields: [parentCategoryID], references: [id])
-  children         Category[]     @relation("ParentChild")
   status           CategoryStatus
   seoTitle         String         @unique
   seoDescription   String

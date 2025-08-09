@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Skeleton } from "./ui/skeleton";
+import toast from "react-hot-toast";
 
 export default function DynamicIcons({ icon, color, size = 24 }) {
   const handleJStext = (text) => {
@@ -18,10 +19,13 @@ export default function DynamicIcons({ icon, color, size = 24 }) {
 
     useEffect(() => {
       let isMounted = true;
-
-      import("lucide-react").then((mod) => {
-        if (isMounted && mod[icon]) setIcon(() => mod[icon]);
-      });
+      try {
+        import("lucide-react").then((mod) => {
+          if (isMounted && mod[icon]) setIcon(() => mod[icon]);
+        });
+      } catch (error) {
+        toast.error("خطأ في تحميل الايقونة");
+      }
 
       return () => {
         isMounted = false;

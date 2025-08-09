@@ -14,13 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Folder, FolderOpen } from "lucide-react";
 import toast from "react-hot-toast";
@@ -35,11 +29,9 @@ export default function CategoriesManagement() {
     name: "",
     icon: "",
     color: "#cccccc",
-    parentCategoryID: "",
     status: "active",
     seoTitle: "",
     seoDescription: "",
-    order: 0,
   });
   const [uploading, setUploading] = useState(false);
 
@@ -51,10 +43,11 @@ export default function CategoriesManagement() {
     try {
       const res = await fetch("/api/categories");
       let categoriesData = await res.json();
-      if (!Array.isArray(categoriesData)) {
+      console.log("data:", categoriesData);
+      if (!Array.isArray(categoriesData.data)) {
         categoriesData = [];
       }
-      setCategories(categoriesData);
+      setCategories(categoriesData.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast.error("خطأ في جلب الأقسام");
@@ -70,8 +63,6 @@ export default function CategoriesManagement() {
     try {
       const categoryData = {
         ...formData,
-        parentCategoryID: formData.parentCategoryID || null,
-        updatedAt: new Date(),
       };
 
       let res;
@@ -110,11 +101,9 @@ export default function CategoriesManagement() {
       name: category.name,
       icon: category.icon,
       color: category.color,
-      parentCategoryID: category.parentCategoryID || "",
       status: category.status,
       seoTitle: category.seoTitle,
       seoDescription: category.seoDescription,
-      order: category.order,
     });
     setDialogOpen(true);
   };
@@ -143,21 +132,11 @@ export default function CategoriesManagement() {
       name: "",
       icon: "",
       color: "#cccccc",
-      parentCategoryID: "",
       status: "active",
       seoTitle: "",
       seoDescription: "",
-      order: 0,
     });
     setEditingCategory(null);
-  };
-
-  const getParentCategories = () => {
-    return categories.filter((cat) => !cat.parentCategoryID);
-  };
-
-  const getSubCategories = (parentId) => {
-    return categories.filter((cat) => cat.parentCategoryID === parentId);
   };
 
   const getCategoryName = (categoryId) => {
@@ -192,55 +171,16 @@ export default function CategoriesManagement() {
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">اسم القسم</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="order">ترتيب العرض</Label>
-                  <Input
-                    id="order"
-                    type="number"
-                    value={formData.order}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        order: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="parentCategory">القسم الأب (اختياري)</Label>
-                <Select
-                  value={formData.parentCategoryID}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, parentCategoryID: value })
+                <Label htmlFor="name">اسم القسم</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
                   }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر القسم الأب" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">بدون قسم أب</SelectItem>
-                    {getParentCategories().map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  required
+                />
               </div>
 
               <div className="space-y-2">
@@ -266,7 +206,7 @@ export default function CategoriesManagement() {
                 />
               </div>
 
-              <div className="flex justify-start items-center gap-3 my-2">
+              <div className="flex justify-start items-center gap-3">
                 <p>عرض الأيقونة</p>
 
                 <div>
@@ -360,7 +300,7 @@ export default function CategoriesManagement() {
 
       {/* Categories Tree View */}
       <div className="space-y-4">
-        {getParentCategories().map((parentCategory) => (
+        {categories.map((parentCategory) => (
           <Card key={parentCategory.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -368,7 +308,7 @@ export default function CategoriesManagement() {
                   {/* Render category icon dynamically if possible, fallback to FolderOpen */}
                   <span style={{ color: parentCategory.color }}>
                     {parentCategory.icon ? (
-                      parentCategory.icon
+                      <DynamicIcons icon={parentCategory.icon} size={32} />
                     ) : (
                       <FolderOpen className="h-5 w-5" />
                     )}
@@ -388,7 +328,7 @@ export default function CategoriesManagement() {
                         {parentCategory.status === "active" ? "نشط" : "غير نشط"}
                       </Badge>
                       <span className="text-sm text-muted-foreground">
-                        ترتيب: {parentCategory.order}
+                        {/* ترتيب: {parentCategory.order} */}
                       </span>
                     </div>
                   </div>
@@ -411,68 +351,6 @@ export default function CategoriesManagement() {
                 </div>
               </div>
             </CardHeader>
-
-            {/* Sub Categories */}
-            {getSubCategories(parentCategory.id).length > 0 && (
-              <CardContent>
-                <div className="space-y-2 mr-6">
-                  {getSubCategories(parentCategory.id).map((subCategory) => (
-                    <div
-                      key={subCategory.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3 ">
-                        <span style={{ color: subCategory.color }}>
-                          {subCategory.icon ? (
-                            subCategory.icon
-                          ) : (
-                            <Folder className="h-4 w-4" />
-                          )}
-                        </span>
-                        <div>
-                          <span className="font-medium">
-                            {subCategory.name}
-                          </span>
-                          <div className="flex items-center space-x-2  mt-1">
-                            <Badge
-                              variant={
-                                subCategory.status === "active"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="text-xs"
-                            >
-                              {subCategory.status === "active"
-                                ? "نشط"
-                                : "غير نشط"}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              ترتيب: {subCategory.order}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex space-x-2 ">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(subCategory)}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(subCategory.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            )}
           </Card>
         ))}
       </div>
