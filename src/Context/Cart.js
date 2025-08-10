@@ -1,19 +1,21 @@
 "use client";
 
 import { getCookie, setCookie } from "@/lib/getCookies";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { loadingContext } from "./LoadinContext";
 
 export const cartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const { loading, setLoading } = useContext(loadingContext);
 
   useEffect(() => {
     let userId = getCookie("userid");
 
     const createAnonymousUser = async () => {
-      const res = await fetch("/api/user", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: "anonymous", role: "user", email: null }),
@@ -28,16 +30,19 @@ export const CartProvider = ({ children }) => {
       }
       if (!userId) return;
       // Fetch cart from API
-      fetch(`/api/cart/`, {
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user/`, {
         method: "GET",
         headers: { "Content-Type": "application/json", userid: userId },
       })
         .then((res) => res.json())
         .then((data) => {
-          setCart(data.data || []);
+          setCart(data.data.items || []);
         })
         .catch(() => {
           setCart([]);
+        })
+        .finally(() => {
+          setLoading(false);
         });
     })();
   }, []);
@@ -45,7 +50,7 @@ export const CartProvider = ({ children }) => {
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const isInCart = (id) => {
-    return cart.some((item) => item.id === id);
+    return cart.some((item) => item.productId === id);
   };
 
   const addToCart = (product, quantity) => {

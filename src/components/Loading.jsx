@@ -6,7 +6,6 @@ import React, { useContext, useEffect } from "react";
 
 export default function Loading() {
   const { loading, setLoading } = useContext(loadingContext);
-  const { cart } = useContext(cartContext);
 
   useEffect(() => {
     if (!loading) {
@@ -17,12 +16,6 @@ export default function Loading() {
       document.body.classList.remove("no-scroll");
     };
   }, [loading]);
-
-  useEffect(() => {
-    if (cart) {
-      setLoading(false);
-    }
-  }, [cart, loading]);
 
   if (!loading) {
     return null;

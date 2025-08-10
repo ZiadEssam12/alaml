@@ -6,8 +6,7 @@ import { Badge } from "../ui/badge";
 
 export default function CartItemsCount() {
   const { totalItemInCart } = useContext(cartContext);
-  console.log("number :" , totalItemInCart)
-  
+
   return (
     <Badge
       variant="destructive"

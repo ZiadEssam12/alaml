@@ -17,6 +17,7 @@ export default function ProductInfo({ product }) {
 
   const addQuantity = () => {
     if (
+      product.stockQuantity > 0 &&
       quantityNumber < product.stockQuantity &&
       quantityNumber <= product.maxQuantityPerUser
     ) {
