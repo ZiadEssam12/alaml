@@ -1,9 +1,6 @@
 import "./globals.css";
 import { Cairo } from "next/font/google";
-import { cookies } from "next/headers";
 import { ThemeProvider } from "../../Contexts/Theme";
-import Navbar from "@/components/Layout/Navbar";
-import Footer from "@/components/Layout/Footer";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "@/Context/Cart";
 import { LoadingProvider } from "@/Context/LoadinContext";

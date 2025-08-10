@@ -1,5 +1,5 @@
 import ProductCard from "@/components/ProductCard/ProductCard";
-import Hero from "../components/Home/Hero";
+import Hero from "../../components/Home/Hero";
 import {
   Carousel,
   CarouselContent,
