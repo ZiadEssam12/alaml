@@ -29,6 +29,8 @@ export async function GET(request) {
       where.stockQuantity = { gt: 0 };
     }
 
+    console.log("price :", maxPrice);
+
     const totalProducts = await prisma.product.count({ where });
     const maxPage = Math.ceil(totalProducts / limit);
 
@@ -41,8 +43,10 @@ export async function GET(request) {
     return NextResponse.json(
       {
         data: products,
-        page,
-        maxPage,
+        pagination: {
+          page,
+          maxPage,
+        },
         message: "Products fetched successfully",
       },
       { status: 200 }
