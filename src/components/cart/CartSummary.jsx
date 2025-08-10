@@ -4,8 +4,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { cartContext } from "@/Context/Cart";
+import { useContext } from "react";
 
-export function CartSummary({ itemsLength, total, showConfirmButon = true }) {
+export function CartSummary({ showConfirmButon = true }) {
+  const { total, totalItemInCart } = useContext(cartContext);
+
+  if (total === 0 || totalItemInCart === 0) {
+    return;
+  }
+
   const shippingCost = total >= 200 ? 0 : 30;
   const finalTotal = total + shippingCost;
 
@@ -46,7 +54,7 @@ export function CartSummary({ itemsLength, total, showConfirmButon = true }) {
 
         {showConfirmButon && (
           <Link href="/checkout">
-            <Button className="w-full" disabled={itemsLength === 0}>
+            <Button className="w-full" disabled={totalItemInCart === 0}>
               إتمام الطلب
             </Button>
           </Link>

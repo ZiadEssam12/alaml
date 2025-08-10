@@ -107,3 +107,44 @@ export async function POST(request) {
     );
   }
 }
+
+export async function DELETE(request) {
+  try {
+    // Getting user id from headers
+    const userId = request.headers.get("userid");
+    if (!userId) {
+      return NextResponse.json(
+        { error: "معرف المستخدم مطلوب" },
+        { status: 400 }
+      );
+    }
+
+    const cart = await prisma.cart.findFirst({
+      where: { userId },
+      include: { items: true },
+    });
+    if (!cart) {
+      return NextResponse.json({ error: "السلة غير موجودة" }, { status: 404 });
+    }
+
+    // Remove all items from the cart
+    await prisma.cartItem.deleteMany({
+      where: { cartId: cart.id },
+    });
+
+    const updatedCart = await prisma.cart.findUnique({
+      where: { id: cart.id },
+      include: { items: true },
+    });
+
+    return NextResponse.json(
+      { data: updatedCart, message: "تمت إزالة جميع العناصر من السلة" },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: "فشل في حذف العنصر من السلة" },
+      { status: 500 }
+    );
+  }
+}

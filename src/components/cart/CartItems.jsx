@@ -1,32 +1,61 @@
 "use client";
 
 import Image from "next/image";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cartContext } from "@/Context/Cart";
+import { useState, useContext } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import Link from "next/link";
 
-export function CartItems({ items }) {
-  //   const { items, updateQuantity, removeItem } = useCart();
-
-  const updateQuantity = (id, quantity) => {
-    console.log("Id:", id);
-    console.log("quantity:", quantity);
-  };
-
-  const removeItem = (id) => {
-    console.log("Remove item with id:", id);
-  };
-
-  if (items.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">سلة التسوق فارغة</p>
-      </div>
-    );
-  }
+export function CartItems() {
+  const { cart, updateCartItem, emptyCart, removeCartItem } =
+    useContext(cartContext);
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="space-y-4">
-      {items.map((item) => (
+      {/* Button to empty cart */}
+      <div className="flex justify-end mb-4">
+        <Button variant="destructive" onClick={() => setShowModal(true)}>
+          <Trash2 className="h-4 w-4 ml-2" />
+          حذف جميع المنتجات
+        </Button>
+      </div>
+
+      {/* Modal confirmation */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تنبيه</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p>سيتم حذف جميع المنتجات من السلة. هل أنت متأكد؟</p>
+          </div>
+          <DialogFooter className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              إلغاء
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                emptyCart();
+                setShowModal(false);
+              }}
+            >
+              حذف الكل
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {cart.map((item) => (
         <div
           key={item.id}
           className="flex items-center space-x-4  p-4 border rounded-lg"
@@ -36,7 +65,7 @@ export function CartItems({ items }) {
               src={item.imageUrl || "/placeholder.svg"}
               alt={item.name}
               fill
-              className="object-cover rounded"
+              className="object-contain rounded"
             />
           </div>
 
@@ -49,7 +78,7 @@ export function CartItems({ items }) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              onClick={() => updateCartItem(item.id, item.quantity - 1)}
               disabled={item.quantity <= 1}
             >
               <Minus className="h-4 w-4" />
@@ -58,7 +87,7 @@ export function CartItems({ items }) {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              onClick={() => updateCartItem(item.id, item.quantity + 1)}
               disabled={item.quantity >= item.maxQuantity}
             >
               <Plus className="h-4 w-4" />
@@ -74,7 +103,7 @@ export function CartItems({ items }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => removeItem(item.id)}
+            onClick={() => removeCartItem(item.id)}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

@@ -1,19 +1,22 @@
 import { CartItems } from "@/components/cart/CartItems";
 import { CartSummary } from "@/components/cart/CartSummary";
+import { cookies } from "next/headers";
 import React from "react";
 
-export default function page() {
-  // Dummy cart items, replace with your actual cart data fetching logic
-  const items = [
-    { id: 1, name: "دفتر", price: 20, quantity: 2, maxQuantity: 5 },
-    { id: 2, name: "قلم", price: 5, quantity: 3, maxQuantity: 10 },
-    { id: 3, name: "محفظة", price: 100, quantity: 1, maxQuantity: 2 },
-  ];
+export default async function page() {
+  const cookieStore = cookies();
+  const userId = cookieStore.get("userid")?.value;
 
-  const cartTotal = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      userid: userId,
+    },
+  });
+
+  const { data: cartItems } = await res.json();
+  const items = cartItems.items;
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -35,10 +38,10 @@ export default function page() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <CartItems items={items} />
+              <CartItems />
             </div>
             <div className="lg:col-span-1">
-              <CartSummary itemsLength={items.length} total={cartTotal} />
+              <CartSummary />
             </div>
           </div>
         )}

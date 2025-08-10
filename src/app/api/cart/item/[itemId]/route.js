@@ -19,16 +19,21 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    await prisma.cartItem.delete({ where: { id: itemId, userId } });
+    // Get user cart ID
+    const userCart = await prisma.cart.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    await prisma.cartItem.delete({
+      where: { id: itemId, cart: { connect: { id: userCart.id } } },
+    });
     return NextResponse.json(
-      { message: "Cart item deleted successfully" },
+      { message: "تم حذف العنصر بنجاح" },
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete cart item" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "فشل حذف عنصر السلة" }, { status: 500 });
   }
 }
 
@@ -52,17 +57,24 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { quantity, ...rest } = body;
     // Update the cart item for this user
+
+    // Get user cart ID
+    const userCart = await prisma.cart.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
     const updatedItem = await prisma.cartItem.update({
-      where: { id: itemId, userId },
+      where: { id: itemId, cart: { connect: { id: userCart.id } } },
       data: { quantity, ...rest },
     });
     return NextResponse.json(
-      { data: updatedItem, message: "Cart item updated successfully" },
+      { data: updatedItem, message: "تم تحديث عنصر السلة بنجاح" },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to update cart item" },
+      { error: "فشل تحديث عنصر السلة" },
       { status: 500 }
     );
   }

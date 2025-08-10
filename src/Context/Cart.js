@@ -92,7 +92,7 @@ export const CartProvider = ({ children }) => {
       toast.error("لم يتم العثور على معرف المستخدم!");
       return;
     }
-    fetch(`/api/cart/item/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +119,7 @@ export const CartProvider = ({ children }) => {
       toast.error("لم يتم العثور على معرف المستخدم!");
       return;
     }
-    fetch(`/api/cart`, {
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
