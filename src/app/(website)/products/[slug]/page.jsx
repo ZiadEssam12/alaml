@@ -42,7 +42,7 @@ export default async function ProductPage({ params }) {
                       src={img}
                       alt={`${displayProduct.name} صورة ${i + 1}`}
                       fill
-                      className="rounded-lg object-cover"
+                      className="rounded-lg object-contain"
                       sizes="100vw"
                     />
                   </div>
