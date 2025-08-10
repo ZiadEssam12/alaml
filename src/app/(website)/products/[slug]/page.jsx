@@ -10,13 +10,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ProductInfoWrapper } from "@/components/ProductCard/AddtoCartWrapper";
 import Link from "next/link";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+
+import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 
 export default async function ProductPage({ params }) {
   const { slug } = await params;
@@ -33,37 +28,7 @@ export default async function ProductPage({ params }) {
     <div className="container mx-auto px-4 py-8 min-h-screen" dir="rtl">
       <div className="flex flex-col md:flex-row gap-8 w-full">
         <div className="flex flex-col items-center justify-center md:w-1/2 w-full">
-          <Carousel className="w-full">
-            <CarouselContent>
-              {displayProduct.imageUrls.map((img, i) => (
-                <CarouselItem key={i} className="w-full h-full">
-                  <div className="relative w-full h-[400px]">
-                    <Image
-                      src={img}
-                      alt={`${displayProduct.name} صورة ${i + 1}`}
-                      fill
-                      className="rounded-lg object-contain"
-                      sizes="100vw"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselNext />
-            <CarouselPrevious />
-          </Carousel>
-          <div className="flex gap-2 mt-4">
-            {displayProduct.imageUrls.map((img, i) => (
-              <Image
-                key={i}
-                src={img}
-                alt={`${displayProduct.name} صورة ${i + 1}`}
-                width={80}
-                height={80}
-                className="rounded border object-cover"
-              />
-            ))}
-          </div>
+          <ProductCarousel displayProduct={displayProduct} />
         </div>
         <div className="md:w-1/2 w-full">
           <div>
