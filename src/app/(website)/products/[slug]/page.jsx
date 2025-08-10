@@ -77,7 +77,9 @@ export default async function ProductPage({ params }) {
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link href={`/categories/${displayProduct.category.name}`}>
+                    <Link
+                      href={`/categories/${displayProduct.category.seoTitle}`}
+                    >
                       {displayProduct.category.name}
                     </Link>
                   </BreadcrumbLink>

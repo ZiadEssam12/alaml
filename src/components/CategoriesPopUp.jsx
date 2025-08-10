@@ -38,7 +38,9 @@ export default function CategoriesPopUp() {
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={handleClose}
       >
-        <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
+        {open && (
+          <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
+        )}
         {/* Trigger */}
         <div className="flex items-center gap-1 cursor-pointer relative z-30 selection:bg-transparent">
           <p>
@@ -61,7 +63,7 @@ export default function CategoriesPopUp() {
               return (
                 <Link
                   key={category.id}
-                  href={`categories/${category.seoTitle}`}
+                  href={`/categories/${category.seoTitle}`}
                   className="flex items-center gap-2 p-2 text-sm text-muted-foreground hover:bg-muted"
                 >
                   <DynamicIcons icon={category.icon} />
