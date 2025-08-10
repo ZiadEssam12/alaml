@@ -385,11 +385,11 @@ export default function ProductsManagement() {
                   <Trash2 className="h-4 w-4" />
                 </Button>
 
-                <Button size="sm">
-                  <Link href={`/products/${product.slug}`} target="_blank">
+                <Link href={`/products/${product.slug}`} target="_blank">
+                  <Button size="sm">
                     <Link2 className="h-4 w-4" />
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
