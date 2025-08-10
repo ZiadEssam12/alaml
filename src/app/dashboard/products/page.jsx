@@ -45,41 +45,39 @@ export default function ProductsManagement() {
   });
 
   useEffect(() => {
-    // Fetch products and categories from Next.js API
-    const fetchData = async () => {
-      try {
-        // Fetch products
-        const productsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/product`
-        );
-        const { data: productsData } = await productsRes.json();
-
-        // Fetch categories
-        const categoriesRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/categories`
-        );
-        const { data: categoriesData } = await categoriesRes.json();
-        const productsWithCategories = productsData.map((product) => ({
-          ...product,
-          categoryName:
-            categoriesData.find((cat) => cat.id === product.categoryID)?.name ||
-            "غير محدد",
-        }));
-
-        console.log("prod data:", productsWithCategories);
-        console.log("cate data : ", categoriesData);
-
-        setProducts(productsWithCategories || []);
-        setCategories(categoriesData || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("خطأ في جلب البيانات");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
+
+  // Fetch products and categories from Next.js API
+  const fetchData = async () => {
+    try {
+      // Fetch products
+      const productsRes = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/product`
+      );
+      const { data: productsData } = await productsRes.json();
+
+      // Fetch categories
+      const categoriesRes = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/categories`
+      );
+      const { data: categoriesData } = await categoriesRes.json();
+      const productsWithCategories = productsData.map((product) => ({
+        ...product,
+        categoryName:
+          categoriesData.find((cat) => cat.id === product.categoryID)?.name ||
+          "غير محدد",
+      }));
+
+      setProducts(productsWithCategories || []);
+      setCategories(categoriesData || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("خطأ في جلب البيانات");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
