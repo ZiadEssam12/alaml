@@ -38,7 +38,6 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const userId = request.headers.get("userid");
-    console.log("userid :", userId);
 
     const body = await request.json();
     const { item } = body;
@@ -83,12 +82,12 @@ export async function POST(request) {
 
     const cartItem = await prisma.cartItem.create({
       data: {
-        cartId: cart.id,
-        productId: item.productId,
+        cart: { connect: { id: cart.id } },
+        product: { connect: { id: item.productId } },
         name: product.name,
         price: product.price,
         quantity: item.quantity,
-        imageUrl: product.images?.[0] || null,
+        imageUrl: product.imageUrls?.[0] || null,
       },
     });
 

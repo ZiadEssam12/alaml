@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import slugify from "slugify";
 
 export async function GET(request) {
   try {
@@ -77,6 +78,7 @@ export async function POST(request) {
         stockQuantity,
         maxQuantityPerUser: maxQuantityPerUser ?? 5,
         categoryID,
+        slug: slugify(name, { lower: true }),
       },
     });
 

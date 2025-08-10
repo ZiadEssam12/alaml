@@ -18,30 +18,16 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-// Fake product data for testing
-const fakeProduct = {
-  id: 1,
-  name: "دفتر ملاحظات",
-  slug: "notebook",
-  description: "دفتر ملاحظات عالي الجودة مناسب للمدرسة والعمل.",
-  price: 45,
-  imageUrls: ["/notebooks1.jpg", "/notebooks2.jpg", "/notebooks3.webp"],
-  stockQuantity: 12,
-  maxQuantityPerUser: 5,
-  category: { name: "قرطاسية" },
-};
-
 export default async function ProductPage({ params }) {
   const { slug } = await params;
 
   // Fetch product by slug
-  const product = await prisma.product.findUnique({
+  const displayProduct = await prisma.product.findUnique({
     where: { slug },
     include: { category: true },
   });
 
-  // Use fake product if not found
-  const displayProduct = product || fakeProduct;
+  console.log("product :", displayProduct);
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen" dir="rtl">

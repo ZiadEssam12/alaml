@@ -1,5 +1,6 @@
 "use client";
 
+
 // خدمة معالجة الصور باستخدام Cloudinary كبديل لـ Firebase Cloud Functions
 
 class ImageService {
@@ -16,9 +17,8 @@ class ImageService {
   async uploadImage(file, folder = "products") {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "maktabat_alamal"); // يجب إنشاؤه في Cloudinary
+    formData.append("upload_preset", "maktabat_alamal");
     formData.append("folder", folder);
-
     try {
       const response = await fetch(
         `https://api.cloudinary.com/v1_1/${this.config.cloudName}/image/upload`,
@@ -63,8 +63,8 @@ class ImageService {
     };
   }
 
-  // استخراج public_id من رابط Cloudinary
   extractPublicId(url) {
+    if (!url || typeof url !== "string") return "";
     const matches = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
     return matches ? matches[1] : "";
   }

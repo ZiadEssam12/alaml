@@ -9,7 +9,6 @@ import { Upload, X, ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { imageService } from "@/lib/image-service";
 
-
 export function ImageUpload({
   onImageUploaded,
   currentImages = [],

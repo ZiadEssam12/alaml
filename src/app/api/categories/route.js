@@ -5,7 +5,6 @@ import slugify from "slugify";
 export async function GET() {
   try {
     const categories = await prisma.category.findMany();
-    console.log("Fetched categories:", categories);
     return NextResponse.json(
       {
         data: categories,

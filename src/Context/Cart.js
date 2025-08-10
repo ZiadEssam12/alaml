@@ -34,7 +34,6 @@ export const CartProvider = ({ children }) => {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log("data :", data);
           setCart(data.data || []);
         })
         .catch(() => {

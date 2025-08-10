@@ -14,7 +14,6 @@ export default function CategoriesPopUp() {
     const getCategories = async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
       const categoriesList = await res.json();
-      console.log("list : ", categoriesList);
       setCategories(categoriesList.data);
     };
 

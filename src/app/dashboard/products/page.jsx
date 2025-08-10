@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -20,12 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Package, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Package, Search, Link2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/dashbaord/product/skelaton";
-// import { ImageUpload } from "./image-upload";
-// import { imageService } from "@/lib/image-service";
-// import { toast } from "sonner";
+import { ImageUpload } from "@/components/dashbaord/imageUpload";
+import { imageService } from "@/lib/image-service";
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState([]);
@@ -45,37 +45,41 @@ export default function ProductsManagement() {
   });
 
   useEffect(() => {
+    // Fetch products and categories from Next.js API
+    const fetchData = async () => {
+      try {
+        // Fetch products
+        const productsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/product`
+        );
+        const { data: productsData } = await productsRes.json();
+
+        // Fetch categories
+        const categoriesRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/categories`
+        );
+        const { data: categoriesData } = await categoriesRes.json();
+        const productsWithCategories = productsData.map((product) => ({
+          ...product,
+          categoryName:
+            categoriesData.find((cat) => cat.id === product.categoryID)?.name ||
+            "غير محدد",
+        }));
+
+        console.log("prod data:", productsWithCategories);
+        console.log("cate data : ", categoriesData);
+
+        setProducts(productsWithCategories || []);
+        setCategories(categoriesData || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("خطأ في جلب البيانات");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchData();
   }, []);
-
-  // Fetch products and categories from Next.js API
-  const fetchData = async () => {
-    try {
-      // Fetch products
-      const productsRes = await fetch("/api/product");
-      const productsData = await productsRes.json();
-
-      // Fetch categories
-      const categoriesRes = await fetch("/api/categories");
-      const categoriesData = await categoriesRes.json();
-
-      // Attach category name to products
-      const productsWithCategories = productsData.map((product) => ({
-        ...product,
-        categoryName:
-          categoriesData.find((cat) => cat.id === product.categoryID)?.name ||
-          "غير محدد",
-      }));
-
-      setProducts(productsWithCategories);
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("خطأ في جلب البيانات");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -202,7 +206,7 @@ export default function ProductsManagement() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="name">اسم المنتج</Label>
                   <Input
                     id="name"
@@ -213,7 +217,7 @@ export default function ProductsManagement() {
                     required
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="categoryID">القسم</Label>
                   <Select
                     value={formData.categoryID}
@@ -235,7 +239,7 @@ export default function ProductsManagement() {
                 </div>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="description">الوصف</Label>
                 <Textarea
                   id="description"
@@ -249,7 +253,7 @@ export default function ProductsManagement() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="price">السعر (جنيه)</Label>
                   <Input
                     id="price"
@@ -265,7 +269,7 @@ export default function ProductsManagement() {
                     required
                   />
                 </div>
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="stockQuantity">الكمية المتوفرة</Label>
                   <Input
                     id="stockQuantity"
@@ -282,7 +286,7 @@ export default function ProductsManagement() {
                 </div>
               </div>
 
-              {/* <ImageUpload
+              <ImageUpload
                 currentImages={formData.imageUrls}
                 onImageUploaded={(imageUrl) => {
                   setFormData({
@@ -291,7 +295,7 @@ export default function ProductsManagement() {
                   });
                 }}
                 folder="products"
-              /> */}
+              />
 
               <div className="flex justify-end space-x-2 ">
                 <Button
@@ -367,7 +371,7 @@ export default function ProductsManagement() {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 ">
+              <div className="flex justify-end items-center space-x-2 ">
                 <Button
                   variant="outline"
                   size="sm"
@@ -382,6 +386,16 @@ export default function ProductsManagement() {
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
+                {/* Link to product  */}
+                <div>
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="text-blue-500"
+                    target="_blank"
+                  >
+                    <Link2 />
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>
