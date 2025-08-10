@@ -36,11 +36,7 @@ export default async function RootLayout({ children }) {
         >
           <LoadingProvider>
             <CartProvider>
-              <div className="min-h-screen flex flex-col">
-                <Navbar />
-                <main className="container my-10">{children}</main>
-                <Footer />
-              </div>
+              <div className="min-h-screen flex flex-col">{children}</div>
               <Toaster position="bottom-right" />
               <Loading />
             </CartProvider>

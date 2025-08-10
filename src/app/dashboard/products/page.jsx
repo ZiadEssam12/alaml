@@ -332,7 +332,7 @@ export default function ProductsManagement() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-2">
+                  <CardTitle className="text-lg line-clamp-1">
                     {product.name}
                   </CardTitle>
                 </div>
@@ -386,16 +386,12 @@ export default function ProductsManagement() {
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-                {/* Link to product  */}
-                <div>
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className="text-blue-500"
-                    target="_blank"
-                  >
-                    <Link2 />
+
+                <Button size="sm">
+                  <Link href={`/products/${product.slug}`} target="_blank">
+                    <Link2 className="h-4 w-4" />
                   </Link>
-                </div>
+                </Button>
               </div>
             </CardContent>
           </Card>

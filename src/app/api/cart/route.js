@@ -64,7 +64,7 @@ export async function POST(request) {
     });
     if (existingItem) {
       return NextResponse.json(
-        { error: "Item already exists in cart" },
+        { error: "العنصر موجود بالفعل في السلة" },
         { status: 409 }
       );
     }
@@ -97,12 +97,12 @@ export async function POST(request) {
       include: { items: true },
     });
     return NextResponse.json(
-      { data: updatedCart, message: "Item added to cart" },
+      { data: updatedCart, message: "تمت إضافة العنصر إلى السلة" },
       { status: 201 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to add item to cart" },
+      { error: "فشل في إضافة العنصر إلى السلة" },
       { status: 500 }
     );
   }
