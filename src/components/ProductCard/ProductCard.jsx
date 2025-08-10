@@ -5,22 +5,12 @@ import Link from "next/link";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import toast from "react-hot-toast";
 import { useContext } from "react";
 import { cartContext } from "@/Context/Cart";
 
-export default function ProductCard() {
+export default function ProductCard({ product }) {
   const { addToCart, isInCart } = useContext(cartContext);
-  // Dummy product
-  const product = {
-    id: "1",
-    name: "Dummy Product",
-    price: 100,
-    imageUrls: ["/placeholder.svg?height=300&width=300"],
-    stockQuantity: 10,
-    averageRating: 4,
-    totalSales: 100,
-  };
+
   const isItemInCart = isInCart(product.id);
 
   const handleAddToCart = () => {
@@ -33,11 +23,9 @@ export default function ProductCard() {
     <div className="group relative bg-card rounded-lg border shadow-sm hover:shadow-md transition-shadow">
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden rounded-t-lg">
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug}`}>
           <Image
-            src={
-              product.imageUrls[0] || "/placeholder.svg?height=300&width=300"
-            }
+            src={product.imageUrls[0]}
             alt={product.name}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -55,7 +43,10 @@ export default function ProductCard() {
       {/* Product Info */}
       <div className="p-4">
         <Link href={`/products/${product.id}`}>
-          <h3 className="font-semibold text-lg mb-2 hover:text-primary line-clamp-2">
+          <h3
+            className="font-semibold text-lg mb-2 hover:text-primary line-clamp-1"
+            title={product.name}
+          >
             {product.name}
           </h3>
         </Link>
