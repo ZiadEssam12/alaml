@@ -5,7 +5,9 @@ import { NextResponse } from "next/server";
 export async function GET(request) {
   try {
     const userId = request.headers.get("userid");
-    if (!userId) {
+
+    console.log("user id :", userId);
+    if (!userId || userId == undefined) {
       return NextResponse.json(
         { error: "User id is required" },
         { status: 400 }
