@@ -64,10 +64,9 @@ export default async function page() {
   return (
     <div className="py-8">
       <h1 className="text-2xl font-bold mb-8">إتمام الطلب</h1>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
-          <CheckoutForm items={cartItems} total={total} />
+          <CheckoutForm items={cartItems} total={total} userId={userId} />
         </div>
         <div>
           <CartSummary

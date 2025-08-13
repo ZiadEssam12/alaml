@@ -55,6 +55,9 @@ model Order {
   notes              String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime?   @updatedAt
+
+  userId             String
+  user               User        @relation(fields: [userId], references: [id])
 }
 
 model OrderItem {
@@ -85,6 +88,10 @@ model User {
   name  String
   email String? 
   role  UserRole @default(user)
+  cart  Cart?   // One-to-one relation
+  orders Order[] // One-to-many relation
+
+
 }
 
 enum UserRole {
@@ -93,11 +100,12 @@ enum UserRole {
 }
 
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
   items     CartItem[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime?  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model CartItem {

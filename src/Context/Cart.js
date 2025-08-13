@@ -15,7 +15,7 @@ export const CartProvider = ({ children }) => {
     let userId = getCookie("userid");
 
     const createAnonymousUser = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: "anonymous", role: "user", email: null }),

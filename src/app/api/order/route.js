@@ -47,16 +47,22 @@ export async function POST(request) {
       );
     }
 
+    const cardId = await prisma.cart.findUnique({
+      where: { userId: userId },
+      select: { id: true },
+    });
+
     // Get cart items for user
     const cartItems = await prisma.cartItem.findMany({
-      where: { userId },
+      where: { cartId: cardId.id },
       include: { product: true },
     });
     if (!cartItems || cartItems.length === 0) {
-      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+      return NextResponse.json(
+        { error: "السلة فارغة لا يمكن إنشاء طلب جديد" },
+        { status: 400 }
+      );
     }
-
-    // Calculate prices server-side
     const shippingCost = 30;
     let subtotal = 0;
     const itemsWithTotal = cartItems.map((item) => {
@@ -72,11 +78,9 @@ export async function POST(request) {
       };
     });
 
-    // Optionally apply discount logic here
-    const discount = 0; // or fetch from DB or calculate
+    const discount = 0;
     const finalAmount = subtotal + shippingCost - discount;
 
-    // Get customer info from request body
     const body = await request.json();
     const {
       customerName,
@@ -113,10 +117,10 @@ export async function POST(request) {
     });
 
     // Empty the cart after order is placed
-    await prisma.cartItem.deleteMany({ where: { userId } });
+    await prisma.cartItem.deleteMany({ where: { cartId: cardId.id } });
 
     return NextResponse.json(
-      { data: order, message: "Order created successfully" },
+      { orderId: order.id, success: true, message: "Order created successfully" },
       { status: 201 }
     );
   } catch (error) {

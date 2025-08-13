@@ -1,25 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Package, Clock, Phone } from "lucide-react";
+import Link from "next/link";
 
-export default function OrderSuccessPage() {
-  const router = useRouter();
-  const [orderNumber] = useState(() =>
-    Math.random().toString(36).substr(2, 9).toUpperCase()
-  );
-
-  useEffect(() => {
-    // Redirect to home after 30 seconds if user doesn't navigate away
-    const timer = setTimeout(() => {
-      router.push("/");
-    }, 30000);
-
-    return () => clearTimeout(timer);
-  }, [router]);
+export default async function OrderSuccessPage({ searchParams }) {
+  const orderNumber = (await searchParams).orderNumber || "";
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -107,19 +92,17 @@ export default function OrderSuccessPage() {
           </Card>
 
           <div className="space-y-4">
-            <Button
-              onClick={() => router.push("/products")}
-              className="w-full md:w-auto"
-            >
-              تصفح المزيد من المنتجات
-            </Button>
-            <Button
-              onClick={() => router.push("/")}
-              variant="outline"
-              className="w-full md:w-auto md:mr-4"
-            >
-              العودة للرئيسية
-            </Button>
+            <Link href="/products">
+              <Button className="w-full md:w-auto">
+                تصفح المزيد من المنتجات
+              </Button>
+            </Link>
+
+            <Link href="/">
+              <Button variant="outline" className="w-full md:w-auto md:mr-4">
+                العودة للرئيسية
+              </Button>
+            </Link>
           </div>
         </div>
       </main>
