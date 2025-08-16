@@ -6,23 +6,45 @@ export async function GET(request) {
   try {
     const userId = request.headers.get("userid");
 
-    console.log("user id :", userId);
     if (!userId || userId == undefined) {
       return NextResponse.json(
         { error: "User id is required" },
         { status: 400 }
       );
     }
-    // Get the user's cart and its items
-    const cart = await prisma.cart.findFirst({
-      where: { userId },
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    let newUserId;
+    if (!user) {
+      const newUser = await prisma.user.create({
+        data: { name: "anonymous", role: "user", email: null },
+      });
+      newUserId = newUser.id;
+    }
+
+    let cart = await prisma.cart.findFirst({
+      where: { userId: newUserId || userId },
       include: { items: true },
     });
+
     if (!cart) {
-      return NextResponse.json({ error: "Cart not found" }, { status: 404 });
+      cart = await prisma.cart.create({
+        data: {
+          userId: newUserId,
+        },
+        include: { items: true },
+      });
     }
+
     return NextResponse.json(
-      { data: cart, message: "Cart fetched successfully" },
+      {
+        data: cart,
+        newUserId,
+        message: "Cart fetched successfully",
+      },
       { status: 200 }
     );
   } catch (error) {

@@ -36,6 +36,9 @@ export const CartProvider = ({ children }) => {
       })
         .then((res) => res.json())
         .then((data) => {
+          if (data.newUserId) {
+            setCookie("userid", data.newUserId);
+          }
           setCart(data.data.items || []);
         })
         .catch(() => {
