@@ -57,6 +57,10 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = (product, quantity) => {
+    if (!isInCart(product.id)) {
+      setCart((prev) => [...prev, { ...product, quantity }]);
+    }
+
     const userId = getCookie("userid");
     if (!userId) {
       toast.error("لم يتم العثور على معرف المستخدم!");
@@ -172,7 +176,7 @@ export const CartProvider = ({ children }) => {
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) {
-          throw new Error(data.error || "حدث خطأ أثناء تحديث المنتج!")
+          throw new Error(data.error || "حدث خطأ أثناء تحديث المنتج!");
         }
       })
       .catch((error) => {

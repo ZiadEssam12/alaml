@@ -85,12 +85,16 @@ export default function ProductCard({ product }) {
         {/* Add to Cart Button */}
         <Button
           onClick={handleAddToCart}
-          disabled={isItemInCart}
+          disabled={isOutOfStock || isItemInCart}
           className="w-full"
           variant={isItemInCart ? "secondary" : "default"}
         >
           <ShoppingCart className="h-4 w-4 ml-2" />
-          {isItemInCart ? "في السلة" : "أضف للسلة"}
+          {isOutOfStock
+            ? "نفد المخزون"
+            : isItemInCart
+            ? "في السلة"
+            : "أضف للسلة"}
         </Button>
       </div>
     </div>

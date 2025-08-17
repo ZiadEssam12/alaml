@@ -47,7 +47,7 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    // Find or create cart for user
+
     let cart = await prisma.cart.findFirst({
       where: { userId },
       include: { items: true },
@@ -58,7 +58,7 @@ export async function POST(request) {
         include: { items: true },
       });
     }
-    // Check if item already exists in cart
+
     const existingItem = await prisma.cartItem.findFirst({
       where: { cartId: cart.id, productId: String(item.productId) },
     });
@@ -77,6 +77,13 @@ export async function POST(request) {
       return NextResponse.json(
         { error: "المنتج غير موجود في قاعدة البيانات" },
         { status: 404 }
+      );
+    }
+
+    if (product.stockQuantity < item.quantity) {
+      return NextResponse.json(
+        { error: "الكمية المطلوبة غير متوفرة في المخزون" },
+        { status: 409 }
       );
     }
 
