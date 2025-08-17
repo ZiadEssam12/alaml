@@ -12,12 +12,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function CartItems() {
   const { cart, updateCartItem, emptyCart, removeCartItem } =
     useContext(cartContext);
   const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="space-y-4">
@@ -45,6 +46,7 @@ export function CartItems() {
             <Button
               variant="destructive"
               onClick={() => {
+                router.refresh();
                 emptyCart();
                 setShowModal(false);
               }}
