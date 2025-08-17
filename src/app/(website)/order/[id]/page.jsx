@@ -2,11 +2,44 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
+import { cookies } from "next/headers";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+} from "@/components/ui/breadcrumb";
 
 // This page expects to receive order data via API using the id param
 export default async function OrderDetailsPage({ params }) {
-  // Fetch order details using params.id (API logic to be implemented by user)
-  const order = null; // Replace with API fetch
+  const orderId = (await params).id;
+  let order = {};
+
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("userid")?.value;
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/order/user/${orderId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          userid: userId,
+        },
+        cache: "no-store",
+      }
+    );
+
+    const data = await res.json();
+    order = data.data;
+
+    console.log("pagination :", pagination.maxPage);
+  } catch (error) {
+    console.log("error:", error.message);
+  }
 
   if (!order) {
     return (
@@ -31,6 +64,21 @@ export default async function OrderDetailsPage({ params }) {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">الرئيسية</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/order">الطلبات</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>تفاصيل الطلب رقم #{order.id}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">
           تفاصيل الطلب رقم #{order.id}
@@ -88,7 +136,7 @@ export default async function OrderDetailsPage({ params }) {
             </div>
             <div className="mb-4">
               <p className="text-muted-foreground mb-1">المنتجات:</p>
-              <ul className="list-disc pl-6">
+              <ul className="list-disc pr-6">
                 {order.items.map((item) => (
                   <li key={item.id} className="text-sm">
                     {item.productName} × {item.quantity} ({item.price} جنيه) -

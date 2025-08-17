@@ -1,14 +1,34 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pagination } from "@/components/ui/pagination";
 import { Package } from "lucide-react";
+import { cookies } from "next/headers";
+import { PaginationClient } from "@/components/Pagination";
 
-export default function OrdersPage({}) {
-  const orders = [];
-  const page = 1;
-  const maxPage = 1;
-  const onPageChange = () => {};
+export default async function OrdersPage({}) {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get("userid")?.value;
+  let orders = [];
+  let pagination = {};
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/order/user`, {
+      headers: {
+        "Content-Type": "application/json",
+        userid: userId,
+      },
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    orders = data.data || [];
+    pagination = data.pagination;
+
+    console.log("pagination :", pagination.maxPage);
+  } catch (error) {
+    console.log("error:", error.message);
+  }
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -92,10 +112,9 @@ export default function OrdersPage({}) {
               </div>
             ))}
             <div className="flex justify-center mt-8">
-              <Pagination
-                page={page}
-                maxPage={maxPage}
-                onPageChange={onPageChange}
+              <PaginationClient
+                page={pagination.page}
+                maxPage={pagination.maxPage}
               />
             </div>
           </div>

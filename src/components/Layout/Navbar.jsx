@@ -57,8 +57,12 @@ export default function Navbar() {
         <div className="w-full hidden lg:flex items-center justify-between mt-4 pt-2 border-t">
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-sm font-medium hover:text-primary">
-              الرئيسية
+            <Link href="/">الرئيسية</Link>
+            <Link
+              href="/order"
+              className="text-sm font-medium hover:text-primary"
+            >
+              الطلبات
             </Link>
             <Link
               href="/products"

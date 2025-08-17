@@ -29,6 +29,8 @@ export default async function Categories() {
         }}
         className="w-full"
       >
+        <CarouselPrevious />
+        <CarouselNext />
         <CarouselContent className="-ml-2 md:-ml-4">
           {categoriesList.map((category) => {
             return (
@@ -53,8 +55,6 @@ export default async function Categories() {
             );
           })}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
       </Carousel>
     </section>
   );
