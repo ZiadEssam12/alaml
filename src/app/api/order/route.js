@@ -120,7 +120,11 @@ export async function POST(request) {
     await prisma.cartItem.deleteMany({ where: { cartId: cardId.id } });
 
     return NextResponse.json(
-      { orderId: order.id, success: true, message: "Order created successfully" },
+      {
+        orderId: order.id,
+        success: true,
+        message: "Order created successfully",
+      },
       { status: 201 }
     );
   } catch (error) {

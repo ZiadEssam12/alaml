@@ -1,47 +1,46 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET: Get all order items for a specific order by user id
+// GET: Get all orders for a user with pagination
 export async function GET(request) {
   try {
     const userId = request.headers.get("userid");
-    const { searchParams } = new URL(request.url);
-    const orderId = (await params).id;
-
     if (!userId) {
       return NextResponse.json(
         { error: "User id is required" },
         { status: 400 }
       );
     }
-    if (!orderId) {
-      return NextResponse.json(
-        { error: "Order id is required" },
-        { status: 400 }
-      );
-    }
+    const { searchParams } = new URL(request.url);
+    const page = Number(searchParams.get("page") || 1);
+    const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
 
-    const order = await prisma.order.findFirst({
-      where: { id: orderId, userId },
+    const totalOrders = await prisma.order.count({ where: { userId } });
+    const maxPage = Math.ceil(totalOrders / limit);
+
+    const orders = await prisma.order.findMany({
+      where: { userId },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: { createdAt: "desc" },
       include: { items: true },
     });
 
-    if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
     return NextResponse.json(
       {
-        data: {
-          order,
+        data: orders,
+        pagination: {
+          page,
+          maxPage,
+          totalOrders,
         },
-        message: "Order and items fetched successfully",
+        message: "Orders fetched successfully",
       },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch order items" },
+      { error: "Failed to fetch orders" },
       { status: 500 }
     );
   }

@@ -33,7 +33,7 @@ export async function GET(request) {
     if (!cart) {
       cart = await prisma.cart.create({
         data: {
-          userId: newUserId,
+          user: { connect: { id: newUserId || userId } },
         },
         include: { items: true },
       });

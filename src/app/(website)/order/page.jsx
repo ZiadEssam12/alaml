@@ -84,7 +84,17 @@ export default async function OrdersPage({}) {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                         <div>
                           <p className="text-muted-foreground">تاريخ الطلب</p>
-                          <p className="font-semibold">{order.createdAt}</p>
+                          <p className="font-semibold">
+                            {new Date(order.createdAt).toLocaleString("ar-EG", {
+                              weekday: "long", // يوم الأسبوع كنص
+                              day: "numeric", // اليوم كرقم
+                              month: "long", // الشهر كنص
+                              year: "numeric", // السنة
+                              hour: "2-digit", // الساعة
+                              minute: "2-digit", // الدقيقة
+                              hour12: true, // توقيت 12 ساعة
+                            })}
+                          </p>{" "}
                         </div>
                         <div>
                           <p className="text-muted-foreground">
@@ -97,7 +107,7 @@ export default async function OrdersPage({}) {
                       </div>
                       <div className="mt-2">
                         <p className="text-muted-foreground mb-1">المنتجات:</p>
-                        <ul className="list-disc pl-6">
+                        <ul className="list-disc pr-6">
                           {order.items.map((item) => (
                             <li key={item.id} className="text-sm">
                               {item.productName} × {item.quantity} ({item.price}{" "}

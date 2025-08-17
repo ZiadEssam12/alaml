@@ -33,10 +33,8 @@ export default async function OrderDetailsPage({ params }) {
       }
     );
 
-    const data = await res.json();
-    order = data.data;
-
-    console.log("pagination :", pagination.maxPage);
+    const { data } = await res.json();
+    order = data.order;
   } catch (error) {
     console.log("error:", error.message);
   }
