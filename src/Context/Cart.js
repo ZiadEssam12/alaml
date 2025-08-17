@@ -145,35 +145,45 @@ export const CartProvider = ({ children }) => {
 
   const totalItemInCart = cart.length;
 
-  const updateCartItem = (id, updatedItem) => {
+  const updateCartItem = (id, newQuantity) => {
     const userId = getCookie("userid");
     if (!userId) {
       toast.error("لم يتم العثور على معرف المستخدم!");
       return;
     }
-    fetch(`/api/cart/${id}`, {
+
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, quantity: item.quantity + newQuantity }
+          : item
+      )
+    );
+    toast.success("تم تحديث المنتج في السلة!");
+
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         userid: userId,
       },
-      body: JSON.stringify({ userId, items: [updatedItem] }),
+      body: JSON.stringify({ userId, quantity: newQuantity }),
     })
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) {
-          toast.error(data.error || "حدث خطأ أثناء تحديث المنتج!");
-          return;
+          throw new Error(data.error || "حدث خطأ أثناء تحديث المنتج!")
         }
+      })
+      .catch((error) => {
+        toast.error(error.message || "حدث خطأ أثناء تحديث المنتج!");
         setCart((prev) =>
           prev.map((item) =>
-            item.id === id ? { ...item, ...updatedItem } : item
+            item.id === id
+              ? { ...item, quantity: item.quantity - newQuantity }
+              : item
           )
         );
-        toast.success("تم تحديث المنتج في السلة!");
-      })
-      .catch(() => {
-        toast.error("حدث خطأ أثناء تحديث المنتج!");
       });
   };
 

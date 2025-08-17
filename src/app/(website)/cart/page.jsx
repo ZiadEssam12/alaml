@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import React from "react";
 
 export default async function page() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const userId = cookieStore.get("userid")?.value;
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {

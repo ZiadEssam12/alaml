@@ -116,8 +116,18 @@ export async function POST(request) {
       include: { items: true },
     });
 
-    // Empty the cart after order is placed
     await prisma.cartItem.deleteMany({ where: { cartId: cardId.id } });
+
+    for (const item of cartItems) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          stockQuantity: {
+            decrement: item.quantity,
+          },
+        },
+      });
+    }
 
     return NextResponse.json(
       {

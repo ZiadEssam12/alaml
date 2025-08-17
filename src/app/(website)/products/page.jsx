@@ -11,7 +11,7 @@ export default async function Page({ searchParams }) {
     maxPrice = "",
     inStock = "",
     page = "1",
-  } = searchParams || {};
+  } = (await searchParams) || {};
 
   // Build query string for API
   const params = new URLSearchParams();

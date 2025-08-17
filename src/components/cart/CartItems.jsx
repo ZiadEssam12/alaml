@@ -78,7 +78,7 @@ export function CartItems() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => updateCartItem(item.id, item.quantity - 1)}
+              onClick={() => updateCartItem(item.id, -1)}
               disabled={item.quantity <= 1}
             >
               <Minus className="h-4 w-4" />
@@ -87,7 +87,7 @@ export function CartItems() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => updateCartItem(item.id, item.quantity + 1)}
+              onClick={() => updateCartItem(item.id, 1)}
               disabled={item.quantity >= item.maxQuantity}
             >
               <Plus className="h-4 w-4" />
