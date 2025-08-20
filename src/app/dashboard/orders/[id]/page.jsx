@@ -1,7 +1,16 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import OrderStatusDropdown from "./OrderStatusDropdown";
-
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+} from "@/components/ui/breadcrumb";
+import Link from "next/link";
 async function getOrder(id) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order/${id}`,
@@ -19,6 +28,29 @@ export default async function OrderDetailsPage({ params }) {
 
   return (
     <div className="container mx-auto py-8">
+      <div className="mb-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard">لوحة التحكم</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard/orders">الطلبات</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href={`/dashboard/orders/${id}`}>تفاصيل الطلب</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       <h1 className="text-2xl font-bold mb-6">تفاصيل الطلب</h1>
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -28,7 +60,7 @@ export default async function OrderDetailsPage({ params }) {
             </div>
             <div className="mb-2">
               <span className="font-semibold">اسم المستخدم:</span>{" "}
-              {order.user?.name || "-"}
+              {order.customerName || "-"}
             </div>
             <div className="mb-2">
               <span className="font-semibold">البريد الإلكتروني:</span>{" "}

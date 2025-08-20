@@ -54,7 +54,7 @@ export default async function OrdersPage({ searchParams }) {
                       {order.id.slice(0, 8)}...
                     </td>
                     <td className="px-4 py-2 border-b">
-                      {order.user?.name || "-"}
+                      {order.customerName || "-"}
                     </td>
                     <td className="px-4 py-2 border-b">
                       {order.user?.email || "-"}
