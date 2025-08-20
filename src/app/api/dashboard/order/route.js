@@ -7,9 +7,23 @@ export async function GET(req) {
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
   const skip = (page - 1) * pageSize;
+  const q = searchParams.get("q")?.trim();
+
+  // Build search filter
+  let where = {};
+  if (q) {
+    where = {
+      OR: [
+        { id: { contains: q } },
+        { customerName: { contains: q, mode: "insensitive" } },
+        { customerEmail: { contains: q, mode: "insensitive" } },
+      ],
+    };
+  }
 
   const [orders, total] = await Promise.all([
     prisma.order.findMany({
+      where,
       orderBy: { createdAt: "asc" },
       skip,
       take: pageSize,
@@ -18,7 +32,7 @@ export async function GET(req) {
         items: true,
       },
     }),
-    prisma.order.count(),
+    prisma.order.count({ where }),
   ]);
 
   return NextResponse.json({

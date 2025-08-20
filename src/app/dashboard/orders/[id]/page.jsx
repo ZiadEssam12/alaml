@@ -64,7 +64,7 @@ export default async function OrderDetailsPage({ params }) {
             </div>
             <div className="mb-2">
               <span className="font-semibold">البريد الإلكتروني:</span>{" "}
-              {order.user?.email || "-"}
+              {order.customerEmail || "-"}
             </div>
             <div className="mb-2">
               <span className="font-semibold">الهاتف:</span>{" "}
