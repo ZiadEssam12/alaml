@@ -31,6 +31,8 @@ export default function ProductInfo({ product }) {
     }
   };
 
+  const isInStock = product.stockQuantity > 0;
+
   return (
     <div className="flex flex-col gap-4 h-full mt-8">
       <div className="flex items-center gap-2 mb-2">
@@ -57,6 +59,7 @@ export default function ProductInfo({ product }) {
               <button
                 className="selection:bg-transparent p-2 cursor-pointer"
                 onClick={removeQuantity}
+                disabled={quantityNumber <= 1}
               >
                 -
               </button>
@@ -64,12 +67,20 @@ export default function ProductInfo({ product }) {
               <button
                 className="selection:bg-transparent p-2 cursor-pointer"
                 onClick={addQuantity}
+                disabled={
+                  product.stockQuantity <= 0 ||
+                  quantityNumber >= product.stockQuantity ||
+                  quantityNumber >= product.maxQuantityPerUser
+                }
               >
                 +
               </button>
             </div>
           </div>
-          <Button disabled={isIteminCart} onClick={handleAddToCart}>
+          <Button
+            disabled={!isInStock || isIteminCart}
+            onClick={handleAddToCart}
+          >
             {isIteminCart ? "في السلة" : "أضف إلى السلة"}
           </Button>
         </div>
