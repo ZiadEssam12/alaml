@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // GET: Get a single review by id
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Review id is required" },
@@ -30,7 +30,7 @@ export async function GET(request, { params }) {
 // PUT: Update a review by id (user can only update their own review)
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Review id is required" },
@@ -66,7 +66,7 @@ export async function PUT(request, { params }) {
 // DELETE: Delete a review by id (user can only delete their own review)
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { userId } = await request.json();
     if (!id || !userId) {
       return NextResponse.json(

@@ -12,15 +12,21 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 
-function PaginationClientCode({ maxPage }) {
+function PaginationClientCode({
+  maxPage,
+  currentPage: propCurrentPage,
+  basePath,
+}) {
   const searchParams = useSearchParams();
-  const currentPage = parseInt(searchParams.get("page")) || 1;
+  const currentPage =
+    propCurrentPage || parseInt(searchParams.get("page")) || 1;
 
   // Preserve existing query parameters when navigating
   const createPageUrl = (page) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    return `?${params.toString()}`;
+    const prefix = basePath ? basePath : "";
+    return `${prefix}?${params.toString()}`;
   };
 
   return (
@@ -81,10 +87,14 @@ function PaginationSkeleton() {
   );
 }
 
-export function PaginationClient({ maxPage }) {
+export function PaginationClient({ maxPage, currentPage, basePath }) {
   return (
     <Suspense fallback={<PaginationSkeleton />}>
-      <PaginationClientCode maxPage={maxPage} />
+      <PaginationClientCode
+        maxPage={maxPage}
+        currentPage={currentPage}
+        basePath={basePath}
+      />
     </Suspense>
   );
 }

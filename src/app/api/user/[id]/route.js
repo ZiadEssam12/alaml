@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // GET: Get a user by id
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "User id is required" },

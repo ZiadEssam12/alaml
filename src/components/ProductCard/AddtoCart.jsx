@@ -4,12 +4,19 @@ import React, { useContext, useState } from "react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { cartContext } from "@/Context/Cart";
+import toast from "react-hot-toast";
 
 export default function ProductInfo({ product }) {
   const { addToCart, isInCart } = useContext(cartContext);
   const isIteminCart = isInCart(product.id);
   const handleAddToCart = (e) => {
     e.preventDefault();
+
+    if (!isInStock) {
+      toast.error("المنتج غير متوفر");
+      return;
+    }
+
     addToCart(product, quantityNumber);
     setQuantityNumber(1);
   };

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // GET: Get a single order by id
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Order id is required" },
@@ -33,7 +33,7 @@ export async function GET(request, { params }) {
 // PUT: Update an order by id
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Order id is required" },
@@ -94,7 +94,7 @@ export async function PUT(request, { params }) {
 // DELETE: Mark an order as cancelled by id (soft delete)
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Order id is required" },

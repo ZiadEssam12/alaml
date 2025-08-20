@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // GET: Get a single product by id
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Product id is required" },
@@ -32,7 +32,7 @@ export async function GET(request, { params }) {
 // PUT: Update a product by id
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Product id is required" },

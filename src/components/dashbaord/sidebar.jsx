@@ -20,6 +20,11 @@ const items = [
     icon: Home,
   },
   {
+    title: "الطلبات",
+    url: "/dashboard/orders",
+    icon: Inbox,
+  },
+  {
     title: "التنصيفات",
     url: "/dashboard/categories",
     icon: Inbox,

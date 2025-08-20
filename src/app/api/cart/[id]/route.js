@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // GET: Get a single cart by id
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Cart id is required" },
