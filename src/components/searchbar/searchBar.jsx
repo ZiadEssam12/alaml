@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, ChevronDown } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -122,34 +122,32 @@ export default function SearchBar() {
   const safeQuery = query || "";
 
   return (
-    <div className="relative w-[200px] mx-auto" ref={resultsRef}>
+    <div className="relative w-full lg:w-[200px] mx-auto" ref={resultsRef}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        {isLoading ? (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+          </div>
+        ) : (
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        )}
         <Input
           ref={inputRef}
           type="text"
           placeholder="ابحث..."
-          value={safeQuery} // Use safeQuery to ensure a defined value
+          value={safeQuery}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
             if (results.length > 0) setIsOpen(true);
           }}
-          className="pl-10 pr-10 h-12 text-base rounded-lg border-2 focus:border-primary transition-colors"
+          className="pr-2 h-10 text-base rounded-lg border-2 focus:border-primary transition-colors"
         />
-        {isLoading && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-          </div>
-        )}
-        {!isLoading && isOpen && (
-          <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        )}
       </div>
 
       {/* Search Results Dropdown */}
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full w-lg left-1/2 transform -translate-x-1/2 mt-4 bg-popover border border-border rounded-lg shadow-lg z-[52] max-h-80 overflow-y-auto">
+        <div className="absolute top-full w-[90vw] lg:w-lg left-0 -translate-x-1/2 lg:right-1/2 translate-x-1/2 mt-4 bg-popover border border-border rounded-lg shadow-lg z-[52] max-h-80 overflow-y-auto">
           {results.map((result, index) => (
             <Link
               href={`/products/${result.slug}`}
@@ -160,7 +158,7 @@ export default function SearchBar() {
               )}
             >
               <div className="font-medium text-sm flex justify-between items-center">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
                   <p>{result.name}</p>
                   <div className="flex gap-1">
                     <p>في</p>
