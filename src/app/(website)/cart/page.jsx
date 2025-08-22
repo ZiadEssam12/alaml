@@ -1,6 +1,7 @@
 import { CartItems } from "@/components/cart/CartItems";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import React from "react";
 
 export default async function page() {
@@ -28,12 +29,12 @@ export default async function page() {
             <p className="text-lg text-muted-foreground mb-4">
               سلة التسوق فارغة
             </p>
-            <a
+            <Link
               href="/products"
               className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
             >
               تصفح المنتجات
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

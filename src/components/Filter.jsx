@@ -10,9 +10,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Star, Filter, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-function ProductFiltersCode({ categories = [] }) {
+function ProductFiltersCode() {
+  const isMobile = useIsMobile();
   const router = useRouter();
+
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState({
@@ -22,6 +32,17 @@ function ProductFiltersCode({ categories = [] }) {
     rating: 0,
     inStock: false,
   });
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const getCategories = async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
+      const categoriesList = await res.json();
+      setCategories(categoriesList.data);
+    };
+
+    getCategories();
+  }, []);
 
   useEffect(() => {
     // Initialize filters from URL params
@@ -98,9 +119,186 @@ function ProductFiltersCode({ categories = [] }) {
       inStock: false,
     });
 
-    // Clear URL params and navigate
     router.push(window.location.pathname);
   };
+
+  if (isMobile) {
+    console.log("isMobile:", isMobile); // Debugging
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="w-full">
+            <Filter className="h-5 w-5" />
+            <span>تصفية المنتجات</span>
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>تصفية المنتجات</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+            <CardContent className="space-y-6">
+              {/* Categories Filter */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  الأقسام
+                </Label>
+                <div className="space-y-2">
+                  {categories?.map((category) => (
+                    <div
+                      key={category.id}
+                      className="flex items-center space-x-2 "
+                    >
+                      <Checkbox
+                        id={category.id}
+                        checked={filters.categories.includes(category.id)}
+                        onCheckedChange={(checked) =>
+                          handleCategoryChange(category.id, checked)
+                        }
+                      />
+                      <Label
+                        htmlFor={category.id}
+                        className="text-sm cursor-pointer"
+                      >
+                        {category.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Price Range Filter */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  نطاق السعر
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label
+                      htmlFor="minPrice"
+                      className="text-xs text-muted-foreground"
+                    >
+                      الحد الأدنى
+                    </Label>
+                    <Input
+                      id="minPrice"
+                      type="number"
+                      placeholder="0"
+                      value={filters.minPrice}
+                      onChange={(e) =>
+                        handlePriceChange("minPrice", e.target.value)
+                      }
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label
+                      htmlFor="maxPrice"
+                      className="text-xs text-muted-foreground"
+                    >
+                      الحد الأقصى
+                    </Label>
+                    <Input
+                      id="maxPrice"
+                      type="number"
+                      placeholder="1000"
+                      value={filters.maxPrice}
+                      onChange={(e) =>
+                        handlePriceChange("maxPrice", e.target.value)
+                      }
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
+                  <span>ج.م</span>
+                  <span>ج.م</span>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Rating Filter */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  التقييم
+                </Label>
+                <div className="space-y-2">
+                  {[4, 3, 2, 1].map((rating) => (
+                    <div key={rating} className="flex items-center space-x-2 ">
+                      <Checkbox
+                        id={`rating-${rating}`}
+                        checked={filters.rating === rating}
+                        onCheckedChange={(checked) =>
+                          setFilters((prev) => ({
+                            ...prev,
+                            rating: checked ? rating : 0,
+                          }))
+                        }
+                      />
+                      <Label
+                        htmlFor={`rating-${rating}`}
+                        className="flex items-center space-x-1  cursor-pointer"
+                      >
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm">فأكثر</span>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Stock Filter */}
+              <div className="flex items-center space-x-2 ">
+                <Checkbox
+                  id="inStock"
+                  checked={filters.inStock}
+                  onCheckedChange={(checked) =>
+                    setFilters((prev) => ({ ...prev, inStock: checked }))
+                  }
+                />
+                <Label htmlFor="inStock" className="text-sm cursor-pointer">
+                  متوفر في المخزون فقط
+                </Label>
+              </div>
+
+              <Separator />
+
+              {/* Apply Filters Button */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  className="flex-1"
+                >
+                  مسح الكل
+                </Button>
+                <Button onClick={applyFilters} className="flex-1">
+                  تطبيق التصفية
+                </Button>
+              </div>
+            </CardContent>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Card>
@@ -174,8 +372,8 @@ function ProductFiltersCode({ categories = [] }) {
             </div>
           </div>
           <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-            <span>ر.س</span>
-            <span>ر.س</span>
+            <span>ج.م</span>
+            <span>ج.م</span>
           </div>
         </div>
 

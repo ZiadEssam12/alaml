@@ -8,16 +8,15 @@ export async function GET(request) {
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
 
-    // Filters
-    const categoryID = searchParams.get("categoryID") || undefined;
+    const categories = searchParams.get("categories")?.split(",") || [];
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const inStock = searchParams.get("inStock") === "true";
 
     // Build Prisma where filter
     const where = {};
-    if (categoryID) {
-      where.categoryID = categoryID;
+    if (categories.length > 0 && categories[0] !== "") {
+      where.categoryID = { in: categories };
     }
     if (minPrice) {
       where.price = { ...(where.price || {}), gte: Number(minPrice) };
@@ -29,7 +28,7 @@ export async function GET(request) {
       where.stockQuantity = { gt: 0 };
     }
 
-    console.log("price :", maxPrice);
+    console.log("where :", where);
 
     const totalProducts = await prisma.product.count({ where });
     const maxPage = Math.ceil(totalProducts / limit);
