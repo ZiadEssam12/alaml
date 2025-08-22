@@ -60,7 +60,7 @@ export function CartItems() {
       {cart.map((item) => (
         <div
           key={item.id}
-          className="flex items-center space-x-4  p-4 border rounded-lg"
+          className="flex flex-col lg:flex-row items-center lg:space-x-4 space-y-4 lg:space-y-0 p-4 border rounded-lg"
         >
           <div className="relative w-20 h-20">
             <Image
@@ -71,12 +71,12 @@ export function CartItems() {
             />
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 text-center lg:text-left">
             <h3 className="font-semibold">{item.name}</h3>
             <p className="text-primary font-bold">{item.price} جنيه</p>
           </div>
 
-          <div className="flex items-center space-x-2 ">
+          <div className="flex items-center justify-center lg:justify-start space-x-2">
             <Button
               variant="outline"
               size="icon"
@@ -96,7 +96,7 @@ export function CartItems() {
             </Button>
           </div>
 
-          <div className="text-left">
+          <div className="text-center lg:text-left">
             <p className="font-bold">
               {(item.price * item.quantity).toFixed(2)} جنيه
             </p>
