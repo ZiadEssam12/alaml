@@ -125,9 +125,7 @@ export default function SearchBar() {
     <div className="relative w-full lg:w-[200px] mx-auto" ref={resultsRef}>
       <div className="relative">
         {isLoading ? (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-          </div>
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2  animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
         ) : (
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
         )}
