@@ -56,7 +56,7 @@ export default async function Page({ searchParams }) {
               </div>
             ) : (
               <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
