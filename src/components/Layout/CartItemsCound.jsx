@@ -10,7 +10,7 @@ export default function CartItemsCount() {
   return (
     <Badge
       variant="destructive"
-      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+      className="absolute -top-2 -right-2 z-50 h-5 w-5 flex items-center justify-center p-0 text-xs"
     >
       {totalItemInCart || 0}
     </Badge>

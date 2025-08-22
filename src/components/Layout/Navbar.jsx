@@ -44,8 +44,9 @@ export default function Navbar() {
             <div className="block lg:hidden">
               <CategoriesPopUp />
             </div>
-            {/* Wishlist */}
-            <ModeToggle className="h-5 w-5" />
+            <div className="hidden lg:block">
+              <ModeToggle className="h-5 w-5" />
+            </div>
 
             {/* Cart */}
             <Link href="/cart">

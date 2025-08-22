@@ -17,7 +17,7 @@ export default async function page({ params }) {
   return (
     <>
       <div className="min-h-screen bg-background" dir="rtl">
-        <main className="container mx-auto px-4 py-8">
+        <main>
           <div className="">
             <div className="mb-6">
               <h1 className="text-2xl font-bold mb-2">
@@ -29,7 +29,7 @@ export default async function page({ params }) {
               </p>
             </div>
 
-            <div className="flex flex-col gap-6">
+            <div>
               {products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-muted rounded-lg shadow-md">
                   <svg
@@ -69,7 +69,7 @@ export default async function page({ params }) {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 lg:gap-x-6 gap-y-6">
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
