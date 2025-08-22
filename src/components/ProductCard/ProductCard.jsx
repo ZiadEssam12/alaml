@@ -42,7 +42,7 @@ export default function ProductCard({ product }) {
 
       {/* Product Info */}
       <div className="p-4">
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug}`}>
           <h3
             className="font-semibold text-lg mb-2 hover:text-primary line-clamp-1"
             title={product.name}

@@ -7,6 +7,7 @@ import { Badge } from "../ui/badge";
 import { MobileMenuToggle } from "./mobile-menu";
 import CategoriesPopUp from "../CategoriesPopUp";
 import CartItemsCount from "./CartItemsCound";
+import SearchBar from "../searchbar/searchBar";
 
 export default function Navbar() {
   const cartItemsCount = 0; // Placeholder for cart items count
@@ -31,6 +32,10 @@ export default function Navbar() {
             </div>
             <span className="text-xl font-bold">مكتبة الأمل</span>
           </Link>
+
+          <div>
+            <SearchBar />
+          </div>
 
           {/* Actions */}
           <div className="flex items-center space-x-0 lg:space-x-4 ">
