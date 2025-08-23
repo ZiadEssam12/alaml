@@ -1,7 +1,7 @@
-import { PaginationClient } from "@/components/Pagination";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import OrdersSearchBox from "./OrdersSearchBox";
+import { PaginationClient } from "@/components/Pagination";
 
 async function getOrders(page = 1, pageSize = 10, q = "") {
   const params = new URLSearchParams({ page, pageSize });

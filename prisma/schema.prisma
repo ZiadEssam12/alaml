@@ -84,14 +84,12 @@ model Review {
 }
 
 model User {
-  id    String @id @default(uuid())
+  id    String   @id @default(uuid())
   name  String
-  email String? 
+  email String?  @unique
   role  UserRole @default(user)
-  cart  Cart?   // One-to-one relation
+  cart  Cart?    // One-to-one relation
   orders Order[] // One-to-many relation
-
-
 }
 
 enum UserRole {
