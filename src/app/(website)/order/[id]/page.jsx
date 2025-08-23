@@ -23,7 +23,7 @@ export default async function OrderDetailsPage({ params }) {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/order/user/${orderId}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderId}`,
       {
         headers: {
           "Content-Type": "application/json",

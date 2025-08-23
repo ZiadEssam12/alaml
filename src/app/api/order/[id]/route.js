@@ -1,118 +1,50 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET: Get a single order by id
+// GET: Get all order items for a specific order by user id
 export async function GET(request, { params }) {
   try {
-    const { id } = await params;
-    if (!id) {
+    const userId = request.headers.get("userid");
+    const orderId = (await params).id;
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User id is required" },
+        { status: 400 }
+      );
+    }
+    if (!orderId) {
       return NextResponse.json(
         { error: "Order id is required" },
         { status: 400 }
       );
     }
-    const order = await prisma.order.findUnique({
-      where: { id },
+
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, userId },
       include: { items: true },
     });
+
+
+    console.log("order:" , order)
+
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
-    return NextResponse.json(
-      { data: order, message: "Order fetched successfully" },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch order" },
-      { status: 500 }
-    );
-  }
-}
 
-// PUT: Update an order by id
-export async function PUT(request, { params }) {
-  try {
-    const { id } = await params;
-    if (!id) {
-      return NextResponse.json(
-        { error: "Order id is required" },
-        { status: 400 }
-      );
-    }
-    const body = await request.json();
-    const {
-      customerName,
-      customerEmail,
-      customerPhone,
-      shippingStreet,
-      shippingCity,
-      shippingZipCode,
-      subtotal,
-      shippingCost,
-      discount,
-      finalAmount,
-      paymentMethod,
-      status,
-      trackingNumber,
-      shippingCompanyURL,
-      notes,
-    } = body;
-    const order = await prisma.order.update({
-      where: { id },
-      data: {
-        customerName,
-        customerEmail,
-        customerPhone,
-        shippingStreet,
-        shippingCity,
-        shippingZipCode,
-        subtotal,
-        shippingCost,
-        discount,
-        finalAmount,
-        paymentMethod,
-        status,
-        trackingNumber,
-        shippingCompanyURL,
-        notes,
+    return NextResponse.json(
+      {
+        data: {
+          order,
+          items: order.items,
+        },
+        message: "Order and items fetched successfully",
       },
-      include: { items: true },
-    });
-    return NextResponse.json(
-      { data: order, message: "Order updated successfully" },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to update order" },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE: Mark an order as cancelled by id (soft delete)
-export async function DELETE(request, { params }) {
-  try {
-    const { id } = await params;
-    if (!id) {
-      return NextResponse.json(
-        { error: "Order id is required" },
-        { status: 400 }
-      );
-    }
-    const order = await prisma.order.update({
-      where: { id },
-      data: { status: "cancelled" },
-      include: { items: true },
-    });
-    return NextResponse.json(
-      { data: order, message: "Order cancelled successfully" },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to cancel order" },
+      { error: "Failed to fetch order items" },
       { status: 500 }
     );
   }

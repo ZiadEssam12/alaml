@@ -12,7 +12,7 @@ export default async function OrdersPage({}) {
   let pagination = {};
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/order/user`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/order`, {
       headers: {
         "Content-Type": "application/json",
         userid: userId,
