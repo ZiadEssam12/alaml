@@ -23,7 +23,6 @@ export default async function ProductsList() {
               key={product.id}
               className="md:basis-1/2 lg:basis-1/5"
             >
-              {console.log("product:", product)}
               <ProductCard product={product} />
             </CarouselItem>
           ))}

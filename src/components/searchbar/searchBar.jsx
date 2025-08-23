@@ -122,7 +122,7 @@ export default function SearchBar() {
   const safeQuery = query || "";
 
   return (
-    <div className="relative w-full lg:w-[200px] mx-auto" ref={resultsRef}>
+    <div className="w-full lg:w-[200px] mx-auto" ref={resultsRef}>
       <div className="relative">
         {isLoading ? (
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2  animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
@@ -145,7 +145,7 @@ export default function SearchBar() {
 
       {/* Search Results Dropdown */}
       {isOpen && results.length > 0 && (
-        <div className="absolute top-full w-[90vw] lg:w-lg left-0 -translate-x-1/2 lg:right-1/2 translate-x-1/2 mt-4 bg-popover border border-border rounded-lg shadow-lg z-[52] max-h-80 overflow-y-auto">
+        <div className="absolute w-screen lg:w-lg right-0 translate-x-0 lg:right-1/2  lg:translate-x-1/2 mt-4 bg-popover border border-border rounded-lg shadow-lg z-[52] max-h-80 overflow-y-auto">
           {results.map((result, index) => (
             <Link
               href={`/products/${result.slug}`}
@@ -176,7 +176,7 @@ export default function SearchBar() {
 
       {/* No Results */}
       {isOpen && query.trim() && results.length === 0 && !isLoading && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-lg z-50 px-4 py-6 text-center text-muted-foreground text-sm">
+        <div className="absolute w-screen lg:w-lg right-0 translate-x-0 lg:right-1/2  lg:translate-x-1/2 mt-4 bg-popover border border-border rounded-lg shadow-lg z-[52] max-h-80 overflow-y-auto">
           لا يوجد نتائج لـ "{query}"
         </div>
       )}
