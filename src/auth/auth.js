@@ -8,23 +8,44 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user }) {
       const { email, name } = user;
 
-      // Check if the user exists in the database
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
 
-      // If the user does not exist, create a new user with a default role of 'user'
       if (!existingUser) {
         await prisma.user.create({
           data: {
             email,
             name,
-            role: "admin", // Default role
+            role: "admin",
           },
         });
       }
 
-      return true; // Allow sign-in
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (dbUser) {
+          token.role = dbUser.role; // Add role to the token
+        }
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          ...session.user,
+          role: token.role, // Add role to the session
+        };
+      }
+
+      return session;
     },
   },
 });
