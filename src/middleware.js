@@ -5,9 +5,8 @@ export async function middleware(req) {
   const session = await getToken({ req, secret: process.env.AUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  if (session?.role === "admin" && pathname === "/dashboard/login") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
+  console.log("session :"  , session)
+  console.log("pathName" , pathname)
 
   if (
     pathname.startsWith("/dashboard") &&
@@ -17,6 +16,10 @@ export async function middleware(req) {
     console.log("Redirecting to /dashboard/login"); // Debugging
     const loginUrl = new URL("/dashboard/login", req.url);
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (session.role === "admin" && pathname === "/dashboard/login") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   if (pathname.startsWith("/api/dashboard") && !session) {
