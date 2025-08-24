@@ -1,10 +1,21 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
+const cookieKey =
+  process.env.NODE_ENV === "production"
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+
 export async function middleware(req) {
-  const session = await getToken({ req, secret: process.env.AUTH_SECRET });
+  const session = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    salt: cookieKey,
+    cookieName: cookieKey,
+  });
   const { pathname } = req.nextUrl;
 
+  console.log("Cookies:", req.cookies.getAll());
   console.log("Session:", session);
   console.log("Pathname:", pathname);
 
