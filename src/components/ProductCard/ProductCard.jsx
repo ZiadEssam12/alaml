@@ -19,13 +19,17 @@ export default function ProductCard({ product }) {
 
   const isOutOfStock = product.stockQuantity <= 0;
 
+  const ImageThumbnail = product.imageUrls[0]
+    ? generateOptimizedUrl(imagePublicId, { width: 150, height: 150 })
+    : product.imageUrls[0];
+
   return (
     <div className="group relative bg-card rounded-lg border shadow-sm hover:shadow-md transition-shadow">
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden rounded-t-lg">
         <Link href={`/products/${product.slug}`}>
           <Image
-            src={product.imageUrls[0]}
+            src={ImageThumbnail}
             alt={product.name}
             fill
             className="object-contain group-hover:scale-105 transition-transform duration-300"

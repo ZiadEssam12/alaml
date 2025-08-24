@@ -1,8 +1,5 @@
 "use client";
 
-
-// خدمة معالجة الصور باستخدام Cloudinary كبديل لـ Firebase Cloud Functions
-
 class ImageService {
   constructor() {
     this.config = {
@@ -13,7 +10,6 @@ class ImageService {
     };
   }
 
-  // رفع صورة إلى Cloudinary
   async uploadImage(file, folder = "products") {
     const formData = new FormData();
     formData.append("file", file);
@@ -30,6 +26,10 @@ class ImageService {
 
       const data = await response.json();
       return data.secure_url;
+      //      return {
+      //   secureUrl: data.secure_url,
+      //   publicId: data.public_id,
+      // };
     } catch (error) {
       console.error("Error uploading image:", error);
       throw new Error("فشل في رفع الصورة");
@@ -49,7 +49,6 @@ class ImageService {
     return `https://res.cloudinary.com/${this.config.cloudName}/image/upload/w_${width},h_${height},c_${crop},q_${quality},f_${format}/${publicId}`;
   }
 
-  // إنشاء عدة أحجام للصورة الواحدة
   generateResponsiveUrls(publicId) {
     return {
       thumbnail: this.generateOptimizedUrl(publicId, {
