@@ -9,13 +9,7 @@ import {
 import Link from "next/link";
 import DynamicIcons from "../DynamicIcons";
 
-export default async function Categories() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`, {
-    cache: "no-store",
-  });
-  let categoriesList = await res.json();
-  categoriesList = categoriesList.data;
-
+export default async function Categories({ data }) {
   return (
     <section className="mt-0">
       <div className="mb-8">
@@ -32,7 +26,7 @@ export default async function Categories() {
         <CarouselPrevious />
         <CarouselNext />
         <CarouselContent className="-ml-2 md:-ml-4">
-          {categoriesList.map((category) => {
+          {data.map((category) => {
             return (
               <CarouselItem
                 key={category.id}
