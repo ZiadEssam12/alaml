@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import slugify from "slugify";
 
 export async function GET(request) {
   try {
@@ -14,7 +13,9 @@ export async function GET(request) {
     const inStock = searchParams.get("inStock") === "true";
 
     // Build Prisma where filter
-    const where = {};
+    const where = {
+      isActive: true,
+    };
     if (categories.length > 0 && categories[0] !== "") {
       where.categoryID = { in: categories };
     }
@@ -27,8 +28,6 @@ export async function GET(request) {
     if (inStock) {
       where.stockQuantity = { gt: 0 };
     }
-
-    console.log("where :", where);
 
     const totalProducts = await prisma.product.count({ where });
     const maxPage = Math.ceil(totalProducts / limit);
@@ -57,4 +56,3 @@ export async function GET(request) {
     );
   }
 }
-

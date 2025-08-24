@@ -14,7 +14,6 @@ async function getOrder(id) {
   const token =
     Cookies.get("authjs.session-token") ||
     Cookies.get("__Secure-authjs.session-token");
-    Cookies.get("__Secure-authjs.session-token");
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order/${id}`,

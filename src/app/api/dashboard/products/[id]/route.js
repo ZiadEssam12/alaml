@@ -48,6 +48,7 @@ export async function PUT(request, { params }) {
       stockQuantity,
       maxQuantityPerUser,
       categoryID,
+      isActive
     } = body;
     const product = await prisma.product.update({
       where: { id },
@@ -59,6 +60,7 @@ export async function PUT(request, { params }) {
         stockQuantity,
         maxQuantityPerUser,
         categoryID,
+        isActive
       },
     });
     return NextResponse.json(
@@ -80,14 +82,18 @@ export async function DELETE(request, { params }) {
     if (!id) {
       return NextResponse.json({ error: "معرف المنتج مطلوب" }, { status: 400 });
     }
-    await prisma.product.delete({
+    await prisma.product.update({
       where: { id },
+      data: { isActive: false },
     });
     return NextResponse.json(
-      { message: "تم حذف المنتج بنجاح" },
+      { message: "تم إلغاء تنشيط المنتج بنجاح" },
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json({ error: "فشل حذف المنتج" }, { status: 500 });
+    return NextResponse.json(
+      { error: "فشل إلغاء تنشيط المنتج" },
+      { status: 500 }
+    );
   }
 }
