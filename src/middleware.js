@@ -5,25 +5,24 @@ export async function middleware(req) {
   const session = await getToken({ req, secret: process.env.AUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  console.log("session :"  , session)
-  console.log("pathName" , pathname)
+  console.log("Session:", session);
+  console.log("Pathname:", pathname);
+
+  if (session?.role === "admin" && pathname === "/dashboard/login") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
 
   if (
     pathname.startsWith("/dashboard") &&
     pathname !== "/dashboard/login" &&
     (!session || session.role !== "admin")
   ) {
-    console.log("Redirecting to /dashboard/login"); // Debugging
-    const loginUrl = new URL("/dashboard/login", req.url);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  if (session.role === "admin" && pathname === "/dashboard/login") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    console.log("Redirecting to /dashboard/login");
+    return NextResponse.redirect(new URL("/dashboard/login", req.url));
   }
 
   if (pathname.startsWith("/api/dashboard") && !session) {
-    console.log("Unauthorized API access"); // Debugging
+    console.log("Unauthorized API access");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
