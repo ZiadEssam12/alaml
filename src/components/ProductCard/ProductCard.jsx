@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useContext } from "react";
 import { cartContext } from "@/Context/Cart";
+import { imageService } from "@/lib/image-service";
 
 export default function ProductCard({ product }) {
   const { addToCart, isInCart } = useContext(cartContext);
@@ -20,8 +21,14 @@ export default function ProductCard({ product }) {
   const isOutOfStock = product.stockQuantity <= 0;
 
   const ImageThumbnail = product.imageUrls[0]
-    ? generateOptimizedUrl(imagePublicId, { width: 150, height: 150 })
+    ? imageService.generateOptimizedUrl(imagePublicId, {
+        width: 150,
+        height: 150,
+      })
     : product.imageUrls[0];
+
+  const ImagePlaceholder =
+    imageService.generateBlurredPlaceholder(imagePublicId);
 
   return (
     <div className="group relative bg-card rounded-lg border shadow-sm hover:shadow-md transition-shadow">
@@ -32,7 +39,9 @@ export default function ProductCard({ product }) {
             src={ImageThumbnail}
             alt={product.name}
             fill
-            className="object-contain group-hover:scale-105 transition-transform duration-300"
+            placeholder="blur"
+            blurDataURL={ImagePlaceholder}
+            className="rounded-lg object-cover"
           />
         </Link>
 

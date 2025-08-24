@@ -49,6 +49,10 @@ class ImageService {
     return `https://res.cloudinary.com/${this.config.cloudName}/image/upload/w_${width},h_${height},c_${crop},q_${quality},f_${format}/${publicId}`;
   }
 
+  generateBlurredPlaceholder(publicId) {
+    return `https://res.cloudinary.com/${this.config.cloudName}/image/upload/e_blur:200,q_10/${publicId}`;
+  }
+
   generateResponsiveUrls(publicId) {
     return {
       thumbnail: this.generateOptimizedUrl(publicId, {
