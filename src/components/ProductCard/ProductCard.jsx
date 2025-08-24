@@ -20,6 +20,8 @@ export default function ProductCard({ product }) {
 
   const isOutOfStock = product.stockQuantity <= 0;
 
+  const imagePublicId = imageService.extractPublicId(product.imageUrls[0]);
+
   const ImageThumbnail = product.imageUrls[0]
     ? imageService.generateOptimizedUrl(imagePublicId, {
         width: 150,
