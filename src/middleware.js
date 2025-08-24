@@ -5,7 +5,7 @@ export async function middleware(req) {
   const session = await getToken({ req, secret: process.env.AUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  if (session.role === "admin" && pathname === "/dashboard/login") {
+  if (session?.role === "admin" && pathname === "/dashboard/login") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
