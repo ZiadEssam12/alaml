@@ -32,6 +32,7 @@ export default function Hero() {
                   src={images[0]}
                   alt="Stationery Item 1"
                   fill
+                  priority
                   className="object-cover rounded-lg"
                 />
               </div>
