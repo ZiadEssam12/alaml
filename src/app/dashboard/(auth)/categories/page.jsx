@@ -42,7 +42,9 @@ export default function CategoriesManagement() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("/api/categories");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories`
+      );
       let categoriesData = await res.json();
       console.log("data:", categoriesData);
       if (!Array.isArray(categoriesData.data)) {
@@ -68,11 +70,14 @@ export default function CategoriesManagement() {
 
       let res;
       if (editingCategory) {
-        res = await fetch(`/api/categories/${editingCategory.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(categoryData),
-        });
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories/${editingCategory.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(categoryData),
+          }
+        );
         if (res.ok) toast.success("تم تحديث القسم بنجاح");
         else throw new Error("Update failed");
       } else {
@@ -112,14 +117,17 @@ export default function CategoriesManagement() {
   const handleDelete = async (categoryId) => {
     if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
       try {
-        const res = await fetch(`/api/categories/${categoryId}`, {
-          method: "DELETE",
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories/${categoryId}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (res.ok) {
           toast.success("تم حذف القسم بنجاح");
           fetchCategories();
         } else {
-          throw new Error("Delete failed");
+          throw new Error("خطأ في حذف القسم");
         }
       } catch (error) {
         console.error("Error deleting category:", error);
@@ -138,11 +146,6 @@ export default function CategoriesManagement() {
       seoDescription: "",
     });
     setEditingCategory(null);
-  };
-
-  const getCategoryName = (categoryId) => {
-    const category = categories.find((cat) => cat.id === categoryId);
-    return category?.name || "";
   };
 
   if (loading) {

@@ -53,13 +53,13 @@ export default function ProductsManagement() {
     try {
       // Fetch products
       const productsRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/product`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products`
       );
       const { data: productsData } = await productsRes.json();
 
       // Fetch categories
       const categoriesRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/categories`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories`
       );
       const { data: categoriesData } = await categoriesRes.json();
       const productsWithCategories = productsData.map((product) => ({
@@ -100,7 +100,7 @@ export default function ProductsManagement() {
 
       let res;
       if (editingProduct) {
-        res = await fetch(`/api/product/${editingProduct.id}`, {
+        res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${editingProduct.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(productData),
@@ -142,7 +142,7 @@ export default function ProductsManagement() {
   const handleDelete = async (productId) => {
     if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
       try {
-        const res = await fetch(`/api/product/${productId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}`, {
           method: "DELETE",
         });
         if (res.ok) {
