@@ -12,6 +12,7 @@ import { ProductInfoWrapper } from "@/components/ProductCard/AddtoCartWrapper";
 import Link from "next/link";
 
 import ProductCarousel from "@/components/dashbaord/product/productCarousel";
+import { imageService } from "@/lib/image-service";
 
 export default async function ProductPage({ params }) {
   const { slug } = await params;
@@ -22,7 +23,15 @@ export default async function ProductPage({ params }) {
     include: { category: true },
   });
 
-  console.log("product :", displayProduct);
+  const publicImageIds = displayProduct.imageUrls.map((url) =>
+    imageService.extractPublicId(url)
+  );
+
+  const responsiveUrls = publicImageIds.map((id) =>
+    imageService.generateResponsiveUrls(id)
+  );
+
+  displayProduct.responsiveImageUrls = responsiveUrls;
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen" dir="rtl">

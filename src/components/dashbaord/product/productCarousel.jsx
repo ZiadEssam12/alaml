@@ -11,7 +11,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-// Pass displayProduct as a prop to make the component reusable
 export default function ProductCarousel({ displayProduct }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaApi, setEmblaApi] = useState(null);
@@ -38,13 +37,16 @@ export default function ProductCarousel({ displayProduct }) {
     <>
       <Carousel className="w-full" setApi={setEmblaApi}>
         <CarouselContent>
-          {displayProduct.imageUrls.map((img, i) => (
+          {displayProduct.responsiveImageUrls.map((img, i) => (
             <CarouselItem key={i} className="w-full h-full">
               <div className="relative w-full h-[400px]">
                 <Image
-                  src={img}
+                  src={img.large}
                   alt={`${displayProduct.name} صورة ${i + 1}`}
                   fill
+                  priority={i === 0}
+                  placeholder="blur" // Enable blur placeholder
+                  blurDataURL={img.placeholder} // Blurry placeholder
                   className="rounded-lg object-contain"
                   sizes="100vw"
                 />
@@ -56,7 +58,7 @@ export default function ProductCarousel({ displayProduct }) {
         <CarouselPrevious />
       </Carousel>
       <div className="flex gap-2 mt-4">
-        {displayProduct.imageUrls.map((img, i) => (
+        {displayProduct.responsiveImageUrls.map((img, i) => (
           <button
             key={i}
             onClick={() => handleThumbnailClick(i)}
@@ -69,11 +71,14 @@ export default function ProductCarousel({ displayProduct }) {
             aria-label={`عرض صورة ${i + 1}`}
           >
             <Image
-              src={img}
+              src={img.thumbnail}
               alt={`${displayProduct.name} صورة ${i + 1}`}
               width={80}
               height={80}
               className="rounded object-cover"
+              placeholder="blur" // Enable blur placeholder
+              blurDataURL={img.placeholder} // Blurry placeholder
+              priority={i === 0}
             />
           </button>
         ))}

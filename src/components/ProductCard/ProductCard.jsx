@@ -24,8 +24,8 @@ export default function ProductCard({ product }) {
 
   const ImageThumbnail = product.imageUrls[0]
     ? imageService.generateOptimizedUrl(imagePublicId, {
-        width: 150,
-        height: 150,
+        width: 300,
+        height: 300,
       })
     : product.imageUrls[0];
 

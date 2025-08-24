@@ -1,5 +1,3 @@
-"use client";
-
 class ImageService {
   constructor() {
     this.config = {
@@ -62,6 +60,7 @@ class ImageService {
       small: this.generateOptimizedUrl(publicId, { width: 300, height: 300 }),
       medium: this.generateOptimizedUrl(publicId, { width: 600, height: 600 }),
       large: this.generateOptimizedUrl(publicId, { width: 1200, height: 1200 }),
+      placeholder: this.generateBlurredPlaceholder(publicId),
       original: `https://res.cloudinary.com/${this.config.cloudName}/image/upload/${publicId}`,
     };
   }
