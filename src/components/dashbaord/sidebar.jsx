@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, LogOut, Search, Settings } from "lucide-react";
+import { Calendar, Home, Inbox, LogOut } from "lucide-react";
 
 import {
   Sidebar,
@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { signOut } from "@/auth/auth";
 
 const items = [
   {
@@ -60,13 +61,17 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <Link
-          href="/logout"
-          className="flex items-center justify-center text-white rounded-lg gap-2 w-full bg-red-500 p-2"
+        <form
+          action={async () => {
+            "use server";
+            await signOut();
+          }}
         >
-          <LogOut />
-          <span>تسجيل الخروج</span>
-        </Link>
+          <button className="flex items-center justify-center text-white rounded-lg gap-2 w-full bg-red-500 p-2">
+            <LogOut />
+            <span>تسجيل الخروج</span>
+          </button>
+        </form>
       </SidebarFooter>
     </Sidebar>
   );

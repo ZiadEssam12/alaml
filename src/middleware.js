@@ -15,10 +15,6 @@ export async function middleware(req) {
   });
   const { pathname } = req.nextUrl;
 
-  console.log("Cookies:", req.cookies.getAll());
-  console.log("Session:", session);
-  console.log("Pathname:", pathname);
-
   if (session?.role === "admin" && pathname === "/dashboard/login") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
