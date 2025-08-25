@@ -26,6 +26,22 @@ import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/dashbaord/product/skelaton";
 import { ImageUpload } from "@/components/dashbaord/imageUpload";
 import { imageService } from "@/lib/image-service";
+import { useSearchParams } from "next/navigation";
+import SearchBox from "@/components/dashbaord/SearchBox";
+import { PaginationClient } from "@/components/Pagination";
+
+// Fetch products and categories from Next.js API
+const fetchData = async ({ q, page, pageSize }) => {
+  const productsRes = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products?page=${page}&pageSize=${pageSize}&q=${q}`
+  );
+  const data = await productsRes.json();
+
+  const { products, categories } = data.data;
+  const { pagination } = data;
+
+  return { products, categories, pagination };
+};
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState([]);
@@ -33,7 +49,6 @@ export default function ProductsManagement() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,41 +58,45 @@ export default function ProductsManagement() {
     categoryID: "",
     imageUrls: [],
   });
+  const [pagination, setPagination] = useState({});
+
+  const searchParams = useSearchParams();
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+  const q = searchParams.get("q") || "";
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchDataWrapper = async () => {
+      try {
+        setLoading(true);
+        const { products, categories, pagination } = await fetchData({
+          q,
+          page,
+          pageSize,
+        });
 
-  // Fetch products and categories from Next.js API
-  const fetchData = async () => {
-    try {
-      // Fetch products
-      const productsRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products`
-      );
-      const { data: productsData } = await productsRes.json();
+        if (products) {
+          setProducts(products);
+        }
 
-      // Fetch categories
-      const categoriesRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories`
-      );
-      const { data: categoriesData } = await categoriesRes.json();
-      const productsWithCategories = productsData.map((product) => ({
-        ...product,
-        categoryName:
-          categoriesData.find((cat) => cat.id === product.categoryID)?.name ||
-          "غير محدد",
-      }));
+        if (categories) {
+          setCategories(categories);
+        }
 
-      setProducts(productsWithCategories || []);
-      setCategories(categoriesData || []);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("خطأ في جلب البيانات");
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (pagination) {
+          setPagination(pagination);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("خطأ في جلب البيانات");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataWrapper();
+  }, [q, page, pageSize]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,11 +119,14 @@ export default function ProductsManagement() {
 
       let res;
       if (editingProduct) {
-        res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${editingProduct.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        });
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${editingProduct.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(productData),
+          }
+        );
         if (res.ok) toast.success("تم تحديث المنتج بنجاح");
         else throw new Error("Update failed");
       } else {
@@ -142,9 +164,12 @@ export default function ProductsManagement() {
   const handleDelete = async (productId) => {
     if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}`, {
-          method: "DELETE",
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (res.ok) {
           toast.success("تم حذف المنتج بنجاح");
           fetchData();
@@ -169,10 +194,6 @@ export default function ProductsManagement() {
     });
     setEditingProduct(null);
   };
-
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (loading) {
     return <ProductCardSkeleton />;
@@ -312,20 +333,18 @@ export default function ProductsManagement() {
         </Dialog>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="البحث في المنتجات..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pr-10"
-          />
-        </div>
-      </div>
+      <SearchBox placeholder="البحث في المنتجات..." />
 
+      {products.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">لا توجد منتجات تطابق البحث</p>
+          </CardContent>
+        </Card>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => (
+        {products.map((product) => (
           <Card key={product.id}>
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -396,14 +415,11 @@ export default function ProductsManagement() {
         ))}
       </div>
 
-      {filteredProducts.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">لا توجد منتجات تطابق البحث</p>
-          </CardContent>
-        </Card>
-      )}
+      <PaginationClient
+        basePath="/dashboard/products"
+        currentPage={pagination.currentPage}
+        maxPage={pagination.totalPages}
+      />
     </div>
   );
 }

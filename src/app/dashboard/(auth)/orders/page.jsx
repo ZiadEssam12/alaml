@@ -2,8 +2,8 @@ import { cookies } from "next/headers";
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import OrdersSearchBox from "./OrdersSearchBox";
 import { PaginationClient } from "@/components/Pagination";
+import SearchBox from "@/components/dashbaord/SearchBox";
 
 async function getOrders(page = 1, pageSize = 10, q = "") {
   const params = new URLSearchParams({ page, pageSize });
@@ -35,7 +35,7 @@ export default async function OrdersPage({ searchParams }) {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">جميع الطلبات</h1>
-      <OrdersSearchBox />
+      <SearchBox placeholder={"بحث بالاسم أو البريد أو رقم الطلب..."} />
       {/* Status legend */}
       <div className="mb-4 flex flex-wrap gap-4 items-center">
         <span className="font-semibold">دلالة ألوان الحالات:</span>

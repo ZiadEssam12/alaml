@@ -67,7 +67,7 @@ export function AppSidebar() {
             await signOut();
           }}
         >
-          <button className="flex items-center justify-center text-white rounded-lg gap-2 w-full bg-red-500 p-2">
+          <button className="cursor-pointer flex items-center justify-center text-white rounded-lg gap-2 w-full bg-red-500 p-2">
             <LogOut />
             <span>تسجيل الخروج</span>
           </button>

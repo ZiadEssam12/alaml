@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,21 @@ import { Plus, Edit, Trash2, Folder, FolderOpen } from "lucide-react";
 import toast from "react-hot-toast";
 import DynamicIcons from "@/components/DynamicIcons";
 import { Skeleton } from "@/components/ui/skeleton";
+import SearchBox from "@/components/dashbaord/SearchBox";
+import { useSearchParams } from "next/navigation";
+import { PaginationClient } from "@/components/Pagination";
+
+const fetchCategories = async ({ page = 1, pageSize = 10, q = "" }) => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories?page=${page}&pageSize=${pageSize}&q=${q}`
+  );
+  let categoriesData = await res.json();
+  console.log("data:", categoriesData);
+  if (!Array.isArray(categoriesData.data)) {
+    return [];
+  }
+  return categoriesData;
+};
 
 export default function CategoriesManagement() {
   const [categories, setCategories] = useState([]);
@@ -34,34 +49,44 @@ export default function CategoriesManagement() {
     seoTitle: "",
     seoDescription: "",
   });
-  const [uploading, setUploading] = useState(false);
+  const [pagination, setPagination] = useState({});
+
+  const searchParams = useSearchParams();
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+  const q = searchParams.get("q") || "";
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const { pagination, data } = await fetchCategories({
+          page,
+          pageSize,
+          q,
+        });
 
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories`
-      );
-      let categoriesData = await res.json();
-      console.log("data:", categoriesData);
-      if (!Array.isArray(categoriesData.data)) {
-        categoriesData = [];
+        if (data) {
+          setCategories(data);
+        }
+
+        setPagination(pagination);
+        console.log("Pagination Data:", pagination);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        toast.error("خطأ في جلب الأقسام");
+      } finally {
+        setLoading(false);
       }
-      setCategories(categoriesData.data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      toast.error("خطأ في جلب الأقسام");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchData();
+  }, [page, pageSize, q]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setUploading(true);
+    setLoading(true);
 
     try {
       const categoryData = {
@@ -97,7 +122,7 @@ export default function CategoriesManagement() {
       console.error("Error saving category:", error);
       toast.error("خطأ في حفظ القسم");
     } finally {
-      setUploading(false);
+      setLoading(false);
     }
   };
 
@@ -311,8 +336,8 @@ export default function CategoriesManagement() {
                 >
                   إلغاء
                 </Button>
-                <Button type="submit" disabled={uploading}>
-                  {uploading
+                <Button type="submit" disabled={loading}>
+                  {loading
                     ? "جاري الحفظ..."
                     : editingCategory
                     ? "تحديث"
@@ -346,62 +371,69 @@ export default function CategoriesManagement() {
           </div>
         ))}
 
+      <SearchBox placeholder={"ابحث باسم التنصيف"} />
       {/* Categories Tree View */}
-      <div className="space-y-4">
+      <div className="gap-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-stretch">
         {categories.map((parentCategory) => (
-          <Card key={parentCategory.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 ">
-                  {/* Render category icon dynamically if possible, fallback to FolderOpen */}
-                  <span style={{ color: parentCategory.color }}>
-                    {parentCategory.icon ? (
-                      <DynamicIcons icon={parentCategory.icon} size={32} />
-                    ) : (
-                      <FolderOpen className="h-5 w-5" />
-                    )}
-                  </span>
-                  <div>
-                    <CardTitle className="text-lg">
-                      {parentCategory.name}
-                    </CardTitle>
-                    <div className="flex items-center space-x-2  mt-1">
-                      <Badge
-                        variant={
-                          parentCategory.status === "active"
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
-                        {parentCategory.status === "active" ? "نشط" : "غير نشط"}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {/* ترتيب: {parentCategory.order} */}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex space-x-2 ">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(parentCategory)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(parentCategory.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+          <Card
+            key={parentCategory.id}
+            className="flex flex-col justify-between p-4 shadow-md border border-gray-200"
+          >
+            <div className="flex items-center space-x-4 mb-4">
+              {/* Render category icon dynamically if possible, fallback to FolderOpen */}
+              <span
+                className="flex items-center justify-center w-12 h-12 rounded-full"
+                style={{ color: parentCategory.color }}
+              >
+                {parentCategory.icon ? (
+                  <DynamicIcons icon={parentCategory.icon} size={24} />
+                ) : (
+                  <FolderOpen className="h-6 w-6 text-white" />
+                )}
+              </span>
+              <div>
+                <CardTitle className="text-lg font-semibold">
+                  {parentCategory.name}
+                </CardTitle>
+                <Badge
+                  variant={
+                    parentCategory.status === "active" ? "default" : "secondary"
+                  }
+                  className="mt-1"
+                >
+                  {parentCategory.status === "active" ? "نشط" : "غير نشط"}
+                </Badge>
               </div>
-            </CardHeader>
+            </div>
+            <div className="flex justify-between mt-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleEdit(parentCategory)}
+                className="flex items-center space-x-1"
+              >
+                <Edit className="h-4 w-4" />
+                <span>تعديل</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDelete(parentCategory.id)}
+                className="flex items-center space-x-1"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>حذف</span>
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
+
+      <PaginationClient
+        basePath={"/dashboard/categories"}
+        currentPage={pagination.page || 1}
+        maxPage={pagination.totalPages || 1}
+      />
     </div>
   );
 }
