@@ -1,14 +1,22 @@
-import { auth } from "@/auth/auth";
 import prisma from "@/lib/prisma";
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
-// GET: Get a single product by id
+const cookieKey =
+  process.env.NODE_ENV === "production"
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+
 export async function GET(request, { params }) {
   try {
-    const userSession = request.headers.get("x-user-session");
-    const user = userSession ? JSON.parse(userSession) : null;
+    const session = await getToken({
+      req: request,
+      secret: process.env.AUTH_SECRET,
+      salt: cookieKey,
+      cookieName: cookieKey,
+    });
 
-    console.log("user :", user);
+    const role = session?.role;
 
     const { id } = await params;
     if (!id) {
@@ -24,8 +32,7 @@ export async function GET(request, { params }) {
       },
     });
 
-    console.log("product :", product);
-    if (!product || product.isActive === false) {
+    if (!product || (product.isActive === false && role !== "admin")) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
@@ -34,6 +41,7 @@ export async function GET(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
+    console.log("error:", error);
     return NextResponse.json(
       { error: "Failed to fetch product" },
       { status: 500 }

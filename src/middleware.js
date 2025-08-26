@@ -15,8 +15,6 @@ export async function middleware(req) {
   });
   const { pathname } = req.nextUrl;
 
-  console.log("current session :", session);
-
   if (session) {
     req.headers.set("x-user-session", JSON.stringify(session)); // Add session to headers
   }

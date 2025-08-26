@@ -23,7 +23,7 @@ export default async function ProductPage({ params }) {
     cookiesStore.get("__Secure-authjs.session-token")?.value;
 
   const { slug } = await params;
-  // Fetch product by slug using fetch API
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/product/${slug}`,
     {
@@ -107,6 +107,14 @@ export default async function ProductPage({ params }) {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
+          {/* Show label if product is not available for public */}
+          {!displayProduct.isActive && (
+            <div className="my-6 flex items-center justify-center">
+              <span className="inline-block bg-red-600 text-white text-lg font-extrabold px-6 py-3 rounded-lg shadow-lg border-2 border-red-800 animate-pulse">
+                🚫 هذا المنتج غير متاح للعامة
+              </span>
+            </div>
+          )}
           <ProductInfoWrapper product={displayProduct} />
         </div>
       </div>
