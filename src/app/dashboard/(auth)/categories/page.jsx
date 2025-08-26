@@ -29,7 +29,6 @@ const fetchCategories = async ({ page = 1, pageSize = 10, q = "" }) => {
     `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories?page=${page}&pageSize=${pageSize}&q=${q}`
   );
   let categoriesData = await res.json();
-  console.log("data:", categoriesData);
   if (!Array.isArray(categoriesData.data)) {
     return [];
   }
