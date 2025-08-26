@@ -15,6 +15,12 @@ export async function middleware(req) {
   });
   const { pathname } = req.nextUrl;
 
+  console.log("current session :", session);
+
+  if (session) {
+    req.headers.set("x-user-session", JSON.stringify(session)); // Add session to headers
+  }
+
   if (session?.role === "admin" && pathname === "/dashboard/login") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
@@ -37,5 +43,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/dashboard/:path*"],
+  matcher: ["/:path*"],
 };

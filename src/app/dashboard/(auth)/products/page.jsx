@@ -162,7 +162,7 @@ export default function ProductsManagement() {
   };
 
   const handleDelete = async (productId) => {
-    if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+    if (confirm("هل أنت متأكد من إلغاء تنشيط هذا المنتج؟")) {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}`,
@@ -171,14 +171,14 @@ export default function ProductsManagement() {
           }
         );
         if (res.ok) {
-          toast.success("تم حذف المنتج بنجاح");
+          toast.success("تم الغاء تنشيط المنتج");
           fetchData();
         } else {
           throw new Error("Delete failed");
         }
       } catch (error) {
         console.error("Error deleting product:", error);
-        toast.error("خطأ في حذف المنتج");
+        toast.error("خطأ في الغاء تنشيط المنتج");
       }
     }
   };
