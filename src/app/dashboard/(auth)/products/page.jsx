@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +43,7 @@ const fetchData = async ({ q, page, pageSize }) => {
   return { products, categories, pagination };
 };
 
-export default function ProductsManagement() {
+function ProductsManagementContent() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -335,84 +335,102 @@ export default function ProductsManagement() {
 
       <SearchBox placeholder="البحث في المنتجات..." />
 
-      {products.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">لا توجد منتجات تطابق البحث</p>
-          </CardContent>
-        </Card>
-      )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <Card key={product.id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-1">
+      <div className="overflow-x-auto rounded-lg shadow">
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 border-b">الصورة</th>
+              <th className="px-4 py-2 border-b">اسم المنتج</th>
+              <th className="px-4 py-2 border-b">الوصف</th>
+              <th className="px-4 py-2 border-b">السعر</th>
+              <th className="px-4 py-2 border-b">المخزون</th>
+              <th className="px-4 py-2 border-b">القسم</th>
+              <th className="px-4 py-2 border-b">الحالة</th>
+              <th className="px-4 py-2 border-b">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={8}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    لا توجد منتجات تطابق البحث
+                  </p>
+                </td>
+              </tr>
+            ) : (
+              products.map((product) => (
+                <tr key={product.id} className="hover:bg-muted/50 transition">
+                  <td className="px-4 py-2 border-b text-center">
+                    {product.imageUrls.length > 0 ? (
+                      <img
+                        src={imageService.generateOptimizedUrl(
+                          imageService.extractPublicId(product.imageUrls[0]),
+                          { width: 80, height: 60 }
+                        )}
+                        alt={product.name}
+                        className="w-20 h-16 object-cover rounded mx-auto"
+                      />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        بدون صورة
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 border-b font-semibold">
                     {product.name}
-                  </CardTitle>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {product.imageUrls.length > 0 && (
-                <img
-                  src={imageService.generateOptimizedUrl(
-                    imageService.extractPublicId(product.imageUrls[0]),
-                    {
-                      width: 300,
-                      height: 200 || "/placeholder.svg",
-                    }
-                  )}
-                  alt={product.name}
-                  className="w-full h-32 object-cover rounded"
-                />
-              )}
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">السعر</p>
-                  <p className="font-semibold">{product.price} جنيه</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">المخزون</p>
-                  <p className="font-semibold">{product.stockQuantity}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">القسم</p>
-                  <p className="font-semibold">{product.categoryName}</p>
-                </div>
-              </div>
-
-              <div className="flex justify-end items-center space-x-2 ">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEdit(product)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDelete(product.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-
-                <Link href={`/products/${product.slug}`} target="_blank">
-                  <Button size="sm">
-                    <Link2 className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  </td>
+                  <td className="px-4 py-2 border-b truncate max-w-[200px]">
+                    {product.description}
+                  </td>
+                  <td className="px-4 py-2 border-b">{product.price} جنيه</td>
+                  <td className="px-4 py-2 border-b">
+                    {product.stockQuantity}
+                  </td>
+                  <td className="px-4 py-2 border-b">
+                    {product.category.name}
+                  </td>
+                  <td className="px-4 py-2 border-b">
+                    {product.isActive ? (
+                      <span className="inline-block rounded-full px-3 py-1 text-xs font-medium bg-green-100 text-green-800 border border-green-200"></span>
+                    ) : (
+                      <span className="inline-block rounded-full px-3 py-1 text-xs font-medium bg-red-100 text-red-800 border border-red-200"></span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center">
+                    <div className="flex justify-center items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(product)}
+                        title="تعديل"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(product.id)}
+                        title="حذف"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Link href={`/products/${product.slug}`} target="_blank">
+                        <Button size="sm" title="عرض المنتج">
+                          <Link2 className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       <PaginationClient
@@ -421,5 +439,13 @@ export default function ProductsManagement() {
         maxPage={pagination.totalPages}
       />
     </div>
+  );
+}
+
+export default function ProductsManagement() {
+  return (
+    <Suspense fallback={<ProductCardSkeleton />}>
+      <ProductsManagementContent />
+    </Suspense>
   );
 }

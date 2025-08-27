@@ -16,7 +16,7 @@ export default function SearchBox({ placeholder }) {
       params.delete("q");
     }
     params.set("page", "1");
-    router.push(`?${params.toString()}`);
+    router.push(`?${params.toString()}`, { shallow: true });
   };
 
   return (
