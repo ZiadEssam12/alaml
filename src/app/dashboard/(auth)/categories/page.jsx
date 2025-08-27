@@ -80,7 +80,6 @@ function CategoriesManagementContent() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
       const categoryData = {

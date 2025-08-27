@@ -21,9 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Package, Search, Link2 } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Package,
+  Search,
+  Link2,
+  Check,
+  X,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/dashbaord/product/skelaton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/dashbaord/imageUpload";
 import { imageService } from "@/lib/image-service";
 import { useSearchParams } from "next/navigation";
@@ -195,10 +205,6 @@ function ProductsManagementContent() {
     setEditingProduct(null);
   };
 
-  if (loading) {
-    return <ProductCardSkeleton />;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -335,109 +341,168 @@ function ProductsManagementContent() {
 
       <SearchBox placeholder="البحث في المنتجات..." />
 
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 border-b">الصورة</th>
-              <th className="px-4 py-2 border-b">اسم المنتج</th>
-              <th className="px-4 py-2 border-b">الوصف</th>
-              <th className="px-4 py-2 border-b">السعر</th>
-              <th className="px-4 py-2 border-b">المخزون</th>
-              <th className="px-4 py-2 border-b">القسم</th>
-              <th className="px-4 py-2 border-b">الحالة</th>
-              <th className="px-4 py-2 border-b">الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="text-center py-8 text-muted-foreground"
-                >
-                  <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    لا توجد منتجات تطابق البحث
-                  </p>
-                </td>
-              </tr>
-            ) : (
-              products.map((product) => (
-                <tr key={product.id} className="hover:bg-muted/50 transition">
-                  <td className="px-4 py-2 border-b text-center">
-                    {product.imageUrls.length > 0 ? (
-                      <img
-                        src={imageService.generateOptimizedUrl(
-                          imageService.extractPublicId(product.imageUrls[0]),
-                          { width: 80, height: 60 }
-                        )}
-                        alt={product.name}
-                        className="w-20 h-16 object-cover rounded mx-auto"
-                      />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        بدون صورة
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border-b font-semibold">
-                    {product.name}
-                  </td>
-                  <td className="px-4 py-2 border-b truncate max-w-[200px]">
-                    {product.description}
-                  </td>
-                  <td className="px-4 py-2 border-b">{product.price} جنيه</td>
-                  <td className="px-4 py-2 border-b">
-                    {product.stockQuantity}
-                  </td>
-                  <td className="px-4 py-2 border-b">
-                    {product.category.name}
-                  </td>
-                  <td className="px-4 py-2 border-b">
-                    {product.isActive ? (
-                      <span className="inline-block rounded-full px-3 py-1 text-xs font-medium bg-green-100 text-green-800 border border-green-200"></span>
-                    ) : (
-                      <span className="inline-block rounded-full px-3 py-1 text-xs font-medium bg-red-100 text-red-800 border border-red-200"></span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center">
-                    <div className="flex justify-center items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(product)}
-                        title="تعديل"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(product.id)}
-                        title="حذف"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Link href={`/products/${product.slug}`} target="_blank">
-                        <Button size="sm" title="عرض المنتج">
-                          <Link2 className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </td>
+      {loading ? (
+        <>
+          <ProductsSkeletonLoader />
+        </>
+      ) : (
+        <>
+          <div className="overflow-x-auto rounded-lg shadow">
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr className="border-b">
+                  <th className="px-4 py-2">الصورة</th>
+                  <th className="px-4 py-2">اسم المنتج</th>
+                  <th className="px-4 py-2">الوصف</th>
+                  <th className="px-4 py-2">السعر</th>
+                  <th className="px-4 py-2">المخزون</th>
+                  <th className="px-4 py-2">القسم</th>
+                  <th className="px-4 py-2">الحالة</th>
+                  <th className="px-4 py-2">الإجراءات</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {products.length === 0 ? (
+                  <tr className="border-b">
+                    <td
+                      colSpan={8}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        لا توجد منتجات تطابق البحث
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  products.map((product) => (
+                    <tr
+                      key={product.id}
+                      className="hover:bg-muted/50 transition border-b h-16 align-middle"
+                    >
+                      <td className="px-4 py-2 text-center">
+                        {product.imageUrls.length > 0 ? (
+                          <img
+                            src={imageService.generateOptimizedUrl(
+                              imageService.extractPublicId(
+                                product.imageUrls[0]
+                              ),
+                              { width: 80, height: 60 }
+                            )}
+                            alt={product.name}
+                            className="w-20 h-16 object-cover rounded mx-auto"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            بدون صورة
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 font-semibold">
+                        {product.name}
+                      </td>
+                      <td className="px-4 py-2 truncate max-w-[200px]">
+                        {product.description}
+                      </td>
+                      <td className="px-4 py-2">{product.price} جنيه</td>
+                      <td className="px-4 py-2">{product.stockQuantity}</td>
+                      <td className="px-4 py-2">{product.category.name}</td>
+                      <td className="px-4 py-2 h-full">
+                        {product.isActive ? (
+                          <span className="inline-block rounded-full p-2 text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                            <Check className="h-4 w-4 text-green-800" />
+                          </span>
+                        ) : (
+                          <span className="inline-block rounded-full p-2 text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                            <X className="h-4 w-4 text-red-800" />
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <div className="flex justify-center items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(product)}
+                            title="تعديل"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(product.id)}
+                            title="حذف"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Link
+                            href={`/products/${product.slug}`}
+                            target="_blank"
+                          >
+                            <Button size="sm" title="عرض المنتج">
+                              <Link2 className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
       <PaginationClient
         basePath="/dashboard/products"
         currentPage={pagination.currentPage}
         maxPage={pagination.totalPages}
       />
+    </div>
+  );
+}
+
+function ProductsSkeletonLoader() {
+  return (
+    <div className="overflow-x-auto rounded-lg shadow">
+      <table className="min-w-full bg-white">
+        <tbody>
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <tr key={idx} className="border-b animate-pulse h-16 align-middle">
+              <td className="px-4 py-2 text-center">
+                <Skeleton className="h-16 w-20 mx-auto rounded" />
+              </td>
+              <td className="px-4 py-2">
+                <Skeleton className="h-4 w-24 rounded" />
+              </td>
+              <td className="px-4 py-2">
+                <Skeleton className="h-4 w-32 rounded" />
+              </td>
+              <td className="px-4 py-2">
+                <Skeleton className="h-4 w-16 rounded" />
+              </td>
+              <td className="px-4 py-2">
+                <Skeleton className="h-4 w-12 rounded" />
+              </td>
+              <td className="px-4 py-2">
+                <Skeleton className="h-4 w-20 rounded" />
+              </td>
+              <td className="px-4 py-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </td>
+              <td className="px-4 py-2 text-center">
+                <div className="flex justify-center items-center gap-2">
+                  <Skeleton className="h-8 w-8 rounded" />
+                  <Skeleton className="h-8 w-8 rounded" />
+                  <Skeleton className="h-8 w-8 rounded" />
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
