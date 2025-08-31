@@ -7,7 +7,7 @@ export default function layout({ children }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarTrigger />
-      <main className="my-10 w-full px-10">{children}</main>
+      <main>{children}</main>
     </SidebarProvider>
   );
 }
