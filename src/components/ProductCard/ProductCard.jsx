@@ -33,17 +33,18 @@ export default function ProductCard({ product }) {
     imageService.generateBlurredPlaceholder(imagePublicId);
 
   return (
-    <div className="group relative bg-card rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+    <div className="group relative bg-card rounded-lg shadow-md m-1 hover:shadow-md transition-shadow">
       {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden rounded-t-lg">
+      <div className="relative h-48  overflow-hidden rounded-t-lg">
         <Link href={`/products/${product.slug}`}>
           <Image
             src={ImageThumbnail}
             alt={product.name}
-            fill
+            width={400}
+            height={400}
             placeholder="blur"
             blurDataURL={ImagePlaceholder}
-            className="rounded-lg object-cover"
+            className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-200"
           />
         </Link>
 
@@ -81,7 +82,7 @@ export default function ProductCard({ product }) {
             ))}
           </div>
           <span className="text-sm text-muted-foreground">
-            ({product.totalSales})
+            ({product.totalSales || 0})
           </span>
         </div>
 

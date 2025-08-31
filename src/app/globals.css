@@ -109,7 +109,7 @@ html[dir="rtl"] * {
   }
 
   section {
-    @apply my-20 py-5;
+    @apply my-10 py-5;
   }
 }
 

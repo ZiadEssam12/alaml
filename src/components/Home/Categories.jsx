@@ -11,9 +11,9 @@ import DynamicIcons from "../DynamicIcons";
 
 export default async function Categories({ data }) {
   return (
-    <section className="mt-0">
-      <div className="mb-8">
-        <h2 className="text-base font-bold mb-4">تسوق بالأقسام</h2>
+    <section className="mt-2">
+      <div className="mb-4">
+        <h2 className="text-base font-bold">تسوق بالأقسام</h2>
       </div>
 
       <Carousel
@@ -25,7 +25,7 @@ export default async function Categories({ data }) {
       >
         <CarouselPrevious />
         <CarouselNext />
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent>
           {data.map((category) => {
             return (
               <CarouselItem
@@ -34,14 +34,14 @@ export default async function Categories({ data }) {
               >
                 <Link
                   href={`categories/${category.seoTitle}`}
-                  className="group flex flex-col items-center p-4 bg-card rounded-lg border hover:shadow-md transition-all duration-200 hover:border-primary/20 h-full"
+                  className="group flex flex-col items-center px-4 py-1 bg-card rounded-lg border hover:shadow-md transition-all duration-200 hover:border-primary/20 h-full"
                 >
                   <div
-                    className={`p-3 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/10 transition-colors ${category.color}`}
+                    className={`p-3 rounded-full bg-accent/20 group-hover:bg-primary/10 transition-colors`}
                   >
-                    <DynamicIcons icon={category.icon} />
+                    <DynamicIcons icon={category.icon} color={category.color} />
                   </div>
-                  <span className="mt-2 text-sm font-medium text-center group-hover:text-primary transition-colors">
+                  <span className="mt-1 text-sm font-medium text-center group-hover:text-primary transition-colors">
                     {category.name}
                   </span>
                 </Link>

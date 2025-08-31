@@ -23,11 +23,11 @@ import { Button } from "../ui/button";
 export default function Hero() {
   return (
     <>
-      <div className="relative">
+      <div className="relative border-4 rounded-xl overflow-hidden border-accent">
         <Carousel loop={true}>
-          <CarouselContent className="h-96">
+          <CarouselContent className="h-[50vh]">
             <CarouselItem>
-              <div className="relative w-full h-full ">
+              <div className="relative w-full h-full">
                 <Image
                   src={images[0]}
                   alt="Stationery Item 1"

@@ -468,6 +468,18 @@ function ProductsSkeletonLoader() {
   return (
     <div className="overflow-x-auto rounded-lg shadow">
       <table className="min-w-full bg-white">
+        <thead>
+          <tr className="border-b">
+            <th className="px-4 py-2">الصورة</th>
+            <th className="px-4 py-2">اسم المنتج</th>
+            <th className="px-4 py-2">الوصف</th>
+            <th className="px-4 py-2">السعر</th>
+            <th className="px-4 py-2">المخزون</th>
+            <th className="px-4 py-2">القسم</th>
+            <th className="px-4 py-2">الحالة</th>
+            <th className="px-4 py-2">الإجراءات</th>
+          </tr>
+        </thead>
         <tbody>
           {Array.from({ length: 5 }).map((_, idx) => (
             <tr key={idx} className="border-b animate-pulse h-16 align-middle">

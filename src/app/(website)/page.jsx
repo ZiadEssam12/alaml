@@ -16,9 +16,7 @@ export default async function Home() {
         <ProductsList data={products} />
 
         <section>
-          <div className="mb-8">
-            <h2 className="text-base  font-bold mb-4">المنتجات المقترحة</h2>
-          </div>
+          <ProductsList data={products} title="المنتجات المقترحة" />
         </section>
       </main>
     </>

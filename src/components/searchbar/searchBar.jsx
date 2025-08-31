@@ -122,7 +122,7 @@ export default function SearchBar() {
   const safeQuery = query || "";
 
   return (
-    <div className="w-full lg:w-[200px] mx-auto" ref={resultsRef}>
+    <div className="w-full lg:w-lg mr-auto" ref={resultsRef}>
       <div className="relative">
         {isLoading ? (
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2  animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
