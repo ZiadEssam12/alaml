@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import DynamicIcons from "./DynamicIcons";
 
-export default function CategoriesPopUp() {
+export default function CategoriesPopUp({ title, data, children }) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const pathName = usePathname();

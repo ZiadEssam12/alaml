@@ -62,7 +62,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex-1  w-full hidden lg:block mt-4 pt-2 ">
+        <div className="flex-1  w-full hidden mt-4 pt-2 ">
           {/* Navigation */}
           <nav className="hidden md:flex items-center justify-center space-x-8">
             <Link href="/">الرئيسية</Link>
