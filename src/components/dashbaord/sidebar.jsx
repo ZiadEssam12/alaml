@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, LogOut } from "lucide-react";
+import { Calendar, Home, Inbox, LogOut, Users } from "lucide-react";
 
 import {
   Sidebar,
@@ -19,6 +19,11 @@ const items = [
     title: "الرئيسية",
     url: "/dashboard",
     icon: Home,
+  },
+  {
+    title: "المستخدمين",
+    url: "/dashboard/users",
+    icon: Users,
   },
   {
     title: "الطلبات",
@@ -47,7 +52,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton variant="outline" size="lg" asChild>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
