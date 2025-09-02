@@ -1,31 +1,14 @@
-import { auth } from "@/auth/auth";
 import prisma from "@/lib/prisma";
+import { getCurrentSessionData } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function PUT(request, { params }) {
   try {
-    // Get session from x-user-session header
-    const sessionHeader = request.headers.get("x-user-session");
-    if (!sessionHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await getCurrentSessionData(request);
 
-    let session;
-    try {
-      session = JSON.parse(sessionHeader);
-      console.log("secction : ", session);
-    } catch (error) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-    }
-
-    if (!session?.user || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = params;
+    const { id } = await params;
     const { name, email } = await request.json();
 
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id },
     });
@@ -34,7 +17,6 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Check if email is already taken by another user
     if (email && email !== existingUser.email) {
       const emailTaken = await prisma.user.findUnique({
         where: { email },
@@ -42,7 +24,7 @@ export async function PUT(request, { params }) {
 
       if (emailTaken) {
         return NextResponse.json(
-          { error: "Email is already taken" },
+          { error: "يوجد مستخدم آخر بنفس البريد الإلكتروني" },
           { status: 400 }
         );
       }
@@ -60,11 +42,6 @@ export async function PUT(request, { params }) {
         name: true,
         email: true,
         role: true,
-        _count: {
-          select: {
-            orders: true,
-          },
-        },
       },
     });
 
@@ -72,7 +49,7 @@ export async function PUT(request, { params }) {
   } catch (error) {
     console.error("Update user error:", error);
     return NextResponse.json(
-      { error: "Failed to update user" },
+      { error: "فشل في تحديث المستخدم" },
       { status: 500 }
     );
   }
@@ -80,26 +57,10 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    // Get session from x-user-session header
-    const sessionHeader = request.headers.get("x-user-session");
-    if (!sessionHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await getCurrentSessionData(request);
 
-    let session;
-    try {
-      session = JSON.parse(sessionHeader);
-    } catch (error) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-    }
+    const { id } = await params;
 
-    if (!session?.user || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = params;
-
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id },
     });
@@ -108,25 +69,20 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Prevent deleting yourself
-    if (id === session.user.id) {
+    if (id === session.id) {
       return NextResponse.json(
         { error: "لا يمكنك حذف حسابك الخاص" },
         { status: 400 }
       );
     }
 
-    // Delete user (this will cascade delete related records)
     await prisma.user.delete({
       where: { id },
     });
 
-    return NextResponse.json({ message: "User deleted successfully" });
+    return NextResponse.json({ message: "تم حذف المستخدم بنجاح" });
   } catch (error) {
     console.error("Delete user error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete user" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "فشل في حذف المستخدم" }, { status: 500 });
   }
 }

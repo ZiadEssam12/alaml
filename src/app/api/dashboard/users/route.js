@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { getCurrentSessionData } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
@@ -66,26 +67,19 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     // Get session from x-user-session header
-    const sessionHeader = request.headers.get("x-user-session");
-    if (!sessionHeader) {
+    const session = await getCurrentSessionData(request);
+
+    if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let session;
-    try {
-      session = JSON.parse(sessionHeader);
-    } catch (error) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-    }
+    const { email, name } = await request.json();
 
-    if (!session?.user || session.user.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { email } = await request.json();
-
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!email || !name) {
+      return NextResponse.json(
+        { error: "Email and name are required" },
+        { status: 400 }
+      );
     }
 
     // Check if user already exists
@@ -95,7 +89,7 @@ export async function POST(request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "User with this email already exists" },
+        { error: "يوجد مستخدم بهذا البريد الإلكتروني" },
         { status: 400 }
       );
     }
@@ -104,7 +98,7 @@ export async function POST(request) {
     const newAdmin = await prisma.user.create({
       data: {
         email,
-        name: email.split("@")[0], // Use email prefix as default name
+        name: name || "admin",
         role: "admin",
       },
       select: {
@@ -112,20 +106,12 @@ export async function POST(request) {
         name: true,
         email: true,
         role: true,
-        _count: {
-          select: {
-            orders: true,
-          },
-        },
       },
     });
 
     return NextResponse.json(newAdmin, { status: 201 });
   } catch (error) {
     console.error("Create admin error:", error);
-    return NextResponse.json(
-      { error: "Failed to create admin" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "فشل في إنشاء المشرف" }, { status: 500 });
   }
 }

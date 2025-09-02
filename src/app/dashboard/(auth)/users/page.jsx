@@ -37,8 +37,6 @@ export default async function UsersPage({ searchParams }) {
       getUsers("admin", 1, 50, q),
     ]);
 
-    console.log("users:", usersData);
-
     return (
       <UsersClient
         initialUsersData={usersData}

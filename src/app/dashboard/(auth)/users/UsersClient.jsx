@@ -27,8 +27,9 @@ import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
 
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 
-async function createAdmin(email) {
+async function createAdmin({ name, email }) {
   const token =
     Cookies.get("authjs.session-token") ||
     Cookies.get("__Secure-authjs.session-token");
@@ -41,7 +42,7 @@ async function createAdmin(email) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ name, email }),
     }
   );
 
@@ -100,7 +101,6 @@ export default function UsersClient({
   initialUsersData,
   initialAdminsData,
   initialSearchQuery,
-  initialPage,
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -110,7 +110,6 @@ export default function UsersClient({
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [newAdminEmail, setNewAdminEmail] = useState("");
   const [editUserData, setEditUserData] = useState({ name: "", email: "" });
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
 
@@ -124,7 +123,7 @@ export default function UsersClient({
     } else {
       params.delete("q");
     }
-    params.delete("page"); // Reset to page 1 when searching
+    params.delete("page");
 
     startTransition(() => {
       router.push(`/dashboard/users?${params.toString()}`);
@@ -133,13 +132,17 @@ export default function UsersClient({
 
   const handleCreateAdmin = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const email = formData.get("email");
+
     try {
-      await createAdmin(newAdminEmail);
-      setNewAdminEmail("");
+      await createAdmin({ name, email });
       setShowAddModal(false);
-      router.refresh(); // Refresh the page data
+      toast.success("تم إضافة المشرف بنجاح");
+      router.refresh();
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -150,9 +153,10 @@ export default function UsersClient({
       setShowEditModal(false);
       setEditingUser(null);
       setEditUserData({ name: "", email: "" });
-      router.refresh(); // Refresh the page data
+      toast.success("تم تحديث المستخدم بنجاح");
+      router.refresh();
     } catch (error) {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -160,9 +164,10 @@ export default function UsersClient({
     if (confirm(`هل أنت متأكد من حذف ${user.name}؟`)) {
       try {
         await deleteUser(user.id);
-        router.refresh(); // Refresh the page data
+        toast.success("تم حذف المستخدم بنجاح");
+        router.refresh();
       } catch (error) {
-        alert(error.message || "حدث خطأ أثناء حذف المستخدم");
+        toast.error(error.message || "حدث خطأ أثناء حذف المستخدم");
       }
     }
   };
@@ -341,12 +346,22 @@ export default function UsersClient({
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>إضافة مشرف جديد</DialogTitle>
-            <DialogDescription>
-              أدخل البريد الإلكتروني للمشرف الجديد
-            </DialogDescription>
+            <DialogDescription>أدخل بيانات المشرف الجديد</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateAdmin}>
             <div className="grid gap-4 py-4">
+              <div className="flex flex-col gap-4">
+                <Label htmlFor="name" className="text-right">
+                  الاسم
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  name="name"
+                  className="col-span-3"
+                  required
+                />
+              </div>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="email" className="text-right">
                   البريد الإلكتروني
@@ -354,8 +369,7 @@ export default function UsersClient({
                 <Input
                   id="email"
                   type="email"
-                  value={newAdminEmail}
-                  onChange={(e) => setNewAdminEmail(e.target.value)}
+                  name="email"
                   className="col-span-3"
                   required
                 />
@@ -377,7 +391,7 @@ export default function UsersClient({
           </DialogHeader>
           <form onSubmit={handleUpdateUser}>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="text-right">
                   الاسم
                 </Label>
@@ -392,7 +406,7 @@ export default function UsersClient({
                   required
                 />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="flex flex-col gap-4">
                 <Label htmlFor="edit-email" className="text-right">
                   البريد الإلكتروني
                 </Label>
