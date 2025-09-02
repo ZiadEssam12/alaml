@@ -2,15 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Users,
-  UserPlus,
-  Edit2,
-  Trash2,
-  ShoppingCart,
-  Shield,
-  Search,
-} from "lucide-react";
+import { Users, UserPlus, Edit2, Trash2, Shield, Search } from "lucide-react";
 import { PaginationClient } from "@/components/Pagination";
 import {
   Dialog,
@@ -203,19 +195,22 @@ export default function UsersClient({
       </div>
 
       {/* Search */}
-      <div className="mb-6 relative">
-        <Search
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-          size={18}
-        />
+      <div className="mb-6 relative flex items-center gap-2">
         <Input
           type="text"
           placeholder="البحث بالاسم أو البريد الإلكتروني..."
           value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="pl-10"
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 max-w-xs"
           disabled={isPending}
         />
+        <Button
+          onClick={() => handleSearch(searchQuery)}
+          className="ml-2"
+          disabled={isPending}
+        >
+          بحث
+        </Button>
       </div>
 
       {/* Tabs */}
@@ -243,10 +238,6 @@ export default function UsersClient({
           المشرفين ({initialAdminsData.pagination.totalCount})
         </button>
       </div>
-
-      {isPending && (
-        <div className="text-center py-4 text-gray-500">جاري التحديث...</div>
-      )}
 
       {/* Users Table */}
       <div className="overflow-x-auto rounded-lg shadow">
