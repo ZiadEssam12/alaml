@@ -1,48 +1,226 @@
-I understand you've selected a portion of the `schema.prisma` file in the Canvas. Based on the provided schema and your role as a senior developer, here are the key tasks and requirements for implementing the coupon code logic.
+## **1. Backend: Apply Coupon Flow**
 
-### Coupon System - Development Requirements
+This is the critical piece. Implementation should be **atomic** (transaction-based) to prevent race conditions and double usage.
 
-This document outlines the core tasks for the backend and frontend developers to integrate the coupon functionality as defined in the Prisma schema.
+### **Endpoint:** `POST /api/coupons/apply`
 
-#### 1. Backend API Endpoints
+**Input:** `{ orderId: string, couponCode: string, userId: string }`
+**Output:** `{ success: true, discount: number, finalAmount: number, message?: string }`
 
-The development team must create and secure the following API endpoints to handle all coupon-related actions:
+---
 
-* **`POST /api/coupons/apply`**
-    * **Description:** Validates and applies a coupon code to a user's current cart/order.
-    * **Request Body:** `{"code": "SUMMER20", "userId": "..."}`
-    * **Logic:**
-        * **A.** Fetch the coupon from the database using the provided `code`. If not found, return an error.
-        * **B.** Validate the coupon based on the following conditions:
-            * Is `isActive` set to `true`?
-            * Is the current date between `startDate` and `expirationDate`?
-            * If `maxUsageCount` is set, check if the total `CouponUsage` count is less than this value.
-            * If `perUserUsageCount` is set, count the number of times the current `userId` has used the coupon and ensure it's less than the limit.
-            * Check if the user's cart total meets the `minCartValue` (if applicable).
-        * **C.** If all validations pass, calculate the discount amount based on the coupon `type` (`percentage`, `fixed`, `free_shipping`) and `value`.
-        * **D.** Apply the discount to the user's order record, update the `finalAmount`, and link the `couponCode` and `couponId` to the `Order` model.
-        * **E.** Create a new entry in the `CouponUsage` table to log the successful application, linking it to the `couponId`, `userId`, and `orderId`.
-* **`POST /api/coupons/remove`**
-    * **Description:** Removes a previously applied coupon from a user's order.
-    * **Request Body:** `{"orderId": "..."}`
-    * **Logic:**
-        * **A.** Find the `Order` associated with the `orderId`.
-        * **B.** Find the corresponding `CouponUsage` entry and delete it from the database.
-        * **C.** Reset the `discount` and recalculate the `finalAmount` on the `Order` record.
+### **Step-by-Step Logic**
 
-#### 2. Frontend User Interface (UI)
+#### **1. Start DB Transaction**
 
-The frontend developers should create the following UI components and logic to support the coupon system:
+- Begin a transaction to ensure atomic updates on `Coupon`, `Order`, and `CouponUsage`.
 
-* **A.** A text input field on the cart or checkout page where users can enter a coupon code.
-* **B.** A button to trigger the `apply` action.
-* **C.** A visual display of the applied coupon, the discount amount, and the new total.
-* **D.** Clear and concise error messages for validation failures (e.g., "Invalid coupon code," "This coupon has expired," "Minimum cart value not met").
-* **E.** A button or link to remove a currently applied coupon.
+---
 
-#### 3. Data Integrity & Management
+#### **2. Fetch and lock the coupon row**
 
-* **A.** Implement a method for administrators to create, view, update, and delete coupons (`CRUD` operations). This should include a simple form or dashboard for managing coupon attributes like `code`, `type`, `value`, and usage limits.
-* **B.** The `CouponUsage` model should be treated as a historical record. Its primary function is to log usage, so no direct API endpoints for modification are needed for general users.
-* **C.** The system should handle concurrent requests gracefully, especially for coupons with a `maxUsageCount` to avoid over-usage.
-* **D.** Ensure all database queries are efficient and properly handle potential errors. The chosen ORM (Prisma) simplifies many of these tasks. 
+- `SELECT * FROM Coupon WHERE code = $couponCode FOR UPDATE`
+- If coupon doesn’t exist → return error `"Invalid coupon code"`.
+
+---
+
+#### **3. Validate coupon status**
+
+- **isActive:** Must be `true`.
+- **Date Range:** If `startDate`/`expirationDate` exist, ensure:
+
+  ```ts
+  startDate <= now <= expirationDate;
+  ```
+
+- If invalid → return `"Coupon expired or inactive"`.
+
+---
+
+#### **4. Check usage limits**
+
+- **Global usage:**
+  If `maxUsageCount` exists → ensure `usageCount < maxUsageCount`.
+  Otherwise → return `"Coupon usage limit reached"`.
+- **Per-user usage:**
+  Count `CouponUsage` rows for `(couponId, userId)` → ensure `< perUserUsageCount` if defined.
+  Otherwise → return `"You have reached the limit for this coupon"`.
+
+---
+
+#### **5. Validate order**
+
+- Fetch `Order` by `orderId`.
+- If not found or not owned by `userId` → return `"Invalid order"`.
+- Check `order.status` must be `pending` (not processed or paid yet).
+- Check `order.subtotal >= coupon.minCartValue` if defined.
+
+---
+
+#### **6. Calculate discount**
+
+- Based on `coupon.type`:
+
+  ```ts
+  let discount = 0;
+
+  if (type === "percentage") {
+    discount = round(subtotal * (value / 100), 2);
+  }
+  if (type === "fixed") {
+    discount = Math.min(value, subtotal); // don't exceed subtotal
+  }
+  if (type === "free_shipping") {
+    discount = order.shippingCost;
+    order.shippingCost = 0; // free shipping
+  }
+  ```
+
+- **Ensure final amount ≥ 0:**
+
+  ```ts
+  finalAmount = Math.max(subtotal + shippingCost - discount, 0);
+  ```
+
+---
+
+#### **7. Update order**
+
+- Update `Order` record:
+
+  - `discount = discount`
+  - `finalAmount = finalAmount`
+  - `couponId = coupon.id`
+  - `couponCode = coupon.code` (denormalized snapshot)
+
+---
+
+#### **8. Insert coupon usage row**
+
+- Create `CouponUsage` with `{ couponId, userId, orderId }`
+- Add unique constraint `@@unique([couponId, userId, orderId])` to prevent duplicates.
+
+---
+
+#### **9. Increment coupon usage counter**
+
+- `UPDATE Coupon SET usageCount = usageCount + 1 WHERE id = $couponId`
+
+---
+
+#### **10. Commit transaction**
+
+- If any validation fails, rollback and return proper error message.
+
+---
+
+#### **11. Return success response**
+
+- `{ success: true, discount, finalAmount }`
+
+---
+
+## **2. Backend: Remove Coupon Flow**
+
+### **Endpoint:** `POST /api/coupons/remove`
+
+**Input:** `{ orderId: string, userId: string }`
+**Output:** `{ success: true, finalAmount: number }`
+
+---
+
+### **Logic**
+
+1. Fetch `Order` by `orderId` where `userId = currentUser`.
+2. If no coupon applied → return `"No coupon applied"`.
+3. Delete `CouponUsage` row for `(couponId, userId, orderId)`.
+4. Reset `discount = 0`, `finalAmount = subtotal + shippingCost`.
+5. Set `couponId = null`, `couponCode = null`.
+6. Commit transaction.
+7. Return success with new totals.
+
+---
+
+## **3. Frontend Logic**
+
+### **Checkout Page:**
+
+- **Apply Coupon:**
+
+  - Text input for coupon code.
+  - On submit → call `POST /api/coupons/apply`.
+  - Show loader until response returns.
+  - If success → show discount line item, new final amount.
+  - If error → show message in red under input.
+
+- **Remove Coupon:**
+
+  - “Remove” link/button → call `POST /api/coupons/remove`.
+  - Reset totals.
+
+- **Edge Cases:**
+
+  - Disabled apply button while pending.
+  - Prevent reapplying same coupon if already used.
+
+---
+
+## **4. Admin Panel Logic**
+
+- **CRUD Coupons:**
+
+  - Create form with `code`, `type`, `value`, `maxUsageCount`, `perUserUsageCount`, `minCartValue`, `startDate`, `expirationDate`.
+  - Validate:
+
+    - `expirationDate > startDate`
+    - `value >= 0`
+    - `percentage <= 100`
+
+- **List Coupons:**
+
+  - Show usage stats: total redemptions, per-user usage, status.
+
+- **Soft delete / deactivate:**
+
+  - Toggle `isActive` instead of hard delete.
+  - Allow archiving coupons.
+
+---
+
+## **5. Extra Safety Checks**
+
+- **Idempotency:** If same coupon applied twice to same order → return success without duplicating `CouponUsage`.
+- **Rate limiting:** Prevent brute force coupon guessing.
+- **Logging:** Log coupon applications for analytics & debugging.
+
+---
+
+## **6. Suggested Developer Flow**
+
+1. **DB Migration:** Add missing fields & constraints from schema recommendations.
+2. **Backend:**
+
+   - Implement `applyCoupon` and `removeCoupon` inside Prisma transactions.
+   - Write unit tests for all validation cases.
+
+3. **Frontend:**
+
+   - Integrate `apply/remove` endpoints with clear UI feedback.
+   - Handle success/error gracefully.
+
+4. **Admin:**
+
+   - Build CRUD for coupons + stats view.
+
+5. **QA Tests:**
+
+   - Concurrency test with `maxUsageCount = 1`.
+   - Expired coupon scenario.
+   - Per-user limit scenario.
+   - Free shipping scenario.
+
+---
+
+If you want, I can write a **TypeScript `applyCoupon()` function** using Prisma with all these validations and transaction safety built in.
+
+Do you want me to do that? It will give your devs production-ready code.

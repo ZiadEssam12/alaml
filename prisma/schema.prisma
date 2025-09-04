@@ -136,14 +136,13 @@ model Coupon {
   isActive            Boolean       @default(true) @map("is_active")
   maxUsageCount       Int?          @map("max_usage_count")
   perUserUsageCount   Int?          @map("per_user_usage_count")
+  maxDiscountAmount   Decimal?      @db.Decimal(10, 2) @map("max_discount_amount")
   startDate           DateTime      @map("start_date")
   expirationDate      DateTime      @map("expiration_date")
   createdAt           DateTime      @default(now()) @map("created_at")
   
-  // Inverse relation for Order (optional)
   orders              Order[]
   
-  // Inverse relation for CouponUsage
   usages              CouponUsage[]
 
   @@map("coupons")
