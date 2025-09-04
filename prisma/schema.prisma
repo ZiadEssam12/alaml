@@ -10,15 +10,15 @@ datasource db {
 }
 
 model Category {
-  id               String         @id @default(uuid())
-  name             String         @unique
-  icon             String
-  color            String         
-  status           CategoryStatus
-  seoTitle         String         @unique
-  seoDescription   String
-  createdAt        DateTime       @default(now())
-  products         Product[]
+  id              String         @id @default(uuid())
+  name            String         @unique
+  icon            String
+  color           String
+  status          CategoryStatus
+  seoTitle        String         @unique
+  seoDescription  String
+  createdAt       DateTime       @default(now())
+  products        Product[]
 }
 
 model Product {
@@ -37,7 +37,7 @@ model Product {
 }
 
 model Order {
-  id                 String      @id @default(uuid())
+  id                 String        @id @default(uuid())
   customerName       String
   customerEmail      String
   customerPhone      String
@@ -50,15 +50,19 @@ model Order {
   discount           Float
   finalAmount        Float
   paymentMethod      String
-  status             OrderStatus @default(pending)
+  status             OrderStatus   @default(pending)
   trackingNumber     String?
   shippingCompanyURL String?
   notes              String?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime?   @updatedAt
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime?     @updatedAt
 
   userId             String
-  user               User        @relation(fields: [userId], references: [id])
+  user               User          @relation(fields: [userId], references: [id])
+  couponCode         String?
+  coupon             Coupon?       @relation(fields: [couponCode], references: [code])
+  // Inverse relation for CouponUsage
+  couponUsages       CouponUsage[]
 }
 
 model OrderItem {
@@ -85,12 +89,14 @@ model Review {
 }
 
 model User {
-  id    String   @id @default(uuid())
-  name  String
-  email String?  @unique
-  role  UserRole @default(user)
-  cart  Cart?    // One-to-one relation
-  orders Order[] // One-to-many relation
+  id           String        @id @default(uuid())
+  name         String
+  email        String?       @unique
+  role         UserRole      @default(user)
+  cart         Cart?         // One-to-one relation
+  orders       Order[]       // One-to-many relation
+  // Inverse relation for CouponUsage
+  couponUsages CouponUsage[]
 }
 
 enum UserRole {
@@ -99,12 +105,12 @@ enum UserRole {
 }
 
 model Cart {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
   items     CartItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime?  @updatedAt
 }
 
 model CartItem {
@@ -117,6 +123,51 @@ model CartItem {
   price     Float
   imageUrl  String
   quantity  Int
+}
+
+model Coupon {
+  id                  String        @id @default(uuid()) @map("coupon_id")
+  code                String        @unique
+  description         String?       @db.Text
+  type                CouponType
+  value               Decimal       @db.Decimal(10, 2)
+  isActive            Boolean       @default(true) @map("is_active")
+  maxUsageCount       Int?          @map("max_usage_count")
+  perUserUsageCount   Int?          @map("per_user_usage_count")
+  startDate           DateTime      @map("start_date")
+  expirationDate      DateTime      @map("expiration_date")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  
+  // Inverse relation for Order (optional)
+  orders              Order[]
+  
+  // Inverse relation for CouponUsage
+  usages              CouponUsage[]
+
+  @@map("coupons")
+}
+
+model CouponUsage {
+  usageId   Int      @id @default(autoincrement()) @map("usage_id")
+
+  couponId  String   @map("coupon_id")
+  coupon    Coupon   @relation(fields: [couponId], references: [id])
+
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+
+  orderId   String   @map("order_id")
+  order     Order    @relation(fields: [orderId], references: [id])
+
+  appliedAt DateTime @default(now()) @map("applied_at")
+
+  @@map("coupon_usages")
+}
+
+enum CouponType {
+  percentage
+  fixed
+  free_shipping
 }
 
 enum CategoryStatus {
