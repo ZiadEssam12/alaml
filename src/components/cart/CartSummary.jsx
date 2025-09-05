@@ -34,7 +34,8 @@ const handleSubmitCoupon = async (e) => {
     );
     const result = await response.json();
     if (!response.ok) {
-      throw new Error(result.message);
+      toast.error(result.message || "الكوبون غير صالح");
+      return null;
     }
     return result; // Return the coupon data
   } catch (e) {
@@ -57,7 +58,7 @@ export function CartSummary({
 
   const shippingCost =
     total >= 200 || coupon?.type === "free_shipping" ? 0 : 30;
-  const finalTotal = total + shippingCost;
+  const finalTotal = total + shippingCost - (coupon?.discount || 0);
 
   const handleCouponFormSubmit = async (e) => {
     const coupon = await handleSubmitCoupon(e);
@@ -95,6 +96,13 @@ export function CartSummary({
           </div>
         )}
 
+        {coupon?.discount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>خصم الكوبون</span>
+            <span>-{coupon.discount.toFixed(2)} جنيه</span>
+          </div>
+        )}
+
         <Separator />
 
         <div className="flex justify-between font-bold text-lg">
@@ -116,11 +124,15 @@ export function CartSummary({
                   id="coupon"
                   name="coupon"
                   placeholder="أدخل كود الكوبون"
+                  required
                 />
                 <Button
                   variant="ghost"
                   className="absolute left-0 top-0 h-full"
-                  onClick={() => setCoupon(null)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCoupon(null);
+                  }}
                 >
                   <X />
                 </Button>
