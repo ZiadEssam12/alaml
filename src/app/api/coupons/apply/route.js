@@ -21,7 +21,7 @@ export async function GET(req) {
 
   if (!cartId) {
     return NextResponse.json(
-      { error: "لم يتم العثور على سلة للمستخدم" },
+      { error: "لم يتم العثور على سلة مرتبطة بهذا المستخدم" },
       { status: 400 }
     );
   }

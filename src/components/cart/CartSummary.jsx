@@ -5,17 +5,67 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cartContext } from "@/Context/Cart";
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import { Input } from "../ui/input";
+import toast from "react-hot-toast";
+import { X } from "lucide-react";
 
-export function CartSummary({ showConfirmButon = true }) {
+const handleSubmitCoupon = async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+  const couponValue = formData.get("coupon");
+
+  if (!couponValue) {
+    toast.error("يرجى إدخال كود الكوبون");
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: couponValue }),
+      }
+    );
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message);
+    }
+    return result; // Return the coupon data
+  } catch (e) {
+    console.log("error :", e);
+    toast.error("حدث خطأ ما، حاول مرة أخرى");
+    return null;
+  }
+};
+
+export function CartSummary({
+  showConfirmButon = true,
+  showCouponField = false,
+}) {
   const { total, totalItemInCart } = useContext(cartContext);
+  const [coupon, setCoupon] = useState(null);
 
   if (total === 0 || totalItemInCart === 0) {
     return;
   }
 
-  const shippingCost = total >= 200 ? 0 : 30;
+  const shippingCost =
+    total >= 200 || coupon?.type === "free_shipping" ? 0 : 30;
   const finalTotal = total + shippingCost;
+
+  const handleCouponFormSubmit = async (e) => {
+    const coupon = await handleSubmitCoupon(e);
+    if (coupon) {
+      setCoupon(coupon);
+      toast.success("تم تطبيق الكوبون بنجاح");
+    }
+  };
 
   return (
     <Card className="sticky top-[200px]">
@@ -33,13 +83,13 @@ export function CartSummary({ showConfirmButon = true }) {
           <span>{shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}</span>
         </div>
 
-        {total >= 200 && (
+        {(total >= 200 || coupon?.type === "free_shipping") && (
           <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
             🎉 تهانينا! حصلت على شحن مجاني
           </div>
         )}
 
-        {total < 200 && (
+        {total < 200 && coupon?.type !== "free_shipping" && (
           <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
             أضف {(200 - total).toFixed(2)} جنيه أخرى للحصول على شحن مجاني
           </div>
@@ -51,6 +101,34 @@ export function CartSummary({ showConfirmButon = true }) {
           <span>المجموع الكلي</span>
           <span>{finalTotal.toFixed(2)} جنيه</span>
         </div>
+
+        <Separator />
+
+        {showCouponField && (
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="coupon" className="font-medium">
+              هل لديك كوبون خصم؟
+            </label>
+            <form onSubmit={handleCouponFormSubmit} className="flex space-x-2">
+              <div className="relative flex items-center">
+                <Input
+                  type="text"
+                  id="coupon"
+                  name="coupon"
+                  placeholder="أدخل كود الكوبون"
+                />
+                <Button
+                  variant="ghost"
+                  className="absolute left-0 top-0 h-full"
+                  onClick={() => setCoupon(null)}
+                >
+                  <X />
+                </Button>
+              </div>
+              <Button className="mt-2 w-full">تطبيق الكوبون</Button>
+            </form>
+          </div>
+        )}
 
         {showConfirmButon && (
           <Link href="/checkout">
