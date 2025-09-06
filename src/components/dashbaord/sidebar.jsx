@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, LogOut, Users } from "lucide-react";
+import { Calendar, Home, Inbox, LogOut, Package, Users } from "lucide-react";
 
 import {
   Sidebar,
@@ -39,6 +39,11 @@ const items = [
     title: "المنتجات",
     url: "/dashboard/products",
     icon: Calendar,
+  },
+  {
+    title: "الكوبونات",
+    url: "/dashboard/coupons",
+    icon: Package,
   },
 ];
 

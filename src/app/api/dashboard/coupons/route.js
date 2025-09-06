@@ -6,10 +6,10 @@ export async function GET(req) {
   const page = Number(searchParams.get("page") || 1);
   const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
   const q = searchParams.get("q") || "";
-  const totalCoupons = await prisma.coupons.count();
+  const totalCoupons = await prisma.coupon.count();
   const maxPage = Math.ceil(totalCoupons / limit);
 
-  const coupons = await prisma.coupons.findMany({
+  const coupons = await prisma.coupon.findMany({
     where: q ? { name: { contains: q, mode: "insensitive" } } : {},
     skip: (page - 1) * limit,
     take: limit,
@@ -38,7 +38,7 @@ export async function POST(req) {
       return NextResponse.json({ errors }, { status: 400 });
     });
 
-  const coupon = await prisma.coupons.create({
+  const coupon = await prisma.coupon.create({
     data: {
       code: validationresult.code,
       description: validationresult.description,
