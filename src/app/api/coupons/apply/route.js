@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export async function GET(req) {
-  const { couponCode, userId } = await req.json();
+export async function POST(req) {
+  const { couponCode } = await req.json();
+  const userId = req.headers.get("userid");
 
   if (!couponCode) {
     return NextResponse.json({ message: "رمز الكوبون مطلوب" }, { status: 400 });
@@ -39,7 +41,7 @@ export async function GET(req) {
     );
   }
 
-  const coupon = await prisma.coupons.findFirst({
+  const coupon = await prisma.coupon.findFirst({
     where: {
       code: couponCode,
       isActive: true,

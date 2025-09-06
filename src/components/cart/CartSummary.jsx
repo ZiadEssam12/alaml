@@ -9,9 +9,12 @@ import { useContext, useState } from "react";
 import { Input } from "../ui/input";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
+import Cookies from "js-cookie";
 
 const handleSubmitCoupon = async (e) => {
   e.preventDefault();
+  const userId = Cookies.get("userid");
+  console.log("user id :", userId);
 
   const formData = new FormData(e.target);
   const couponValue = formData.get("coupon");
@@ -28,8 +31,9 @@ const handleSubmitCoupon = async (e) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          userId: Cookies.get("userid"),
         },
-        body: JSON.stringify({ code: couponValue }),
+        body: JSON.stringify({ couponCode: couponValue }),
       }
     );
     const result = await response.json();
@@ -55,6 +59,8 @@ export function CartSummary({
   if (total === 0 || totalItemInCart === 0) {
     return;
   }
+
+  console.log("show coupon field :", showCouponField);
 
   const shippingCost =
     total >= 200 || coupon?.type === "free_shipping" ? 0 : 30;
@@ -117,13 +123,17 @@ export function CartSummary({
             <label htmlFor="coupon" className="font-medium">
               هل لديك كوبون خصم؟
             </label>
-            <form onSubmit={handleCouponFormSubmit} className="flex space-x-2">
+            <form
+              onSubmit={handleCouponFormSubmit}
+              className="flex items-center space-x-2"
+            >
               <div className="relative flex items-center">
                 <Input
                   type="text"
                   id="coupon"
                   name="coupon"
                   placeholder="أدخل كود الكوبون"
+                  // className="min-w-sm"
                   required
                 />
                 <Button
@@ -137,7 +147,7 @@ export function CartSummary({
                   <X />
                 </Button>
               </div>
-              <Button className="mt-2 w-full">تطبيق الكوبون</Button>
+              <Button>تطبيق الكوبون</Button>
             </form>
           </div>
         )}
