@@ -168,7 +168,7 @@ function CouponsManagementContent() {
   };
 
   return (
-    <div className="space-y-6 py-10">
+    <div className="space-y-6 py-10 container">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">إدارة الكوبونات</h1>
@@ -222,9 +222,9 @@ function CouponsManagementContent() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Coupon Type */}
-                <div className="space-y-2">
+                <div className="space-y-2 w-full">
                   <Label htmlFor="type">نوع الكوبون</Label>
-                  <DropdownMenu>
+                  <DropdownMenu className="w-full">
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="w-full">
                         {couponTypes.find(
@@ -232,11 +232,11 @@ function CouponsManagementContent() {
                         )?.label || "اختر نوع الكوبون"}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className={"w-full"}>
+                    <DropdownMenuContent align="start" className="w-full">
                       {couponTypes.map((type) => (
                         <DropdownMenuItem
                           key={type.value}
-                          className={"w-full"}
+                          className="w-full"
                           onClick={() =>
                             setFormData({ ...formData, type: type.value })
                           }
@@ -422,11 +422,13 @@ function CouponsManagementContent() {
         </div>
       )}
 
-      <PaginationClient
-        basePath="/dashboard/coupons"
-        currentPage={pagination.currentPage}
-        maxPage={pagination.totalPages}
-      />
+      {pagination.totalPages > 1 && (
+        <PaginationClient
+          basePath="/dashboard/coupons"
+          currentPage={pagination.currentPage}
+          maxPage={pagination.totalPages}
+        />
+      )}
     </div>
   );
 }
