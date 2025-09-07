@@ -220,7 +220,7 @@ function CouponsManagementContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 {/* Coupon Type */}
                 <div className="space-y-2 w-full">
                   <Label htmlFor="type">نوع الكوبون</Label>
@@ -264,7 +264,7 @@ function CouponsManagementContent() {
                     }
                     required
                   />
-                </div>
+                </div>  
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

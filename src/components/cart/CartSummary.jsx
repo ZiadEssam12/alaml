@@ -31,7 +31,7 @@ const handleSubmitCoupon = async (e) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          userId: Cookies.get("userid"),
+          "userId": Cookies.get("userid"),
         },
         body: JSON.stringify({ couponCode: couponValue }),
       }

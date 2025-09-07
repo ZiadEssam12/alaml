@@ -33,20 +33,33 @@ export default function ProductCard({ product }) {
     imageService.generateBlurredPlaceholder(imagePublicId);
 
   return (
-    <div className="group relative bg-card rounded-lg shadow-md m-1 hover:shadow-md transition-shadow">
+    <div className="group relative bg-card rounded-lg p-1 border hover:shadow-md transition-shadow">
       {/* Product Image */}
-      <div className="relative h-48  overflow-hidden rounded-t-lg">
+      <div className="relative h-48 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">
         <Link href={`/products/${product.slug}`}>
           <Image
             src={ImageThumbnail}
             alt={product.name}
-            width={400}
-            height={400}
+            width={150}
+            height={150}
             placeholder="blur"
             blurDataURL={ImagePlaceholder}
-            className="object-contain w-full h-full group-hover:scale-105 transition-transform duration-200"
+            className="group-hover:scale-105 transition-transform duration-200"
           />
         </Link>
+        <Button
+          onClick={handleAddToCart}
+          disabled={isOutOfStock || isItemInCart}
+          className="w-full bottom-0 translate-y-[103%] disabled:pointer-events-auto disabled:bg-primary disabled:opacity-90 disabled:text-accent disabled:cursor-not-allowed group-hover:translate-y-0 transition-transform absolute rounded-none"
+          variant={isItemInCart ? "secondary" : "default"}
+        >
+          <ShoppingCart className="h-4 w-4 ml-2" />
+          {isOutOfStock
+            ? "نفد المخزون"
+            : isItemInCart
+            ? "في السلة"
+            : "أضف للسلة"}
+        </Button>
 
         {/* Stock Badge */}
         {isOutOfStock && (
@@ -60,58 +73,45 @@ export default function ProductCard({ product }) {
       <div className="p-4">
         <Link href={`/products/${product.slug}`}>
           <h3
-            className="font-semibold text-lg mb-2 hover:text-primary line-clamp-1"
+            className="font-semibold text-base mb-2 hover:text-primary line-clamp-1"
             title={product.name}
           >
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating */}
-        <div className="flex items-center gap-1 mb-2">
-          <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-4 w-4 ${
-                  i < Math.floor(product.averageRating)
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
+        <div className="flex items-centerjustify-start gap-3">
+          {/* Rating */}
+          <div className="flex items-center gap-1 mb-2 order-2">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`h-4 w-4 ${
+                    i < Math.floor(product.averageRating)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground">
+              ({product.totalSales || 0})
+            </span>
           </div>
-          <span className="text-sm text-muted-foreground">
-            ({product.totalSales || 0})
-          </span>
-        </div>
 
-        {/* Price */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xl font-bold text-primary">
-            {product.price} جنيه
-          </span>
-          {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
-            <Badge variant="outline" className="text-orange-600">
-              {product.stockQuantity} متبقي
-            </Badge>
-          )}
+          {/* Price */}
+          <div className="flex items-center justify-between mb-4 order-1">
+            <span className="text-xl font-bold text-primary">
+              {product.price} جنيه
+            </span>
+            {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+              <Badge variant="outline" className="text-orange-600">
+                {product.stockQuantity} متبقي
+              </Badge>
+            )}
+          </div>
         </div>
-
-        {/* Add to Cart Button */}
-        <Button
-          onClick={handleAddToCart}
-          disabled={isOutOfStock || isItemInCart}
-          className="w-full"
-          variant={isItemInCart ? "secondary" : "default"}
-        >
-          <ShoppingCart className="h-4 w-4 ml-2" />
-          {isOutOfStock
-            ? "نفد المخزون"
-            : isItemInCart
-            ? "في السلة"
-            : "أضف للسلة"}
-        </Button>
       </div>
     </div>
   );
