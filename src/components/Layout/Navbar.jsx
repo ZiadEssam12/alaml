@@ -12,7 +12,7 @@ import SearchBar from "../searchbar/searchBar";
 export default function Navbar() {
   const cartItemsCount = 0; // Placeholder for cart items count
   return (
-    <header className="sticky top-0 z-50 bg-background shadow">
+    <header className="sticky top-0 z-50 bg-background/65 backdrop-blur-sm  shadow">
       {/* Top Bar */}
       <div className="bg-primary text-primary-foreground py-2 hidden">
         <div className="container mx-auto px-4 text-center text-sm">
@@ -24,16 +24,18 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex-1 flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">
-                م
+          <div className="flex-1">
+            <Link href="/" className="w-fit flex items-center space-x-2">
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">
+                  م
+                </span>
+              </div>
+              <span className="text-xl font-bold hidden lg:block">
+                مكتبة الأمل
               </span>
-            </div>
-            <span className="text-xl font-bold hidden lg:block">
-              مكتبة الأمل
-            </span>
-          </Link>
+            </Link>
+          </div>
 
           <div className="flex-1">
             <SearchBar />

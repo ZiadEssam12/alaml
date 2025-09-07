@@ -34,7 +34,7 @@ export default function CategoriesPopUp({ title, data, children }) {
       )}
 
       <div
-        className="relative inline-block z-50 bg-background rounded py-3 px-3"
+        className="relative inline-block z-50 bg-background/65 rounded-full py-3 px-3"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={handleClose}
       >
