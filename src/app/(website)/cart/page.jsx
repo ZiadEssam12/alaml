@@ -42,7 +42,7 @@ export default async function page() {
               <CartItems />
             </div>
             <div className="lg:col-span-1">
-              <CartSummary />
+              <CartSummary showCouponField={true} />
             </div>
           </div>
         )}

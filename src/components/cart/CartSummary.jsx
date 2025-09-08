@@ -31,7 +31,7 @@ const handleSubmitCoupon = async (e) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "userId": Cookies.get("userid"),
+          userId: Cookies.get("userid"),
         },
         body: JSON.stringify({ couponCode: couponValue }),
       }
@@ -55,6 +55,7 @@ export function CartSummary({
 }) {
   const { total, totalItemInCart } = useContext(cartContext);
   const [coupon, setCoupon] = useState(null);
+  const [couponCode, setCouponCode] = useState(""); // Separate state for input value
 
   if (total === 0 || totalItemInCart === 0) {
     return;
@@ -63,8 +64,8 @@ export function CartSummary({
   console.log("show coupon field :", showCouponField);
 
   const shippingCost =
-    total >= 200 || coupon?.type === "free_shipping" ? 0 : 30;
-  const finalTotal = total + shippingCost - (coupon?.discount || 0);
+    total >= 200 || couponCode?.type === "free_shipping" ? 0 : 30;
+  const finalTotal = total + shippingCost - (couponCode?.discount || 0);
 
   const handleCouponFormSubmit = async (e) => {
     const coupon = await handleSubmitCoupon(e);
@@ -125,7 +126,7 @@ export function CartSummary({
             </label>
             <form
               onSubmit={handleCouponFormSubmit}
-              className="flex items-center space-x-2"
+              className="flex items-center justify-between space-x-2"
             >
               <div className="relative flex items-center">
                 <Input
@@ -133,15 +134,16 @@ export function CartSummary({
                   id="coupon"
                   name="coupon"
                   placeholder="أدخل كود الكوبون"
-                  // className="min-w-sm"
-                  required
+                  value={couponCode} // Bind to the new state
+                  onChange={(e) => setCouponCode(e.target.value)} // Update input state
+                  className="pl-8"
                 />
                 <Button
-                  variant="ghost"
-                  className="absolute left-0 top-0 h-full"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCoupon(null);
+                  // variant="outline"
+                  className="absolute left-0 top-0 h-full bg-transparent text-primary shadow-none border-0 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
+                  onClick={() => {
+                    setCoupon(null); // Clear the applied coupon
+                    setCouponCode(""); // Clear the input field
                   }}
                 >
                   <X />

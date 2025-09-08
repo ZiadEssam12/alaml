@@ -73,7 +73,7 @@ export default async function page() {
             itemsLength={cartItems.length}
             total={total}
             showConfirmButon={false}
-            showCouponField={true}
+            showCouponField={false}
           />
         </div>
       </div>
