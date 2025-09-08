@@ -12,7 +12,7 @@ import SearchBar from "../searchbar/searchBar";
 export default function Navbar() {
   const cartItemsCount = 0; // Placeholder for cart items count
   return (
-    <header className="sticky top-0 z-50 bg-background/65 backdrop-blur-sm  shadow">
+    <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-lg  shadow">
       {/* Top Bar */}
       <div className="bg-primary text-primary-foreground py-2 hidden">
         <div className="container mx-auto px-4 text-center text-sm">
