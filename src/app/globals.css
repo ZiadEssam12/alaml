@@ -106,6 +106,7 @@ html[dir="rtl"] * {
   body {
     @apply bg-background text-foreground;
     font-family: "Cairo", sans-serif;
+    overflow-x: hidden;
   }
 
   section {

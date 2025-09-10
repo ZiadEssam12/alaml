@@ -8,7 +8,7 @@ import { ArrowRight, BookOpen, PenTool, Palette } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 py-20 lg:py-32 overflow-hidden">
+    <section className="relative w-screen !my-0  right-1/2 translate-x-1/2  bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 py-20 lg:py-32 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-20 h-20 bg-primary rounded-full"></div>
@@ -17,7 +17,7 @@ export default function Hero() {
         <div className="absolute bottom-10 right-1/3 w-24 h-24 bg-primary rounded-full"></div>
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="px-4 relative z-10 container">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Text Content */}
           <div className="text-center lg:text-right space-y-8">
