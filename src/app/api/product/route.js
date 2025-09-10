@@ -12,6 +12,8 @@ export async function GET(request) {
     const maxPrice = searchParams.get("maxPrice");
     const inStock = searchParams.get("inStock") === "true";
 
+    const q = searchParams.get("q") || "";
+
     // Build Prisma where filter
     const where = {
       isActive: true,
@@ -27,6 +29,12 @@ export async function GET(request) {
     }
     if (inStock) {
       where.stockQuantity = { gt: 0 };
+    }
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
     }
 
     const totalProducts = await prisma.product.count({ where });

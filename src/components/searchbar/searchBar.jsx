@@ -85,6 +85,10 @@ export default function SearchBar() {
         e.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < results.length) {
           handleResultClick(results[selectedIndex]);
+        } else {
+          router.push(`/products?q=${encodeURIComponent(query)}`);
+          setIsOpen(false);
+          setSelectedIndex(-1);
         }
         break;
       case "Escape":

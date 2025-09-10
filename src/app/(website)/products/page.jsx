@@ -11,6 +11,7 @@ export default async function Page({ searchParams }) {
     maxPrice = "",
     inStock = "",
     page = "1",
+    q = "",
   } = (await searchParams) || {};
 
   // Build query string for API
@@ -20,6 +21,9 @@ export default async function Page({ searchParams }) {
   if (maxPrice) params.append("maxPrice", maxPrice);
   if (inStock) params.append("inStock", inStock);
   if (page) params.append("page", page);
+  if (q) params.append("q", q);
+
+  console.log("q value :", q);
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/product?${params.toString()}`,
