@@ -30,19 +30,21 @@ export default function CategoriesPopUp({ title, data, children }) {
     <>
       {/* Overlay */}
       {open && (
-        <div className="fixed top-0 left-0 right-0 w-screen h-screen bg-black opacity-10 -z-[1] p-0 m-0"></div>
+        <div className="fixed top-0 left-0 right-0 w-full h-screen bg-black opacity-10 -z-[1] p-0 m-0"></div>
       )}
 
       <div
         className="relative inline-block z-50 bg-background/65 rounded-full py-3 px-3"
-        onMouseEnter={() => setOpen(true)}
         onMouseLeave={handleClose}
       >
         {open && (
           <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
         )}
         {/* Trigger */}
-        <div className="flex items-center gap-1 cursor-pointer relative z-30 selection:bg-transparent">
+        <div
+          className="flex items-center gap-1 cursor-pointer relative z-30 selection:bg-transparent"
+          onClick={() => setOpen(!open)}
+        >
           <p>
             <span className="hidden lg:block">تصفح الأقسام</span>
             <span className="block lg:hidden">الأقسام</span>
