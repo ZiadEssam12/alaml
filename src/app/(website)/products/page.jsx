@@ -1,6 +1,7 @@
 import { ProductFilters } from "@/components/Filter";
 import { PaginationClient } from "@/components/Pagination";
 import ProductCard from "@/components/ProductCard/ProductCard";
+import SortingForm from "@/components/SortingForm";
 import Link from "next/link";
 import React from "react";
 
@@ -32,8 +33,8 @@ export default async function Page({ searchParams }) {
     { cache: "no-store" }
   );
   const data = await res.json();
-  const products = data.data;
-  const { maxPage: totalPages } = data.pagination;
+  const products = data.data || [];
+  const { maxPage: totalPages } = data.pagination || {};
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -51,39 +52,10 @@ export default async function Page({ searchParams }) {
                 {products.length} منتج متاح
               </p>
             </div>
-            <div className="mb-4">
-              <form method="get" className="flex items-center gap-4">
-                <label htmlFor="sort" className="font-medium">
-                  ترتيب حسب:
-                </label>
-                <select
-                  id="sort"
-                  name="sort"
-                  defaultValue={sort}
-                  onChange={(e) => e.target.form.submit()}
-                  className="border rounded px-3 py-2"
-                >
-                  <option value="new-to-old">الأحدث أولاً</option>
-                  <option value="old-to-new">الأقدم أولاً</option>
-                  <option value="low-to-high">السعر من الأقل للأعلى</option>
-                  <option value="high-to-low">السعر من الأعلى للأقل</option>
-                </select>
-                {/* Preserve other params */}
-                {categories && (
-                  <input type="hidden" name="categories" value={categories} />
-                )}
-                {minPrice && (
-                  <input type="hidden" name="minPrice" value={minPrice} />
-                )}
-                {maxPrice && (
-                  <input type="hidden" name="maxPrice" value={maxPrice} />
-                )}
-                {inStock && (
-                  <input type="hidden" name="inStock" value={inStock} />
-                )}
-                {q && <input type="hidden" name="q" value={q} />}
-              </form>
-            </div>
+            <SortingForm
+              currentSort={sort}
+              currentFilters={{ categories, minPrice, maxPrice, inStock, q }}
+            />
             {products.length === 0 ? (
               <div className="text-center">
                 <p className="text-lg font-medium mb-4">

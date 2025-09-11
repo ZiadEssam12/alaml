@@ -11,17 +11,17 @@ export async function GET(request) {
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const inStock = searchParams.get("inStock") === "true";
-
+    const q = searchParams.get("q") || "";
     const sort = searchParams.get("sort") || "new-to-old";
 
     // Build orderBy based on sort
     let orderBy = {};
     switch (sort) {
       case "new-to-old":
-        orderBy = { createdAt: "desc" };
+        orderBy = { id: "desc" };
         break;
       case "old-to-new":
-        orderBy = { createdAt: "asc" };
+        orderBy = { id: "asc" };
         break;
       case "low-to-high":
         orderBy = { price: "asc" };
@@ -30,7 +30,7 @@ export async function GET(request) {
         orderBy = { price: "desc" };
         break;
       default:
-        orderBy = { createdAt: "desc" };
+        orderBy = { id: "desc" };
     }
 
     // Build Prisma where filter
@@ -78,6 +78,7 @@ export async function GET(request) {
       { status: 200 }
     );
   } catch (error) {
+    console.log("error :", error);
     return NextResponse.json(
       { error: "Failed to fetch products" },
       { status: 500 }
