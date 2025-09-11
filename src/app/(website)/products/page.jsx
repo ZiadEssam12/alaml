@@ -12,6 +12,7 @@ export default async function Page({ searchParams }) {
     inStock = "",
     page = "1",
     q = "",
+    sort = "new-to-old",
   } = (await searchParams) || {};
 
   // Build query string for API
@@ -22,6 +23,7 @@ export default async function Page({ searchParams }) {
   if (inStock) params.append("inStock", inStock);
   if (page) params.append("page", page);
   if (q) params.append("q", q);
+  if (sort) params.append("sort", sort);
 
   console.log("q value :", q);
 
@@ -48,6 +50,39 @@ export default async function Page({ searchParams }) {
               <p className="text-muted-foreground">
                 {products.length} منتج متاح
               </p>
+            </div>
+            <div className="mb-4">
+              <form method="get" className="flex items-center gap-4">
+                <label htmlFor="sort" className="font-medium">
+                  ترتيب حسب:
+                </label>
+                <select
+                  id="sort"
+                  name="sort"
+                  defaultValue={sort}
+                  onChange={(e) => e.target.form.submit()}
+                  className="border rounded px-3 py-2"
+                >
+                  <option value="new-to-old">الأحدث أولاً</option>
+                  <option value="old-to-new">الأقدم أولاً</option>
+                  <option value="low-to-high">السعر من الأقل للأعلى</option>
+                  <option value="high-to-low">السعر من الأعلى للأقل</option>
+                </select>
+                {/* Preserve other params */}
+                {categories && (
+                  <input type="hidden" name="categories" value={categories} />
+                )}
+                {minPrice && (
+                  <input type="hidden" name="minPrice" value={minPrice} />
+                )}
+                {maxPrice && (
+                  <input type="hidden" name="maxPrice" value={maxPrice} />
+                )}
+                {inStock && (
+                  <input type="hidden" name="inStock" value={inStock} />
+                )}
+                {q && <input type="hidden" name="q" value={q} />}
+              </form>
             </div>
             {products.length === 0 ? (
               <div className="text-center">

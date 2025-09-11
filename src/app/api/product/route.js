@@ -12,7 +12,26 @@ export async function GET(request) {
     const maxPrice = searchParams.get("maxPrice");
     const inStock = searchParams.get("inStock") === "true";
 
-    const q = searchParams.get("q") || "";
+    const sort = searchParams.get("sort") || "new-to-old";
+
+    // Build orderBy based on sort
+    let orderBy = {};
+    switch (sort) {
+      case "new-to-old":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "old-to-new":
+        orderBy = { createdAt: "asc" };
+        break;
+      case "low-to-high":
+        orderBy = { price: "asc" };
+        break;
+      case "high-to-low":
+        orderBy = { price: "desc" };
+        break;
+      default:
+        orderBy = { createdAt: "desc" };
+    }
 
     // Build Prisma where filter
     const where = {
@@ -44,6 +63,7 @@ export async function GET(request) {
       where,
       skip: (page - 1) * limit,
       take: limit,
+      orderBy,
     });
 
     return NextResponse.json(
