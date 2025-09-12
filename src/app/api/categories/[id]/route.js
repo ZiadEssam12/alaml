@@ -28,10 +28,29 @@ export async function GET(request, { params }) {
     const total = await prisma.product.count({
       where: { categoryID: category.id },
     });
+    const sort = searchParams.get("sort") || "new-to-old";
+    let orderBy = {};
+    switch (sort) {
+      case "new-to-old":
+        orderBy = { createdAt: "desc" };
+        break;
+      case "old-to-new":
+        orderBy = { createdAt: "asc" };
+        break;
+      case "low-to-high":
+        orderBy = { price: "asc" };
+        break;
+      case "high-to-low":
+        orderBy = { price: "desc" };
+        break;
+      default:
+        orderBy = { createdAt: "desc" };
+    }
     const products = await prisma.product.findMany({
       where: { categoryID: category.id },
       skip: (page - 1) * limit,
       take: limit,
+      orderBy,
     });
 
     return NextResponse.json(

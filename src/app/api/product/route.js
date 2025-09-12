@@ -18,10 +18,10 @@ export async function GET(request) {
     let orderBy = {};
     switch (sort) {
       case "new-to-old":
-        orderBy = { id: "desc" };
+        orderBy = { createdAt: "desc" };
         break;
       case "old-to-new":
-        orderBy = { id: "asc" };
+        orderBy = { createdAt: "asc" };
         break;
       case "low-to-high":
         orderBy = { price: "asc" };
@@ -30,7 +30,7 @@ export async function GET(request) {
         orderBy = { price: "desc" };
         break;
       default:
-        orderBy = { id: "desc" };
+        orderBy = { createdAt: "desc" };
     }
 
     // Build Prisma where filter

@@ -9,7 +9,7 @@ export default function SortingForm({ currentSort, currentFilters }) {
 
   const handleSortChange = (e) => {
     setSort(e.target.value);
-    // Build URL with new sort
+    // Build URL with new sort`
     const params = new URLSearchParams();
     if (currentFilters.categories)
       params.append("categories", currentFilters.categories);

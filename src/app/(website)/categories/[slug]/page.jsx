@@ -2,10 +2,11 @@ import { PaginationClient } from "@/components/Pagination";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import Link from "next/link";
 import React from "react";
+import SortingForm from "@/components/SortingForm";
 
 export default async function page({ params }) {
   const { slug } = await params;
-  console.log("slug :", slug);
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${slug}`
   );
@@ -13,6 +14,9 @@ export default async function page({ params }) {
   const category = data.data;
   const pagination = data.pagination;
   const products = category.products;
+
+  const currentSort = null; // No sort by default
+  const currentFilters = null; // No filters by default
 
   return (
     <>
@@ -28,7 +32,10 @@ export default async function page({ params }) {
                 {products.length} منتج متاح
               </p>
             </div>
-
+            <SortingForm
+              currentSort={currentSort}
+              currentFilters={currentFilters}
+            />
             <div>
               {products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-muted rounded-lg shadow-md">
