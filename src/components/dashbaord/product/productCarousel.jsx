@@ -14,6 +14,7 @@ import {
 
 export default function ProductCarousel({ displayProduct }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   const [emblaApi, setEmblaApi] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -21,18 +22,39 @@ export default function ProductCarousel({ displayProduct }) {
   // When a thumbnail is clicked
   const handleThumbnailClick = (idx) => {
     setSelectedIndex(idx);
+    setHoveredIndex(null); // Clear hover state on click
     if (emblaApi) emblaApi.scrollTo(idx);
+  };
+
+  // When hovering over a thumbnail
+  const handleThumbnailHover = (idx) => {
+    setHoveredIndex(idx);
+    if (emblaApi) emblaApi.scrollTo(idx);
+  };
+
+  // When mouse leaves thumbnail
+  const handleThumbnailLeave = () => {
+    setHoveredIndex(null);
+    if (emblaApi) emblaApi.scrollTo(selectedIndex);
   };
 
   // Listen for carousel selection changes
   useEffect(() => {
     if (!emblaApi) return;
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    const onSelect = () => {
+      // Only update selectedIndex if not hovering
+      if (hoveredIndex === null) {
+        setSelectedIndex(emblaApi.selectedScrollSnap());
+      }
+    };
     emblaApi.on("select", onSelect);
     return () => {
       emblaApi.off("select", onSelect);
     };
-  }, [emblaApi]);
+  }, [emblaApi, hoveredIndex]);
+
+  const currentDisplayIndex =
+    hoveredIndex !== null ? hoveredIndex : selectedIndex;
 
   const handleZoomIn = () => {
     setZoomLevel((prev) => Math.min(prev + 0.5, 3));
@@ -55,7 +77,15 @@ export default function ProductCarousel({ displayProduct }) {
     <div className="space-y-4">
       {/* Main Image Display */}
       <div className="relative group">
-        <Carousel className="w-full" setApi={setEmblaApi}>
+        <Carousel
+          className="w-full"
+          setApi={setEmblaApi}
+          opts={{
+            dragFree: false,
+            watchDrag: false,
+            align: "start",
+          }}
+        >
           <CarouselContent>
             {displayProduct.responsiveImageUrls.map((img, i) => (
               <CarouselItem key={i} className="w-full h-full">
@@ -117,7 +147,8 @@ export default function ProductCarousel({ displayProduct }) {
 
                   {/* Image Counter */}
                   <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                    {i + 1} / {displayProduct.responsiveImageUrls.length}
+                    {currentDisplayIndex + 1} /{" "}
+                    {displayProduct.responsiveImageUrls.length}
                   </div>
                 </div>
               </CarouselItem>
@@ -129,13 +160,15 @@ export default function ProductCarousel({ displayProduct }) {
       </div>
 
       {/* Thumbnail Gallery */}
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex justify-center gap-3 py-4 overflow-x-auto  scrollbar-hide">
         {displayProduct.responsiveImageUrls.map((img, i) => (
           <button
             key={i}
             onClick={() => handleThumbnailClick(i)}
+            onMouseEnter={() => handleThumbnailHover(i)}
+            onMouseLeave={handleThumbnailLeave}
             className={`relative flex-shrink-0 border-2 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
-              selectedIndex === i
+              currentDisplayIndex === i
                 ? "border-primary ring-2 ring-primary/20 shadow-lg scale-105"
                 : "border-muted hover:border-primary/50"
             }`}
@@ -152,9 +185,13 @@ export default function ProductCarousel({ displayProduct }) {
                 blurDataURL={img.placeholder}
                 priority={i === 0}
               />
-              {selectedIndex === i && (
+              {currentDisplayIndex === i && (
                 <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  <div
+                    className={`w-2 h-2 rounded-full animate-pulse ${
+                      hoveredIndex === i ? "bg-orange-500" : "bg-primary"
+                    }`}
+                  />
                 </div>
               )}
             </div>
