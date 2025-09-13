@@ -30,6 +30,8 @@ import {
   Link2,
   Check,
   X,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/dashbaord/product/skelaton";
@@ -174,24 +176,41 @@ function ProductsManagementContent() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (productId) => {
-    if (confirm("هل أنت متأكد من إلغاء تنشيط هذا المنتج؟")) {
+  const handleToggleStatus = async (productId, currentStatus) => {
+    const action = currentStatus ? "إلغاء تنشيط" : "تنشيط";
+    const confirmMessage = `هل أنت متأكد من ${action} هذا المنتج؟`;
+
+    if (confirm(confirmMessage)) {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}/toggle-status`,
           {
-            method: "DELETE",
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isActive: !currentStatus }),
           }
         );
+
         if (res.ok) {
-          toast.success("تم الغاء تنشيط المنتج");
-          fetchData();
+          const newStatus = !currentStatus;
+          toast.success(
+            `تم ${newStatus ? "تنشيط" : "إلغاء تنشيط"} المنتج بنجاح`
+          );
+
+          // Update the local state immediately for better UX
+          setProducts(
+            products.map((product) =>
+              product.id === productId
+                ? { ...product, isActive: newStatus }
+                : product
+            )
+          );
         } else {
-          throw new Error("Delete failed");
+          throw new Error("Toggle failed");
         }
       } catch (error) {
-        console.error("Error deleting product:", error);
-        toast.error("خطأ في الغاء تنشيط المنتج");
+        console.error("Error toggling product status:", error);
+        toast.error("خطأ في تغيير حالة المنتج");
       }
     }
   };
@@ -411,15 +430,21 @@ function ProductsManagementContent() {
                       <td className="px-4 py-2">{product.stockQuantity}</td>
                       <td className="px-4 py-2">{product.category.name}</td>
                       <td className="px-4 py-2 h-full">
-                        {product.isActive ? (
-                          <span className="inline-block rounded-full p-2 text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                            <Check className="h-4 w-4 text-green-800" />
-                          </span>
-                        ) : (
-                          <span className="inline-block rounded-full p-2 text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                            <X className="h-4 w-4 text-red-800" />
-                          </span>
-                        )}
+                        <div className="flex flex-col items-center gap-1">
+                          {product.isActive ? (
+                            <>
+                              <span className="inline-block rounded-full p-2 text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                <Check className="h-4 w-4 text-green-800" />
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="inline-block rounded-full p-2 text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                <X className="h-4 w-4 text-red-800" />
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-2 text-center">
                         <div className="flex justify-center items-center gap-2">
@@ -434,10 +459,20 @@ function ProductsManagementContent() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(product.id)}
-                            title="حذف"
+                            onClick={() =>
+                              handleToggleStatus(product.id, product.isActive)
+                            }
+                            title={
+                              product.isActive
+                                ? "إلغاء تنشيط المنتج"
+                                : "تنشيط المنتج"
+                            }
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {product.isActive ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
                           </Button>
                           <Link
                             href={`/products/${product.slug}`}
@@ -505,7 +540,10 @@ function ProductsSkeletonLoader() {
                 <Skeleton className="h-4 w-20 rounded" />
               </td>
               <td className="px-4 py-2">
-                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex flex-col items-center gap-1">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-3 w-12 rounded" />
+                </div>
               </td>
               <td className="px-4 py-2 text-center">
                 <div className="flex justify-center items-center gap-2">
