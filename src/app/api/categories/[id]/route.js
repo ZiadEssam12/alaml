@@ -19,7 +19,7 @@ export async function GET(request, { params }) {
 
     if (!category) {
       return NextResponse.json(
-        { error: "Category not found" },
+        { error: "Category not found" },  
         { status: 404 }
       );
     }

@@ -174,3 +174,13 @@ body.no-scroll {
 body {
   font-family: "Tajawal", "Cairo", sans-serif;
 }
+
+/* Custom scrollbar utilities */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
