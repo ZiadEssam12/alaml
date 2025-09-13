@@ -140,11 +140,14 @@ function ProductsManagementContent() {
         if (res.ok) toast.success("تم تحديث المنتج بنجاح");
         else throw new Error("Update failed");
       } else {
-        res = await fetch("/api/product", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...productData, createdAt: new Date() }),
-        });
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...productData, createdAt: new Date() }),
+          }
+        );
         if (res.ok) toast.success("تم إضافة المنتج بنجاح");
         else throw new Error("Add failed");
       }
@@ -206,7 +209,7 @@ function ProductsManagementContent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 container my-10">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">إدارة المنتجات</h1>

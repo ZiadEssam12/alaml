@@ -27,6 +27,7 @@ export async function GET(request) {
           },
         },
       },
+      orderBy: { createdAt: "desc" },
     });
 
     const categories = await prisma.category.findMany({
