@@ -14,7 +14,9 @@ export default function ProductCard({ product }) {
 
   const isItemInCart = isInCart(product.id);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     addToCart(product, 1);
   };
 
@@ -35,8 +37,8 @@ export default function ProductCard({ product }) {
   return (
     <div className="group relative bg-card rounded-lg p-1 border hover:shadow-md transition-shadow">
       {/* Product Image */}
-      <div className="relative h-48 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">
-        <Link href={`/products/${product.slug}`}>
+      <Link href={`/products/${product.slug}`}>
+        <div className="relative h-48 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">
           <Image
             src={ImageThumbnail}
             alt={product.name}
@@ -46,28 +48,28 @@ export default function ProductCard({ product }) {
             blurDataURL={ImagePlaceholder}
             className="group-hover:scale-105 transition-transform duration-200"
           />
-        </Link>
-        <Button
-          onClick={handleAddToCart}
-          disabled={isOutOfStock || isItemInCart}
-          className="w-full bottom-0 translate-y-[103%] disabled:pointer-events-auto disabled:bg-primary disabled:opacity-90 disabled:text-accent disabled:cursor-not-allowed group-hover:translate-y-0 transition-transform absolute rounded-none"
-          variant={isItemInCart ? "secondary" : "default"}
-        >
-          <ShoppingCart className="h-4 w-4 ml-2" />
-          {isOutOfStock
-            ? "نفد المخزون"
-            : isItemInCart
-            ? "في السلة"
-            : "أضف للسلة"}
-        </Button>
+          <Button
+            onClick={handleAddToCart}
+            disabled={isOutOfStock || isItemInCart}
+            className="w-full bottom-0 translate-y-[103%] disabled:pointer-events-auto disabled:bg-primary disabled:opacity-90 disabled:text-accent disabled:cursor-not-allowed group-hover:translate-y-0 transition-transform absolute rounded-none"
+            variant={isItemInCart ? "secondary" : "default"}
+          >
+            <ShoppingCart className="h-4 w-4 ml-2" />
+            {isOutOfStock
+              ? "نفد المخزون"
+              : isItemInCart
+              ? "في السلة"
+              : "أضف للسلة"}
+          </Button>
 
-        {/* Stock Badge */}
-        {isOutOfStock && (
-          <Badge variant="destructive" className="absolute top-2 right-2">
-            نفد المخزون
-          </Badge>
-        )}
-      </div>
+          {/* Stock Badge */}
+          {isOutOfStock && (
+            <Badge variant="destructive" className="absolute top-2 right-2">
+              نفد المخزون
+            </Badge>
+          )}
+        </div>
+      </Link>
 
       {/* Product Info */}
       <div className="p-4">
