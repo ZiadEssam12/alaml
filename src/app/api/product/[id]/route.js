@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
 
     const similarProducts = await prisma.product.findMany({
       where: {
-        categoryId: product.category.id,
+        categoryID: product.categoryID,
         NOT: { id: product.id },
       },
       take: 4,

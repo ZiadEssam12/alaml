@@ -89,6 +89,22 @@ export default function ProductPageLoading() {
             </div>
           </div>
         </div>
+        {/* Similar products section skeleton */}
+        <div className="mt-12">
+          <div className="mb-4 h-6 w-48 bg-muted rounded animate-pulse" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-card rounded-2xl shadow-lg p-4 border flex flex-col items-center"
+              >
+                <div className="w-32 h-32 bg-muted rounded-xl animate-pulse mb-3" />
+                <div className="w-24 h-5 bg-muted rounded animate-pulse mb-2" />
+                <div className="w-16 h-4 bg-muted rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
