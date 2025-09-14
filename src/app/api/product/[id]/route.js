@@ -32,12 +32,23 @@ export async function GET(request, { params }) {
       },
     });
 
+    const similarProducts = await prisma.product.findMany({
+      where: {
+        categoryId: product.category.id,
+        NOT: { id: product.id },
+      },
+      take: 4,
+    });
+
     if (!product || (product.isActive === false && role !== "admin")) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     return NextResponse.json(
-      { data: product, message: "Product fetched successfully" },
+      {
+        data: { product, similarProducts },
+        message: "Product fetched successfully",
+      },
       { status: 200 }
     );
   } catch (error) {

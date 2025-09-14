@@ -16,6 +16,7 @@ import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
 import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 import { imageService } from "@/lib/image-service";
 import { cookies } from "next/headers";
+import ProductsList from "@/components/Home/productsList";
 
 export default async function ProductPage({ params }) {
   const cookiesStore = await cookies();
@@ -69,7 +70,8 @@ export default async function ProductPage({ params }) {
     );
   }
 
-  const { data: displayProduct } = await res.json();
+  const { data } = await res.json();
+  const { product: displayProduct, similarProducts } = data;
 
   const publicImageIds = displayProduct.imageUrls.map((url) =>
     imageService.extractPublicId(url)
@@ -241,6 +243,9 @@ export default async function ProductPage({ params }) {
             </div>
           </div>
         </div>
+
+        {/* Similar products section  */}
+        <ProductsList data={similarProducts} title="منتجات من نفس القسم" />
       </div>
     </div>
   );
