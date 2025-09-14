@@ -7,6 +7,7 @@ import { Badge } from "../ui/badge";
 import { MobileMenuToggle } from "./mobile-menu";
 import CategoriesPopUp from "../CategoriesPopUp";
 import CartItemsCount from "./CartItemsCound";
+import UserProfileDropdown from "./UserProfileDropdown";
 import SearchBar from "../searchbar/searchBar";
 
 export default function Navbar() {
@@ -49,7 +50,8 @@ export default function Navbar() {
             <div className="hidden lg:block">
               <ModeToggle className="h-5 w-5" />
             </div>
-
+            {/* User Profile Dropdown */}
+            <UserProfileDropdown />
             {/* Cart */}
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
@@ -58,7 +60,6 @@ export default function Navbar() {
                 <span className="sr-only">عربة التسوق</span>
               </Button>
             </Link>
-
             {/* Mobile Menu Toggle */}
             <MobileMenuToggle />
           </div>
