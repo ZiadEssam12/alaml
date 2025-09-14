@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { CartProvider } from "@/Context/Cart";
 import { LoadingProvider } from "@/Context/LoadinContext";
 import Loading from "@/components/Loading";
+import { SessionProvider } from "next-auth/react";
 
 // Configure Cairo font
 const cairo = Cairo({
@@ -61,7 +62,9 @@ export default async function RootLayout({ children }) {
         >
           <LoadingProvider>
             <CartProvider>
-              <div className="min-h-screen flex flex-col">{children}</div>
+              <SessionProvider>
+                <div className="min-h-screen flex flex-col">{children}</div>
+              </SessionProvider>
               <Toaster position="bottom-right" />
               <Loading />
             </CartProvider>
