@@ -5,6 +5,7 @@ import { useSession, signOut, signIn } from "next-auth/react";
 import { User, LogOut, ShoppingCart, List, Box, UserPlus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import { Skeleton } from "../ui/skeleton";
 
 export default function UserProfileDropdown() {
   const { data: session, status } = useSession();
@@ -13,6 +14,10 @@ export default function UserProfileDropdown() {
   const handleToggle = () => setOpen((prev) => !prev);
   const handleLogout = () => signOut();
   const handleLogin = () => signIn();
+
+  if (status === "loading") {
+    return <Skeleton className="w-5 h-5" />;
+  }
 
   return (
     <>
