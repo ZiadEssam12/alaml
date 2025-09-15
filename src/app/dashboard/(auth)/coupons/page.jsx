@@ -202,8 +202,10 @@ function CouponsManagementContent() {
     setFormData({
       code: "",
       description: "",
-      discountValue: 0,
+      value: 0,
       maxUsageCount: 0,
+      expirationDate: "",
+      startDate: "",
       expirationDate: "",
     });
     setEditingCoupon(null);
@@ -451,7 +453,7 @@ function CouponsManagementContent() {
                     <td className="px-4 py-2">{coupon.code}</td>
                     <td className="px-4 py-2">{coupon.description}</td>
                     <td className="px-4 py-2">{coupon.type}</td>
-                    <td className="px-4 py-2">{coupon.discountValue}</td>
+                    <td className="px-4 py-2">{coupon.value}</td>
                     <td className="px-4 py-2">{coupon.maxUsageCount}</td>
                     <td className="px-4 py-2">{coupon.maxDiscountAmount}</td>
                     <td className="px-4 py-2">{coupon.startDate}</td>

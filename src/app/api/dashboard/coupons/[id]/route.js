@@ -10,8 +10,8 @@ export async function GET(req, { params }) {
     );
   }
 
-  const coupon = await prisma.coupons.findUnique({
-    where: { id: Number(id) },
+  const coupon = await prisma.coupon.findUnique({
+    where: { id },
     include: { usages: true },
   });
 
@@ -39,9 +39,9 @@ export async function PUT(req, { params }) {
     );
   }
 
-  const coupon = await prisma.coupons.update({
-    where: { id: Number(id) },
-    data: validationresult.value,
+  const coupon = await prisma.coupon.update({
+    where: { id },
+    data: validationresult,
   });
 
   return NextResponse.json(coupon, { status: 200 });
@@ -55,8 +55,8 @@ export async function DELETE(req, { params }) {
       { status: 400 }
     );
   }
-  const coupon = await prisma.coupons.update({
-    where: { id: Number(id) },
+  const coupon = await prisma.coupon.update({
+    where: { id },
     data: { isActive: false },
   });
   return NextResponse.json(coupon, { status: 203 });
