@@ -4,6 +4,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function page() {
   const cookieStore = await cookies();
   const userId = cookieStore.get("userid")?.value;
