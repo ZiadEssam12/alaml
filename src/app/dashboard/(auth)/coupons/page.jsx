@@ -13,7 +13,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Package, Search, Check, X } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Package,
+  Search,
+  Check,
+  X,
+  EyeOff,
+  Eye,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { PaginationClient } from "@/components/Pagination";
 import SearchBox from "@/components/dashbaord/SearchBox";
@@ -472,7 +482,11 @@ function CouponsManagementContent() {
                           size="sm"
                           onClick={() => handleDelete(coupon.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {coupon.isActive ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </td>
