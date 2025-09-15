@@ -42,8 +42,12 @@ function CouponsManagementContent() {
   const [formData, setFormData] = useState({
     code: "",
     description: "",
-    discountValue: 0,
+    type: "",
+    value: 0,
     maxUsageCount: 0,
+    perUserUsageCount: 0,
+    maxDiscountAmount: 0,
+    startDate: "",
     expirationDate: "",
   });
   const [pagination, setPagination] = useState({});
@@ -79,12 +83,38 @@ function CouponsManagementContent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!formData.code || formData.code.trim() === "") {
+      toast.error("كود الكوبون مطلوب");
+      return;
+    }
+    if (!formData.type) {
+      toast.error("نوع الكوبون مطلوب");
+      return;
+    }
+    if (!formData.value || isNaN(formData.value)) {
+      toast.error("قيمة الخصم مطلوبة");
+      return;
+    }
+    if (!formData.startDate) {
+      toast.error("تاريخ البداية مطلوب");
+      return;
+    }
+    if (!formData.expirationDate) {
+      toast.error("تاريخ الانتهاء مطلوب");
+      return;
+    }
+
     try {
       const couponData = {
         code: formData.code,
         description: formData.description,
-        discountValue: formData.discountValue,
+        type: formData.type,
+        value: formData.value,
         maxUsageCount: formData.maxUsageCount,
+        perUserUsageCount: formData.perUserUsageCount,
+        maxDiscountAmount: formData.maxDiscountAmount,
+        startDate: formData.startDate,
         expirationDate: formData.expirationDate,
       };
 
@@ -99,7 +129,11 @@ function CouponsManagementContent() {
           }
         );
         if (res.ok) toast.success("تم تحديث الكوبون بنجاح");
-        else throw new Error("Update failed");
+        else {
+          const errorMsg = await res.text();
+          toast.error(`خطأ في التحديث: ${errorMsg}`);
+          throw new Error("Update failed");
+        }
       } else {
         res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons`,
@@ -110,7 +144,11 @@ function CouponsManagementContent() {
           }
         );
         if (res.ok) toast.success("تم إضافة الكوبون بنجاح");
-        else throw new Error("Add failed");
+        else {
+          const errorMsg = await res.text();
+          toast.error(`خطأ في الإضافة: ${errorMsg}`);
+          throw new Error("Add failed");
+        }
       }
 
       setDialogOpen(false);
@@ -118,7 +156,7 @@ function CouponsManagementContent() {
       fetchCoupons({ q, page, pageSize });
     } catch (error) {
       console.error("Error saving coupon:", error);
-      toast.error("خطأ في حفظ الكوبون");
+      toast.error(error.message || "خطأ في حفظ الكوبون");
     }
   };
 
@@ -127,8 +165,12 @@ function CouponsManagementContent() {
     setFormData({
       code: coupon.code,
       description: coupon.description,
-      discountValue: coupon.discountValue,
+      type: coupon.type,
+      value: coupon.value,
       maxUsageCount: coupon.maxUsageCount,
+      perUserUsageCount: coupon.perUserUsageCount || 0,
+      maxDiscountAmount: coupon.maxDiscountAmount || 0,
+      startDate: coupon.startDate,
       expirationDate: coupon.expirationDate,
     });
     setDialogOpen(true);
@@ -248,23 +290,23 @@ function CouponsManagementContent() {
                   </DropdownMenu>
                 </div>
 
-                {/* Discount Value */}
+                {/* Value */}
                 <div className="space-y-2">
-                  <Label htmlFor="discountValue">قيمة الخصم</Label>
+                  <Label htmlFor="value">قيمة الخصم</Label>
                   <Input
-                    id="discountValue"
+                    id="value"
                     type="number"
                     step="0.01"
-                    value={formData.discountValue}
+                    value={formData.value}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        discountValue: Number.parseFloat(e.target.value) || 0,
+                        value: Number.parseFloat(e.target.value) || 0,
                       })
                     }
                     required
                   />
-                </div>  
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -282,6 +324,24 @@ function CouponsManagementContent() {
                       })
                     }
                     required
+                  />
+                </div>
+
+                {/* Per User Usage Count */}
+                <div className="space-y-2">
+                  <Label htmlFor="perUserUsageCount">
+                    عدد مرات الاستخدام لكل مستخدم
+                  </Label>
+                  <Input
+                    id="perUserUsageCount"
+                    type="number"
+                    value={formData.perUserUsageCount}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        perUserUsageCount: Number.parseInt(e.target.value) || 0,
+                      })
+                    }
                   />
                 </div>
 
