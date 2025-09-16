@@ -9,8 +9,17 @@ export async function GET(req) {
   const totalCoupons = await prisma.coupon.count();
   const maxPage = Math.ceil(totalCoupons / limit);
 
+  const where = q
+    ? {
+        OR: [
+          { code: { contains: q, mode: "insensitive" } },
+          { description: { contains: q, mode: "insensitive" } },
+        ],
+      }
+    : {};
+
   const coupons = await prisma.coupon.findMany({
-    where: q ? { name: { contains: q, mode: "insensitive" } } : {},
+    where,
     skip: (page - 1) * limit,
     take: limit,
     orderBy: { createdAt: "desc" },

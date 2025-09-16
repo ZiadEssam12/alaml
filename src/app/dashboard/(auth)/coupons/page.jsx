@@ -34,6 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useSearchParams } from "next/navigation";
 
 const fetchCoupons = async ({ q, page, pageSize }) => {
   const response = await fetch(
@@ -95,9 +96,10 @@ function CouponsManagementContent() {
   });
   const [pagination, setPagination] = useState({});
 
-  const page = 1; // Replace with dynamic page handling if needed
-  const pageSize = 10; // Replace with dynamic page size handling if needed
-  const q = ""; // Replace with dynamic search query handling if needed
+  const searchParams = useSearchParams();
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+  const q = searchParams.get("q") || "";
 
   const couponTypes = [
     { value: "percentage", label: "نسبة مئوية" },
@@ -217,28 +219,6 @@ function CouponsManagementContent() {
       expirationDate: coupon.expirationDate,
     });
     setDialogOpen(true);
-  };
-
-  const handleDelete = async (couponId) => {
-    if (confirm("هل أنت متأكد من حذف هذا الكوبون؟")) {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons/${couponId}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (res.ok) {
-          toast.success("تم حذف الكوبون");
-          fetchCoupons({ q, page, pageSize });
-        } else {
-          throw new Error("Delete failed");
-        }
-      } catch (error) {
-        console.error("Error deleting coupon:", error);
-        toast.error("خطأ في حذف الكوبون");
-      }
-    }
   };
 
   const resetForm = () => {
@@ -465,7 +445,34 @@ function CouponsManagementContent() {
       <SearchBox placeholder="البحث في الكوبونات..." />
 
       {loading ? (
-        <div>جاري التحميل...</div>
+        <div className="overflow-x-auto rounded-lg shadow">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr className="border-b">
+                <th className="px-4 py-2">كود الكوبون</th>
+                <th className="px-4 py-2">الوصف</th>
+                <th className="px-4 py-2">نوع الكوبون</th>
+                <th className="px-4 py-2">قيمة الخصم</th>
+                <th className="px-4 py-2">عدد مرات الاستخدام</th>
+                <th className="px-4 py-2">الحد الأقصى للخصم</th>
+                <th className="px-4 py-2">تاريخ البداية</th>
+                <th className="px-4 py-2">تاريخ الانتهاء</th>
+                <th className="px-4 py-2">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i} className="border-b animate-pulse">
+                  {Array.from({ length: 9 }).map((_, j) => (
+                    <td key={j} className="px-4 py-2">
+                      <div className="h-5 bg-muted rounded w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-lg shadow">
           <table className="min-w-full bg-white">
