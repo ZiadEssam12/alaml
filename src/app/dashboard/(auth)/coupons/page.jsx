@@ -44,6 +44,39 @@ const fetchCoupons = async ({ q, page, pageSize }) => {
 };
 
 function CouponsManagementContent() {
+  // Toggle coupon status (active/inactive)
+  const handleToggleStatus = async (couponId, currentStatus) => {
+    const action = currentStatus ? "إلغاء تنشيط" : "تنشيط";
+    if (confirm(`هل أنت متأكد من ${action} هذا الكوبون؟`)) {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons/${couponId}/toggle-status`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isActive: !currentStatus }),
+          }
+        );
+        if (res.ok) {
+          toast.success(`تم ${action} الكوبون بنجاح`);
+          // Refresh coupons list
+          const { data, pagination } = await fetchCoupons({
+            q,
+            page,
+            pageSize,
+          });
+          setCoupons(data);
+          setPagination(pagination);
+        } else {
+          const errorMsg = await res.text();
+          toast.error(`خطأ في تغيير الحالة: ${errorMsg}`);
+        }
+      } catch (error) {
+        console.error("Error toggling coupon status:", error);
+        toast.error("فشل في تغيير حالة الكوبون");
+      }
+    }
+  };
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -480,7 +513,9 @@ function CouponsManagementContent() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(coupon.id)}
+                          onClick={() =>
+                            handleToggleStatus(coupon.id, coupon.isActive)
+                          }
                         >
                           {coupon.isActive ? (
                             <EyeOff className="h-4 w-4" />
