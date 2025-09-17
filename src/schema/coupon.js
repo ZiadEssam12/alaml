@@ -6,7 +6,7 @@ export const createNewCouponSchema = object().shape({
   type: string()
     .oneOf(["percentage", "fixed", "free_shipping"])
     .required("نوع الكوبون مطلوب"),
-  value: number().required("قيمة الكوبون مطلوبة"),
+  value: number().min(1).nullable(),
   maxUsageCount: number().min(1).nullable(),
   perUserUsageCount: number().min(1).nullable(),
   maxDiscountAmount: number().min(0).nullable(),

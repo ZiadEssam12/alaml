@@ -128,28 +128,6 @@ function CouponsManagementContent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate required fields
-    if (!formData.code || formData.code.trim() === "") {
-      toast.error("كود الكوبون مطلوب");
-      return;
-    }
-    if (!formData.type) {
-      toast.error("نوع الكوبون مطلوب");
-      return;
-    }
-    if (!formData.value || isNaN(formData.value)) {
-      toast.error("قيمة الخصم مطلوبة");
-      return;
-    }
-    if (!formData.startDate) {
-      toast.error("تاريخ البداية مطلوب");
-      return;
-    }
-    if (!formData.expirationDate) {
-      toast.error("تاريخ الانتهاء مطلوب");
-      return;
-    }
-
     try {
       const couponData = {
         code: formData.code,

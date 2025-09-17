@@ -36,37 +36,58 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-  const validationresult = await createNewCouponSchema
-    .validate(await req.json(), {
-      abortEarly: false,
-    })
-    .catch((err) => {
-      const errors = err.errors.map((error) => ({
-        message: error,
-      }));
-      return NextResponse.json({ errors }, { status: 400 });
+  try {
+    // const validationresult = await createNewCouponSchema
+    //   .validate(await req.json(), {
+    //     abortEarly: false,
+    //   })
+    //   .catch((err) => {
+    //     const errors = err.errors.map((error) => ({
+    //       message: error,
+    //     }));
+    //     return NextResponse.json({ errors }, { status: 400 });
+    //   });
+
+    const validationresult = await req.json();
+
+    if (validationresult.type === "fixed") {
+      validationresult.maxDiscountAmount = validationresult.value;
+    } else if (validationresult.type === "free_shipping") {
+      validationresult.value = 0;
+      validationresult.maxDiscountAmount = undefined;
+    }
+
+    validationresult.startDate = new Date(
+      validationresult.startDate
+    ).toISOString();
+
+    validationresult.expirationDate = new Date(
+      validationresult.expirationDate
+    ).toISOString();
+
+    console.log("validationresult:", validationresult);
+
+    const coupon = await prisma.coupon.create({
+      data: {
+        code: validationresult.code,
+        description: validationresult.description,
+        type: validationresult.type,
+        value: validationresult.value,
+        maxUsageCount: validationresult.maxUsageCount,
+        perUserUsageCount: validationresult.perUserUsageCount,
+        maxDiscountAmount: validationresult.maxDiscountAmount,
+        startDate: validationresult.startDate || "2025-09-17T00:00:00Z",
+        expirationDate:
+          validationresult.expirationDate || "2025-10-30T00:00:00Z",
+      },
     });
 
-  if (validationresult.type === "fixed") {
-    validationresult.maxDiscountAmount = validationresult.value; // Sync maxDiscountAmount with value
-  } else if (validationresult.type === "free_shipping") {
-    validationresult.value = undefined; // Remove value for free_shipping
-    validationresult.maxDiscountAmount = undefined; // Remove maxDiscountAmount for free_shipping
+    return NextResponse.json(coupon, { status: 201 });
+  } catch (error) {
+    console.log("Error creating coupon:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
-
-  const coupon = await prisma.coupon.create({
-    data: {
-      code: validationresult.code,
-      description: validationresult.description,
-      type: validationresult.type,
-      value: validationresult.value,
-      maxUsageCount: validationresult.maxUsageCount,
-      perUserUsageCount: validationresult.perUserUsageCount,
-      maxDiscountAmount: validationresult.maxDiscountAmount,
-      startDate: validationresult.startDate,
-      expirationDate: validationresult.expirationDate,
-    },
-  });
-
-  return NextResponse.json(coupon, { status: 201 });
 }
