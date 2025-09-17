@@ -57,18 +57,19 @@ export function CartSummary({
   const [coupon, setCoupon] = useState(null);
   const [couponCode, setCouponCode] = useState(""); // Separate state for input value
 
+  console.log("coupon in cart summary :", coupon);
+  console.log("coupon type in cart summary :", coupon?.type);
+
   if (total === 0 || totalItemInCart === 0) {
     return;
   }
 
-  console.log("show coupon field :", showCouponField);
-
   const shippingCost =
-    total >= 200 || couponCode?.type === "free_shipping" ? 0 : 30;
-  const finalTotal = total + shippingCost - (couponCode?.discount || 0);
+    total >= 200 || coupon?.type === "free_shipping" ? 0 : 30;
+  const finalTotal = total + shippingCost - (coupon?.discount || 0);
 
   const handleCouponFormSubmit = async (e) => {
-    const coupon = await handleSubmitCoupon(e);
+    const { coupon } = await handleSubmitCoupon(e);
     if (coupon) {
       setCoupon(coupon);
       toast.success("تم تطبيق الكوبون بنجاح");
@@ -88,7 +89,11 @@ export function CartSummary({
 
         <div className="flex justify-between">
           <span>الشحن</span>
-          <span>{shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}</span>
+          {coupon?.type === "free_shipping" ? (
+            <span className="text-green-600 font-medium">مجاني</span>
+          ) : (
+            <span>{shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}</span>
+          )}
         </div>
 
         {(total >= 200 || coupon?.type === "free_shipping") && (
