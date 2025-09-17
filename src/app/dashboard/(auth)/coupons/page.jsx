@@ -221,6 +221,47 @@ function CouponsManagementContent() {
     setDialogOpen(true);
   };
 
+  const handleCouponTypeChange = (type) => {
+    setFormData((prev) => {
+      if (type === "fixed") {
+        return {
+          ...prev,
+          type,
+          maxDiscountAmount: prev.value, // Sync maxDiscountAmount with value
+        };
+      } else if (type === "free_shipping") {
+        return {
+          ...prev,
+          type,
+          value: undefined, // Remove value for free_shipping
+          maxDiscountAmount: undefined, // Remove maxDiscountAmount for free_shipping
+        };
+      } else {
+        return {
+          ...prev,
+          type,
+        };
+      }
+    });
+  };
+
+  const filteredInputs = () => {
+    if (formData.type === "free_shipping") {
+      return ["code", "description", "type", "startDate", "expirationDate"];
+    } else if (formData.type === "fixed") {
+      return [
+        "code",
+        "description",
+        "type",
+        "value",
+        "startDate",
+        "expirationDate",
+      ];
+    } else {
+      return Object.keys(formData);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       code: "",
@@ -304,9 +345,7 @@ function CouponsManagementContent() {
                         <DropdownMenuItem
                           key={type.value}
                           className="w-full"
-                          onClick={() =>
-                            setFormData({ ...formData, type: type.value })
-                          }
+                          onClick={() => handleCouponTypeChange(type.value)}
                         >
                           {type.label}
                         </DropdownMenuItem>
@@ -316,78 +355,86 @@ function CouponsManagementContent() {
                 </div>
 
                 {/* Value */}
-                <div className="space-y-2">
-                  <Label htmlFor="value">قيمة الخصم</Label>
-                  <Input
-                    id="value"
-                    type="number"
-                    step="0.01"
-                    value={formData.value}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        value: Number.parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    required
-                  />
-                </div>
+                {formData.type !== "free_shipping" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="value">قيمة الخصم</Label>
+                    <Input
+                      id="value"
+                      type="number"
+                      step="0.01"
+                      value={formData.value}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          value: Number.parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      required={
+                        formData.type === "percentage" ||
+                        formData.type === "fixed"
+                      }
+                    />
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Max Usage Count */}
-                <div className="space-y-2">
-                  <Label htmlFor="maxUsageCount">عدد مرات الاستخدام</Label>
-                  <Input
-                    id="maxUsageCount"
-                    type="number"
-                    value={formData.maxUsageCount}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        maxUsageCount: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                    required
-                  />
-                </div>
+              {formData.type === "percentage" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Max Usage Count */}
+                  <div className="space-y-2">
+                    <Label htmlFor="maxUsageCount">عدد مرات الاستخدام</Label>
+                    <Input
+                      id="maxUsageCount"
+                      type="number"
+                      value={formData.maxUsageCount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          maxUsageCount: Number.parseInt(e.target.value) || 0,
+                        })
+                      }
+                      required
+                    />
+                  </div>
 
-                {/* Per User Usage Count */}
-                <div className="space-y-2">
-                  <Label htmlFor="perUserUsageCount">
-                    عدد مرات الاستخدام لكل مستخدم
-                  </Label>
-                  <Input
-                    id="perUserUsageCount"
-                    type="number"
-                    value={formData.perUserUsageCount}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        perUserUsageCount: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                  />
-                </div>
+                  {/* Per User Usage Count */}
+                  <div className="space-y-2">
+                    <Label htmlFor="perUserUsageCount">
+                      عدد مرات الاستخدام لكل مستخدم
+                    </Label>
+                    <Input
+                      id="perUserUsageCount"
+                      type="number"
+                      value={formData.perUserUsageCount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          perUserUsageCount:
+                            Number.parseInt(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
 
-                {/* Max Discount Amount */}
-                <div className="space-y-2">
-                  <Label htmlFor="maxDiscountAmount">الحد الأقصى للخصم</Label>
-                  <Input
-                    id="maxDiscountAmount"
-                    type="number"
-                    step="0.01"
-                    value={formData.maxDiscountAmount}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        maxDiscountAmount:
-                          Number.parseFloat(e.target.value) || 0,
-                      })
-                    }
-                  />
+                  {/* Max Discount Amount */}
+                  <div className="space-y-2">
+                    <Label htmlFor="maxDiscountAmount">الحد الأقصى للخصم</Label>
+                    <Input
+                      id="maxDiscountAmount"
+                      type="number"
+                      step="0.01"
+                      value={formData.maxDiscountAmount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          maxDiscountAmount:
+                            Number.parseFloat(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Start Date */}

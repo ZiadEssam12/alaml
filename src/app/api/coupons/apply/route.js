@@ -5,6 +5,8 @@ export async function POST(req) {
   const { couponCode } = await req.json();
   const userId = req.headers.get("userid");
 
+  console.log("couponCode:", couponCode, "userId:", userId);
+
   if (!couponCode) {
     return NextResponse.json({ message: "رمز الكوبون مطلوب" }, { status: 400 });
   }
@@ -49,6 +51,8 @@ export async function POST(req) {
       expirationDate: { gte: new Date() },
     },
   });
+
+  console.log("code : ", coupon);
 
   if (!coupon) {
     return NextResponse.json({ message: "الكوبون غير صالح" }, { status: 400 });

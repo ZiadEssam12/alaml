@@ -47,6 +47,13 @@ export async function POST(req) {
       return NextResponse.json({ errors }, { status: 400 });
     });
 
+  if (validationresult.type === "fixed") {
+    validationresult.maxDiscountAmount = validationresult.value; // Sync maxDiscountAmount with value
+  } else if (validationresult.type === "free_shipping") {
+    validationresult.value = undefined; // Remove value for free_shipping
+    validationresult.maxDiscountAmount = undefined; // Remove maxDiscountAmount for free_shipping
+  }
+
   const coupon = await prisma.coupon.create({
     data: {
       code: validationresult.code,
