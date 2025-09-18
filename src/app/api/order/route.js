@@ -74,7 +74,7 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    const shippingCost = 30;
+
     let subtotal = 0;
     const itemsWithTotal = cartItems.map((item) => {
       const price = item.product.price;
@@ -89,9 +89,6 @@ export async function POST(request) {
       };
     });
 
-    const discount = 0;
-    const finalAmount = subtotal + shippingCost - discount;
-
     const body = await request.json();
     const {
       customerName,
@@ -102,7 +99,47 @@ export async function POST(request) {
       shippingZipCode,
       paymentMethod,
       notes,
+      couponCode,
     } = body;
+
+    let coupon = null;
+    let discount = 0;
+    let shippingCost = subtotal >= 200 ? 0 : 30;
+
+    if (couponCode) {
+      try {
+        const couponResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              userid: userId,
+            },
+            body: JSON.stringify({ couponCode }),
+          }
+        );
+        const couponResult = await couponResponse.json();
+        if (!couponResponse.ok) {
+          return NextResponse.json(
+            { error: couponResult.message || "Invalid coupon" },
+            { status: 400 }
+          );
+        }
+        coupon = couponResult.coupon;
+        discount = couponResult.discount;
+        if (coupon.type === "free_shipping") {
+          shippingCost = 0;
+        }
+      } catch (error) {
+        return NextResponse.json(
+          { error: "Failed to apply coupon" },
+          { status: 500 }
+        );
+      }
+    }
+
+    const finalAmount = subtotal + shippingCost - discount;
 
     // Create order
     const order = await prisma.order.create({
@@ -120,12 +157,25 @@ export async function POST(request) {
         paymentMethod,
         notes,
         userId,
+        couponId: coupon?.id,
+        couponCode: coupon?.code,
         items: {
           create: itemsWithTotal,
         },
       },
       include: { items: true },
     });
+
+    // Create CouponUsage if coupon is applied
+    if (coupon) {
+      await prisma.couponUsage.create({
+        data: {
+          couponId: coupon.id,
+          userId,
+          orderId: order.id,
+        },
+      });
+    }
 
     await prisma.cartItem.deleteMany({ where: { cartId: cardId.id } });
 
