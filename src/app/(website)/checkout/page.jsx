@@ -4,9 +4,34 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 
-export default async function page() {
+export default async function page({ searchParams }) {
   const cookiesStore = await cookies();
   const userId = cookiesStore.get("userid")?.value;
+
+  const couponCode = (await searchParams)?.coupon;
+  let coupon = null;
+
+  if (couponCode && userId) {
+    try {
+      const couponResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            userid: userId,
+          },
+          body: JSON.stringify({ couponCode }),
+        }
+      );
+      const couponResult = await couponResponse.json();
+      if (couponResponse.ok) {
+        coupon = couponResult;
+      }
+    } catch (error) {
+      console.error("Failed to apply coupon:", error);
+    }
+  }
 
   const resCart = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {
     headers: {
@@ -66,7 +91,12 @@ export default async function page() {
       <h1 className="text-2xl font-bold mb-8">إتمام الطلب</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
-          <CheckoutForm items={cartItems} total={total} userId={userId} />
+          <CheckoutForm
+            items={cartItems}
+            total={total}
+            userId={userId}
+            couponCode={couponCode}
+          />
         </div>
         <div>
           <CartSummary
@@ -74,6 +104,7 @@ export default async function page() {
             total={total}
             showConfirmButon={false}
             showCouponField={false}
+            initialCoupon={coupon}
           />
         </div>
       </div>

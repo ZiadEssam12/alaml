@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cartContext } from "@/Context/Cart";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
@@ -52,10 +52,20 @@ const handleSubmitCoupon = async (e) => {
 export function CartSummary({
   showConfirmButon = true,
   showCouponField = false,
+  initialCoupon = null,
 }) {
   const { total, totalItemInCart } = useContext(cartContext);
-  const [coupon, setCoupon] = useState(null);
-  const [couponCode, setCouponCode] = useState(""); // Separate state for input value
+  const [coupon, setCoupon] = useState(initialCoupon);
+  const [couponCode, setCouponCode] = useState(
+    initialCoupon?.coupon?.code || ""
+  ); // Separate state for input value
+
+  useEffect(() => {
+    if (initialCoupon) {
+      setCoupon(initialCoupon);
+      setCouponCode(initialCoupon.coupon?.code || "");
+    }
+  }, [initialCoupon]);
 
   console.log("coupon in cart summary :", coupon);
   console.log("coupon type in cart summary :", coupon?.type);
@@ -65,7 +75,7 @@ export function CartSummary({
   }
 
   const shippingCost =
-    total >= 200 || coupon?.type === "free_shipping" ? 0 : 30;
+    total >= 200 || coupon?.coupon?.type === "free_shipping" ? 0 : 30;
   const finalTotal = total + shippingCost - (coupon?.discount || 0);
 
   const handleCouponFormSubmit = async (e) => {
@@ -89,20 +99,20 @@ export function CartSummary({
 
         <div className="flex justify-between">
           <span>الشحن</span>
-          {coupon?.type === "free_shipping" ? (
+          {coupon?.coupon?.type === "free_shipping" ? (
             <span className="text-green-600 font-medium">مجاني</span>
           ) : (
             <span>{shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}</span>
           )}
         </div>
 
-        {(total >= 200 || coupon?.type === "free_shipping") && (
+        {(total >= 200 || coupon?.coupon?.type === "free_shipping") && (
           <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
             🎉 تهانينا! حصلت على شحن مجاني
           </div>
         )}
 
-        {total < 200 && coupon?.type !== "free_shipping" && (
+        {total < 200 && coupon?.coupon?.type !== "free_shipping" && (
           <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
             أضف {(200 - total).toFixed(2)} جنيه أخرى للحصول على شحن مجاني
           </div>
@@ -160,7 +170,7 @@ export function CartSummary({
         )}
 
         {showConfirmButon && (
-          <Link href="/checkout">
+          <Link href={coupon ? `/checkout?coupon=${couponCode}` : "/checkout"}>
             <Button className="w-full" disabled={totalItemInCart === 0}>
               إتمام الطلب
             </Button>
