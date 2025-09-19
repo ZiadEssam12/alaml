@@ -29,6 +29,14 @@ export function CartSummary({
     }
   }, [initialCoupon]);
 
+  useEffect(() => {
+    if (coupon?.coupon?.type === "free_shipping" && total >= 200) {
+      toast.error("الكوبونات تعمل فقط للمجموع أقل من 200 جنيه");
+      setCoupon(null);
+      setCouponCode("");
+    }
+  }, [total]);
+
   console.log("coupon in cart summary :", coupon);
   console.log("coupon type in cart summary :", coupon?.type);
 
@@ -99,7 +107,7 @@ export function CartSummary({
 
         <div className="flex justify-between">
           <span>الشحن</span>
-          {coupon?.coupon?.type === "free_shipping" ? (
+          {coupon?.coupon?.type === "free_shipping" && total < 200 ? (
             <span className="text-green-600 font-medium">مجاني</span>
           ) : (
             <span>{shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}</span>
@@ -149,17 +157,19 @@ export function CartSummary({
                   id="coupon"
                   name="coupon"
                   placeholder="أدخل كود الكوبون"
-                  value={couponCode} // Bind to the new state
-                  onChange={(e) => setCouponCode(e.target.value)} // Update input state
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
                   className="pl-8"
                 />
                 <Button
-                  // variant="outline"
                   className="absolute left-0 top-0 h-full bg-transparent text-primary shadow-none border-0 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
-                  onClick={() => {
-                    setCoupon(null); // Clear the applied coupon
-                    setCouponCode(""); // Clear the input field
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setCoupon(null);
+                    setCouponCode("");
                   }}
+                  type="reset"
                 >
                   <X />
                 </Button>
