@@ -11,44 +11,6 @@ import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import Cookies from "js-cookie";
 
-const handleSubmitCoupon = async (e) => {
-  e.preventDefault();
-  const userId = Cookies.get("userid");
-  console.log("user id :", userId);
-
-  const formData = new FormData(e.target);
-  const couponValue = formData.get("coupon");
-
-  if (!couponValue) {
-    toast.error("يرجى إدخال كود الكوبون");
-    return null;
-  }
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          userId: Cookies.get("userid"),
-        },
-        body: JSON.stringify({ couponCode: couponValue }),
-      }
-    );
-    const result = await response.json();
-    if (!response.ok) {
-      toast.error(result.message || "الكوبون غير صالح");
-      return null;
-    }
-    return result; // Return the coupon data
-  } catch (e) {
-    console.log("error :", e);
-    toast.error("حدث خطأ ما، حاول مرة أخرى");
-    return null;
-  }
-};
-
 export function CartSummary({
   showConfirmButon = true,
   showCouponField = false,
@@ -79,10 +41,48 @@ export function CartSummary({
   const finalTotal = total + shippingCost - (coupon?.discount || 0);
 
   const handleCouponFormSubmit = async (e) => {
-    const { coupon } = await handleSubmitCoupon(e);
-    if (coupon) {
-      setCoupon(coupon);
+    e.preventDefault();
+    const userId = Cookies.get("userid");
+    console.log("user id :", userId);
+
+    const formData = new FormData(e.target);
+    const couponValue = formData.get("coupon");
+
+    if (!couponValue) {
+      toast.error("يرجى إدخال كود الكوبون");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            userId: Cookies.get("userid"),
+          },
+          body: JSON.stringify({ couponCode: couponValue }),
+        }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.message || "الكوبون غير صالح");
+        return;
+      }
+
+      // Check if free_shipping coupon and total >= 200
+      if (result.coupon.type === "free_shipping" && total >= 200) {
+        toast.error("الكوبونات تعمل فقط للمجموع أقل من 200 جنيه");
+        return;
+      }
+
+      setCoupon(result);
+      setCouponCode(couponValue);
       toast.success("تم تطبيق الكوبون بنجاح");
+    } catch (e) {
+      console.log("error :", e);
+      toast.error("حدث خطأ ما، حاول مرة أخرى");
     }
   };
 
