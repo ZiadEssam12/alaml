@@ -1,40 +1,28 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Package,
-  Search,
-  Check,
-  X,
-  EyeOff,
-  Eye,
-} from "lucide-react";
+
+import { Edit, Package, Check, X, EyeOff, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import { PaginationClient } from "@/components/Pagination";
 import SearchBox from "@/components/dashbaord/SearchBox";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import { useSearchParams } from "next/navigation";
+
+const AddingCouponForm = dynamic(() => import("./AddingCouponForm"), {
+  loading: () => <CouponFormSkeleton />,
+  ssr: false,
+});
+
+function CouponFormSkeleton() {
+  return (
+    <Button disabled className="animate-pulse">
+      <div className="h-4 w-4 ml-2 bg-muted rounded animate-pulse" />
+      <span className="bg-muted h-4 w-24 rounded animate-pulse ml-2" />
+    </Button>
+  );
+}
 
 const fetchCoupons = async ({ q, page, pageSize }) => {
   const response = await fetch(
@@ -45,7 +33,6 @@ const fetchCoupons = async ({ q, page, pageSize }) => {
 };
 
 function CouponsManagementContent() {
-  // Toggle coupon status (active/inactive)
   const handleToggleStatus = async (couponId, currentStatus) => {
     const action = currentStatus ? "إلغاء تنشيط" : "تنشيط";
     if (confirm(`هل أنت متأكد من ${action} هذا الكوبون؟`)) {
@@ -244,17 +231,35 @@ function CouponsManagementContent() {
     setFormData({
       code: "",
       description: "",
+      type: "",
       value: 0,
       maxUsageCount: 0,
-      expirationDate: "",
+      perUserUsageCount: 0,
+      maxDiscountAmount: 0,
       startDate: "",
       expirationDate: "",
     });
     setEditingCoupon(null);
   };
 
+  // Function to format dates in Arabic
+  const formatArabicDate = (dateString) => {
+    if (!dateString) return "-";
+
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("ar-EG", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   return (
-    <div className="space-y-6 py-10 container">
+    <div className="space-y-6 py-10 container max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">إدارة الكوبونات</h1>
@@ -263,208 +268,18 @@ function CouponsManagementContent() {
           </p>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="h-4 w-4 ml-2" />
-              إضافة كوبون جديد
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingCoupon ? "تعديل الكوبون" : "إضافة كوبون جديد"}
-              </DialogTitle>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Coupon Code */}
-                <div className="space-y-2">
-                  <Label htmlFor="code">كود الكوبون</Label>
-                  <Input
-                    id="code"
-                    value={formData.code}
-                    onChange={(e) =>
-                      setFormData({ ...formData, code: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Coupon Description */}
-                <div className="space-y-2">
-                  <Label htmlFor="description">الوصف</Label>
-                  <Input
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                {/* Coupon Type */}
-                <div className="space-y-2 w-full">
-                  <Label htmlFor="type">نوع الكوبون</Label>
-                  <DropdownMenu className="w-full">
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full">
-                        {couponTypes.find(
-                          (type) => type.value === formData.type
-                        )?.label || "اختر نوع الكوبون"}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-full">
-                      {couponTypes.map((type) => (
-                        <DropdownMenuItem
-                          key={type.value}
-                          className="w-full"
-                          onClick={() => handleCouponTypeChange(type.value)}
-                        >
-                          {type.label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Value */}
-                {formData.type !== "free_shipping" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="value">قيمة الخصم</Label>
-                    <Input
-                      id="value"
-                      type="number"
-                      step="0.01"
-                      value={formData.value}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          value: Number.parseFloat(e.target.value) || 0,
-                        })
-                      }
-                      required={
-                        formData.type === "percentage" ||
-                        formData.type === "fixed"
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-
-              {formData.type === "percentage" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Max Usage Count */}
-                  <div className="space-y-2">
-                    <Label htmlFor="maxUsageCount">عدد مرات الاستخدام</Label>
-                    <Input
-                      id="maxUsageCount"
-                      type="number"
-                      value={formData.maxUsageCount}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          maxUsageCount: Number.parseInt(e.target.value) || 0,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-
-                  {/* Per User Usage Count */}
-                  <div className="space-y-2">
-                    <Label htmlFor="perUserUsageCount">
-                      عدد مرات الاستخدام لكل مستخدم
-                    </Label>
-                    <Input
-                      id="perUserUsageCount"
-                      type="number"
-                      value={formData.perUserUsageCount}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          perUserUsageCount:
-                            Number.parseInt(e.target.value) || 0,
-                        })
-                      }
-                    />
-                  </div>
-
-                  {/* Max Discount Amount */}
-                  <div className="space-y-2">
-                    <Label htmlFor="maxDiscountAmount">الحد الأقصى للخصم</Label>
-                    <Input
-                      id="maxDiscountAmount"
-                      type="number"
-                      step="0.01"
-                      value={formData.maxDiscountAmount}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          maxDiscountAmount:
-                            Number.parseFloat(e.target.value) || 0,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Start Date */}
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">تاريخ البداية</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        startDate: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Expiration Date */}
-                <div className="space-y-2">
-                  <Label htmlFor="expirationDate">تاريخ الانتهاء</Label>
-                  <Input
-                    id="expirationDate"
-                    type="date"
-                    value={formData.expirationDate}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        expirationDate: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                >
-                  إلغاء
-                </Button>
-                <Button type="submit">
-                  {editingCoupon ? "تحديث الكوبون" : "إضافة الكوبون"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <AddingCouponForm
+          dialogOpen={dialogOpen}
+          setDialogOpen={setDialogOpen}
+          formData={formData}
+          setFormData={setFormData}
+          editingCoupon={editingCoupon}
+          setEditingCoupon={setEditingCoupon}
+          handleSubmit={handleSubmit}
+          handleCouponTypeChange={handleCouponTypeChange}
+          couponTypes={couponTypes}
+          resetForm={resetForm}
+        />
       </div>
 
       <SearchBox placeholder="البحث في الكوبونات..." />
@@ -479,16 +294,18 @@ function CouponsManagementContent() {
                 <th className="px-4 py-2">نوع الكوبون</th>
                 <th className="px-4 py-2">قيمة الخصم</th>
                 <th className="px-4 py-2">عدد مرات الاستخدام</th>
+                <th className="px-4 py-2">الاستخدام الحالي</th>
                 <th className="px-4 py-2">الحد الأقصى للخصم</th>
                 <th className="px-4 py-2">تاريخ البداية</th>
                 <th className="px-4 py-2">تاريخ الانتهاء</th>
+                <th className="px-4 py-2">الحالة</th>
                 <th className="px-4 py-2">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {[...Array(5)].map((_, i) => (
                 <tr key={i} className="border-b animate-pulse">
-                  {Array.from({ length: 9 }).map((_, j) => (
+                  {Array.from({ length: 11 }).map((_, j) => (
                     <td key={j} className="px-4 py-2">
                       <div className="h-5 bg-muted rounded w-full" />
                     </td>
@@ -508,16 +325,18 @@ function CouponsManagementContent() {
                 <th className="px-4 py-2">نوع الكوبون</th>
                 <th className="px-4 py-2">قيمة الخصم</th>
                 <th className="px-4 py-2">عدد مرات الاستخدام</th>
+                <th className="px-4 py-2">الاستخدام الحالي</th>
                 <th className="px-4 py-2">الحد الأقصى للخصم</th>
                 <th className="px-4 py-2">تاريخ البداية</th>
                 <th className="px-4 py-2">تاريخ الانتهاء</th>
+                <th className="px-4 py-2">الحالة</th>
                 <th className="px-4 py-2">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {coupons.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-8">
+                  <td colSpan={11} className="text-center py-8">
                     <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">لا توجد كوبونات</p>
                   </td>
@@ -530,9 +349,31 @@ function CouponsManagementContent() {
                     <td className="px-4 py-2">{coupon.type}</td>
                     <td className="px-4 py-2">{coupon.value}</td>
                     <td className="px-4 py-2">{coupon.maxUsageCount}</td>
+                    <td className="px-4 py-2">{coupon.usages?.length || 0}</td>
                     <td className="px-4 py-2">{coupon.maxDiscountAmount}</td>
-                    <td className="px-4 py-2">{coupon.startDate}</td>
-                    <td className="px-4 py-2">{coupon.expirationDate}</td>
+                    <td className="px-4 py-2">
+                      {formatArabicDate(coupon.startDate)}
+                    </td>
+                    <td className="px-4 py-2">
+                      {formatArabicDate(coupon.expirationDate)}
+                    </td>
+                    <td className="px-4 py-2 h-full">
+                      <div className="flex flex-col items-center gap-1">
+                        {coupon.isActive ? (
+                          <>
+                            <span className="inline-block rounded-full p-2 text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                              <Check className="h-4 w-4 text-green-800" />
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="inline-block rounded-full p-2 text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                              <X className="h-4 w-4 text-red-800" />
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-2">
                       <div className="flex gap-2">
                         <Button
