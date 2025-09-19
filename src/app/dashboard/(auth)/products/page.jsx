@@ -1,32 +1,13 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Plus,
   Edit,
-  Trash2,
   Package,
-  Search,
   Link2,
   Check,
   X,
@@ -36,11 +17,66 @@ import {
 import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/dashbaord/product/skelaton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ImageUpload } from "@/components/dashbaord/imageUpload";
 import { imageService } from "@/lib/image-service";
 import { useSearchParams } from "next/navigation";
 import SearchBox from "@/components/dashbaord/SearchBox";
 import { PaginationClient } from "@/components/Pagination";
+
+// Dynamic import for AddingProductForm with skeleton loader
+const AddingProductForm = dynamic(() => import("./AddingProductForm"), {
+  loading: () => <ProductFormSkeleton />,
+  ssr: false,
+});
+
+// ProductFormSkeleton component for loading state
+function ProductFormSkeleton() {
+  return (
+    <div className="max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+      <div className="mb-6">
+        <Skeleton className="h-6 w-48 mb-2" />
+      </div>
+
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-10 w-24" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Fetch products and categories from Next.js API
 const fetchData = async ({ q, page, pageSize }) => {
@@ -237,128 +273,26 @@ function ProductsManagementContent() {
           </p>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="h-4 w-4 ml-2" />
-              إضافة منتج جديد
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}
-              </DialogTitle>
-            </DialogHeader>
+        <Button
+          onClick={() => {
+            resetForm();
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4 ml-2" />
+          إضافة منتج جديد
+        </Button>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">اسم المنتج</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="categoryID">القسم</Label>
-                  <Select
-                    value={formData.categoryID}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, categoryID: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر القسم" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">الوصف</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  rows={4}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">السعر (جنيه)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: Number.parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="stockQuantity">الكمية المتوفرة</Label>
-                  <Input
-                    id="stockQuantity"
-                    type="number"
-                    value={formData.stockQuantity}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        stockQuantity: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <ImageUpload
-                currentImages={formData.imageUrls}
-                onImageUploaded={(imageUrl) => {
-                  setFormData({
-                    ...formData,
-                    imageUrls: [...formData.imageUrls, imageUrl],
-                  });
-                }}
-                folder="products"
-              />
-
-              <div className="flex justify-end space-x-2 ">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                >
-                  إلغاء
-                </Button>
-                <Button type="submit">
-                  {editingProduct ? "تحديث المنتج" : "إضافة المنتج"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <AddingProductForm
+          dialogOpen={dialogOpen}
+          setDialogOpen={setDialogOpen}
+          editingProduct={editingProduct}
+          formData={formData}
+          setFormData={setFormData}
+          categories={categories}
+          handleSubmit={handleSubmit}
+          resetForm={resetForm}
+        />
       </div>
 
       <SearchBox placeholder="البحث في المنتجات..." />
