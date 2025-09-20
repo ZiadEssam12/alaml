@@ -139,6 +139,7 @@ model Coupon {
   maxUsageCount       Int?          @map("max_usage_count")
   perUserUsageCount   Int?          @map("per_user_usage_count")
   maxDiscountAmount   Decimal?      @db.Decimal(10, 2) @map("max_discount_amount")
+  minCartAmount       Decimal?      @db.Decimal(10, 2) @map("min_cart_amount") @default(0.00)
   startDate           DateTime      @map("start_date")
   expirationDate      DateTime      @map("expiration_date")
   createdAt           DateTime      @default(now()) @map("created_at")

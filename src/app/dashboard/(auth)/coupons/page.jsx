@@ -78,6 +78,7 @@ function CouponsManagementContent() {
     maxUsageCount: 0,
     perUserUsageCount: 0,
     maxDiscountAmount: 0,
+    minCartAmount: 0,
     startDate: "",
     expirationDate: "",
   });
@@ -124,6 +125,7 @@ function CouponsManagementContent() {
         maxUsageCount: formData.maxUsageCount,
         perUserUsageCount: formData.perUserUsageCount,
         maxDiscountAmount: formData.maxDiscountAmount,
+        minCartAmount: formData.minCartAmount,
         startDate: formData.startDate,
         expirationDate: formData.expirationDate,
       };
@@ -180,6 +182,7 @@ function CouponsManagementContent() {
       maxUsageCount: coupon.maxUsageCount,
       perUserUsageCount: coupon.perUserUsageCount || 0,
       maxDiscountAmount: coupon.maxDiscountAmount || 0,
+      minCartAmount: coupon.minCartAmount || 0,
       startDate: coupon.startDate,
       expirationDate: coupon.expirationDate,
     });
@@ -236,6 +239,7 @@ function CouponsManagementContent() {
       maxUsageCount: 0,
       perUserUsageCount: 0,
       maxDiscountAmount: 0,
+      minCartAmount: 0,
       startDate: "",
       expirationDate: "",
     });
@@ -293,6 +297,7 @@ function CouponsManagementContent() {
                 <th className="px-4 py-2">الوصف</th>
                 <th className="px-4 py-2">نوع الكوبون</th>
                 <th className="px-4 py-2">قيمة الخصم</th>
+                <th className="px-4 py-2">الحد الأدنى للسلة</th>
                 <th className="px-4 py-2">عدد مرات الاستخدام</th>
                 <th className="px-4 py-2">الاستخدام الحالي</th>
                 <th className="px-4 py-2">الحد الأقصى للخصم</th>
@@ -305,7 +310,7 @@ function CouponsManagementContent() {
             <tbody>
               {[...Array(5)].map((_, i) => (
                 <tr key={i} className="border-b animate-pulse">
-                  {Array.from({ length: 11 }).map((_, j) => (
+                  {Array.from({ length: 12 }).map((_, j) => (
                     <td key={j} className="px-4 py-2">
                       <div className="h-5 bg-muted rounded w-full" />
                     </td>
@@ -324,6 +329,7 @@ function CouponsManagementContent() {
                 <th className="px-4 py-2">الوصف</th>
                 <th className="px-4 py-2">نوع الكوبون</th>
                 <th className="px-4 py-2">قيمة الخصم</th>
+                <th className="px-4 py-2">الحد الأدنى للسلة</th>
                 <th className="px-4 py-2">عدد مرات الاستخدام</th>
                 <th className="px-4 py-2">الاستخدام الحالي</th>
                 <th className="px-4 py-2">الحد الأقصى للخصم</th>
@@ -336,7 +342,7 @@ function CouponsManagementContent() {
             <tbody>
               {coupons.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="text-center py-8">
+                  <td colSpan={12} className="text-center py-8">
                     <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">لا توجد كوبونات</p>
                   </td>
@@ -348,6 +354,7 @@ function CouponsManagementContent() {
                     <td className="px-4 py-2">{coupon.description}</td>
                     <td className="px-4 py-2">{coupon.type}</td>
                     <td className="px-4 py-2">{coupon.value}</td>
+                    <td className="px-4 py-2">{coupon.minCartAmount || 0}</td>
                     <td className="px-4 py-2">{coupon.maxUsageCount}</td>
                     <td className="px-4 py-2">{coupon.usages?.length || 0}</td>
                     <td className="px-4 py-2">{coupon.maxDiscountAmount}</td>

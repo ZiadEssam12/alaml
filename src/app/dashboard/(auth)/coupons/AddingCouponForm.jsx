@@ -159,6 +159,26 @@ function AddingCouponForm({
                   }
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Min Cart Amount */}
+              <div className="space-y-2">
+                <Label htmlFor="minCartAmount">الحد الأدنى للسلة</Label>
+                <Input
+                  id="minCartAmount"
+                  type="number"
+                  step="0.01"
+                  value={formData.minCartAmount}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      minCartAmount: Number.parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  placeholder="0.00"
+                />
+              </div>
 
               {/* Max Discount Amount for Percentage */}
               {formData.type === "percentage" && (

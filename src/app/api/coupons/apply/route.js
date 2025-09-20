@@ -96,6 +96,18 @@ export async function POST(req) {
     return acc + price * item.quantity;
   }, 0);
 
+  // Check minimum cart amount requirement
+  if (coupon.minCartAmount && cartTotalAmount < coupon.minCartAmount) {
+    return NextResponse.json(
+      {
+        message: `الحد الأدنى للسلة هو ${
+          coupon.minCartAmount
+        } جنيه. إجمالي سلتك الحالي: ${cartTotalAmount.toFixed(2)} جنيه`,
+      },
+      { status: 400 }
+    );
+  }
+
   let discount = 0;
 
   if (coupon.type === "percentage") {
