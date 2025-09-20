@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cartContext } from "@/Context/Cart";
 
-export function CheckoutForm({ userId, items, total }) {
+export function CheckoutForm({ userId, items, total, couponCode }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     customerName: "",
@@ -25,7 +25,8 @@ export function CheckoutForm({ userId, items, total }) {
     paymentMethod: "cash", // Only COD
   });
   const [errors, setErrors] = useState({});
-  const shippingCost = total >= 200 ? 0 : 30;
+  const shippingCost =
+    total >= 200 ? 0 : 30 || couponCode?.type === "free_shipping" ? 0 : 30;
   const finalTotal = total + shippingCost;
 
   const router = useRouter();
