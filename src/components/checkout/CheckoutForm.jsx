@@ -12,7 +12,15 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cartContext } from "@/Context/Cart";
 
-export function CheckoutForm({ userId, items, total, couponCode }) {
+export function CheckoutForm({ userId, items, total, coupon }) {
+  console.log("🔄 CheckoutForm Props Received:", {
+    userId,
+    itemsCount: items?.length,
+    total,
+    coupon,
+    couponType: coupon?.type,
+    couponCode: coupon?.code,
+  });
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     customerName: "",
@@ -24,9 +32,33 @@ export function CheckoutForm({ userId, items, total, couponCode }) {
     notes: "",
     paymentMethod: "cash", // Only COD
   });
+
   const [errors, setErrors] = useState({});
-  const shippingCost =
-    total >= 200 ? 0 : 30 || couponCode?.type === "free_shipping" ? 0 : 30;
+  const calculateShippingCost = () => {
+    const couponType = coupon?.coupon.type;
+    const isFreeShipping = couponType === "free_shipping";
+    const isUnder200 = total < 200;
+
+    console.log("🚚 Shipping calculation:", {
+      total,
+      couponType,
+      isFreeShipping,
+      isUnder200,
+      couponExists: !!coupon,
+      willApplyFreeShipping: isUnder200 && isFreeShipping,
+    });
+
+    // Free shipping only applies to carts under 200 EGP with free_shipping coupon
+    if (isUnder200 && isFreeShipping) {
+      console.log("✅ Free shipping applied!");
+      return 0;
+    }
+
+    console.log("💰 Standard shipping cost applied");
+    return 30; // Standard shipping cost
+  };
+
+  const shippingCost = calculateShippingCost();
   const finalTotal = total + shippingCost;
 
   const router = useRouter();
@@ -256,13 +288,51 @@ export function CheckoutForm({ userId, items, total, couponCode }) {
           <CardTitle>ملخص الطلب</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Coupon Status */}
+          {coupon ? (
+            <div className="bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-green-800 font-medium">
+                  كوبون مطبق: {coupon.coupon.code}
+                </span>
+                <span className="text-green-600 text-sm">
+                  (
+                  {coupon.coupon.type === "free_shipping" ? "شحن مجاني" : "خصم"}
+                  )
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+              <span className="text-gray-600 text-sm">لا يوجد كوبون مطبق</span>
+            </div>
+          )}
+
           <div className="flex justify-between">
             <span>المجموع الفرعي</span>
             <span>{total.toFixed(2)} جنيه</span>
           </div>
           <div className="flex justify-between">
             <span>الشحن</span>
-            <span>{shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}</span>
+            <div className="text-left">
+              <span
+                className={
+                  shippingCost === 0 ? "text-green-600 font-medium" : ""
+                }
+              >
+                {shippingCost === 0 ? "مجاني" : `${shippingCost} جنيه`}
+              </span>
+              {shippingCost === 0 && (
+                <div className="text-xs text-green-600">
+                  (تطبيق كوبون الشحن المجاني)
+                </div>
+              )}
+              {total >= 200 && coupon?.type === "free_shipping" && (
+                <div className="text-xs text-orange-600">
+                  (كوبون الشحن المجاني ينطبق على الطلبات أقل من 200 جنيه)
+                </div>
+              )}
+            </div>
           </div>
           <Separator />
           <div className="flex justify-between font-bold text-lg">

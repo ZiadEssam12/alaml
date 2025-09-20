@@ -50,8 +50,6 @@ export async function POST(req) {
     },
   });
 
-  console.log("code : ", coupon);
-
   if (!coupon) {
     return NextResponse.json({ message: "الكوبون غير صالح" }, { status: 400 });
   }

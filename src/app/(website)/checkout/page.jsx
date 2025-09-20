@@ -8,11 +8,20 @@ export default async function page({ searchParams }) {
   const cookiesStore = await cookies();
   const userId = cookiesStore.get("userid")?.value;
 
-  const couponCode = (await searchParams)?.coupon;
+  const searchParamsData = await searchParams;
+  const couponCode = searchParamsData?.coupon;
+
+  console.log("🔍 Checkout Page Debug:", {
+    userId,
+    couponCode,
+    searchParams: Object.fromEntries(searchParamsData.entries?.() || []),
+  });
   let coupon = null;
 
   if (couponCode && userId) {
     try {
+      console.log("🔍 Fetching coupon:", couponCode, "for user:", userId);
+
       const couponResponse = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
         {
@@ -24,13 +33,34 @@ export default async function page({ searchParams }) {
           body: JSON.stringify({ couponCode }),
         }
       );
+
       const couponResult = await couponResponse.json();
+      console.log("📦 Coupon API Response:", {
+        status: couponResponse.status,
+        ok: couponResponse.ok,
+        result: couponResult,
+      });
+
       if (couponResponse.ok) {
         coupon = couponResult;
+        console.log("✅ Coupon applied successfully:", coupon);
+
+        // Validate coupon structure
+        if (!coupon || typeof coupon !== "object") {
+          console.warn("⚠️ Invalid coupon structure:", coupon);
+          coupon = null;
+        } else if (!coupon.coupon.type) {
+          console.warn("⚠️ Coupon missing type property:", coupon);
+          coupon = null;
+        }
+      } else {
+        console.log("❌ Coupon application failed:", couponResult);
       }
     } catch (error) {
-      console.error("Failed to apply coupon:", error);
+      console.error("💥 Failed to apply coupon:", error);
     }
+  } else {
+    console.log("ℹ️ No coupon code or user ID:", { couponCode, userId });
   }
 
   const resCart = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {
@@ -86,6 +116,15 @@ export default async function page({ searchParams }) {
     );
   }
 
+  console.log("coupon code :", coupon);
+
+  console.log("📤 Passing coupon to components:", {
+    coupon,
+    couponType: coupon?.type,
+    couponCode: coupon?.code,
+    hasCoupon: !!coupon,
+  });
+
   return (
     <div className="py-8">
       <h1 className="text-2xl font-bold mb-8">إتمام الطلب</h1>
@@ -95,7 +134,7 @@ export default async function page({ searchParams }) {
             items={cartItems}
             total={total}
             userId={userId}
-            couponCode={couponCode}
+            coupon={coupon}
           />
         </div>
         <div>
