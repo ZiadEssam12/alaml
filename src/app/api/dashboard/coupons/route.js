@@ -1,5 +1,5 @@
-import { createNewCouponSchema } from "@/schema/coupon";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -76,6 +76,7 @@ export async function POST(req) {
         maxUsageCount: validationresult.maxUsageCount,
         perUserUsageCount: validationresult.perUserUsageCount,
         maxDiscountAmount: validationresult.maxDiscountAmount,
+        minCartAmount: validationresult.minCartAmount || 0,
         startDate: validationresult.startDate || "2025-09-17T00:00:00Z",
         expirationDate:
           validationresult.expirationDate || "2025-10-30T00:00:00Z",
