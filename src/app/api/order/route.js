@@ -104,9 +104,11 @@ export async function POST(request) {
 
     let coupon = null;
     let discount = 0;
-    let shippingCost = subtotal >= 200 ? 0 : 30;
 
-    if (couponCode) {
+    let shippingCost;
+    if (subtotal >= 200) {
+      shippingCost = 0;
+    } else if (couponCode) {
       try {
         const couponResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
@@ -128,8 +130,11 @@ export async function POST(request) {
         }
         coupon = couponResult.coupon;
         discount = couponResult.discount;
+
         if (coupon.type === "free_shipping") {
           shippingCost = 0;
+        } else {
+          shippingCost = 30; // Standard shipping
         }
       } catch (error) {
         return NextResponse.json(
@@ -137,6 +142,8 @@ export async function POST(request) {
           { status: 500 }
         );
       }
+    } else {
+      shippingCost = 30;
     }
 
     const finalAmount = subtotal + shippingCost - discount;
