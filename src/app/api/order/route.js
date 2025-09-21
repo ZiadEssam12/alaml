@@ -15,16 +15,19 @@ export async function GET(request) {
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
 
-    const totalOrders = await prisma.order.count({ where: { userId } });
-    const maxPage = Math.ceil(totalOrders / limit);
+    // Combine count and findMany queries into a transaction
+    const [totalOrders, orders] = await prisma.$transaction([
+      prisma.order.count({ where: { userId } }),
+      prisma.order.findMany({
+        where: { userId },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: { items: true },
+      }),
+    ]);
 
-    const orders = await prisma.order.findMany({
-      where: { userId },
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      include: { items: true },
-    });
+    const maxPage = Math.ceil(totalOrders / limit);
 
     return NextResponse.json(
       {
@@ -49,7 +52,6 @@ export async function GET(request) {
 // POST: Create a new order
 export async function POST(request) {
   try {
-    // Get userId from headers
     const userId = request.headers.get("userid");
     if (!userId) {
       return NextResponse.json(
@@ -58,16 +60,31 @@ export async function POST(request) {
       );
     }
 
-    const cardId = await prisma.cart.findUnique({
-      where: { userId: userId },
-      select: { id: true },
-    });
+    const body = await request.json();
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingStreet,
+      shippingCity,
+      shippingZipCode,
+      paymentMethod,
+      notes,
+      couponCode,
+    } = body;
 
-    // Get cart items for user
-    const cartItems = await prisma.cartItem.findMany({
-      where: { cartId: cardId.id },
-      include: { product: true },
-    });
+    // Combine cart and cart items queries into a transaction
+    const [cart, cartItems] = await prisma.$transaction([
+      prisma.cart.findUnique({
+        where: { userId },
+        select: { id: true },
+      }),
+      prisma.cartItem.findMany({
+        where: { cart: { userId } },
+        include: { product: true },
+      }),
+    ]);
+
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json(
         { error: "السلة فارغة لا يمكن إنشاء طلب جديد" },
@@ -89,28 +106,10 @@ export async function POST(request) {
       };
     });
 
-    const body = await request.json();
-    const {
-      customerName,
-      customerEmail,
-      customerPhone,
-      shippingStreet,
-      shippingCity,
-      shippingZipCode,
-      paymentMethod,
-      notes,
-      couponCode,
-    } = body;
-
     let coupon = null;
     let discount = 0;
+    let shippingCost = subtotal >= 200 ? 0 : 30;
 
-    let shippingCost;
-    
-    if (subtotal >= 200) {
-      shippingCost = 0;
-    } 
-    
     if (couponCode) {
       try {
         const couponResponse = await fetch(
@@ -136,8 +135,6 @@ export async function POST(request) {
 
         if (coupon.type === "free_shipping") {
           shippingCost = 0;
-        } else {
-          shippingCost = 30; // Standard shipping
         }
       } catch (error) {
         return NextResponse.json(
@@ -145,36 +142,47 @@ export async function POST(request) {
           { status: 500 }
         );
       }
-    } else {
-      shippingCost = 30;
     }
 
     const finalAmount = subtotal + shippingCost - discount;
 
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        customerName,
-        customerEmail,
-        customerPhone,
-        shippingStreet,
-        shippingCity,
-        shippingZipCode,
-        subtotal,
-        shippingCost,
-        discount,
-        finalAmount,
-        paymentMethod,
-        notes,
-        userId,
-        couponId: coupon?.id,
-        couponCode: coupon?.code,
-        items: {
-          create: itemsWithTotal,
+    // Create order and update stock in a transaction
+    const [order] = await prisma.$transaction([
+      prisma.order.create({
+        data: {
+          customerName,
+          customerEmail,
+          customerPhone,
+          shippingStreet,
+          shippingCity,
+          shippingZipCode,
+          subtotal,
+          shippingCost,
+          discount,
+          finalAmount,
+          paymentMethod,
+          notes,
+          userId,
+          couponId: coupon?.id,
+          couponCode: coupon?.code,
+          items: {
+            create: itemsWithTotal,
+          },
         },
-      },
-      include: { items: true },
-    });
+        include: { items: true },
+      }),
+      ...cartItems.map((item) =>
+        prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stockQuantity: {
+              decrement: item.quantity,
+            },
+          },
+        })
+      ),
+      prisma.cartItem.deleteMany({ where: { cartId: cart.id } }),
+    ]);
 
     // Create CouponUsage if coupon is applied
     if (coupon) {
@@ -183,19 +191,6 @@ export async function POST(request) {
           couponId: coupon.id,
           userId,
           orderId: order.id,
-        },
-      });
-    }
-
-    await prisma.cartItem.deleteMany({ where: { cartId: cardId.id } });
-
-    for (const item of cartItems) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          stockQuantity: {
-            decrement: item.quantity,
-          },
         },
       });
     }

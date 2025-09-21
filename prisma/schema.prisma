@@ -19,6 +19,9 @@ model Category {
   seoDescription  String
   createdAt       DateTime       @default(now())
   products        Product[]
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Product {
@@ -36,6 +39,10 @@ model Product {
   cartItems          CartItem[]
   createdAt          DateTime   @default(now())
   updatedAt          DateTime?  @updatedAt
+
+  @@index([isActive])
+  @@index([price])
+  @@index([createdAt])
 }
 
 model Order {
@@ -67,6 +74,10 @@ model Order {
   couponCode         String?       
 
   couponUsages       CouponUsage[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -78,6 +89,9 @@ model OrderItem {
   quantity    Int
   price       Float
   total       Float
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Review {
@@ -90,6 +104,10 @@ model Review {
   comment     String
   status      ReviewStatus @default(pending)
   createdAt   DateTime     @default(now())
+
+  @@index([productId])
+  @@index([userId])
+  @@index([status])
 }
 
 model User {
@@ -101,11 +119,8 @@ model User {
   orders       Order[]       // One-to-many relation
   // Inverse relation for CouponUsage
   couponUsages CouponUsage[]
-}
 
-enum UserRole {
-  user
-  admin
+  @@index([role])
 }
 
 model Cart {
@@ -115,6 +130,9 @@ model Cart {
   items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime?  @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model CartItem {
@@ -127,6 +145,9 @@ model CartItem {
   price     Float
   imageUrl  String
   quantity  Int
+
+  @@index([cartId])
+  @@index([productId])
 }
 
 model Coupon {
@@ -149,8 +170,10 @@ model Coupon {
   usages              CouponUsage[]
 
   @@map("coupons")
+  @@index([isActive])
+  @@index([startDate])
+  @@index([expirationDate])
 }
-
 
 model CouponUsage {
   usageId   Int      @id @default(autoincrement()) @map("usage_id")
@@ -168,6 +191,9 @@ model CouponUsage {
 
   @@map("coupon_usages")
   @@unique([couponId, userId, orderId])  // prevent duplicate application entries
+  @@index([couponId])
+  @@index([userId])
+  @@index([orderId])
 }
 
 enum CouponType {
