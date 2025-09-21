@@ -15,24 +15,25 @@ export async function POST(req) {
     );
   }
 
-  // Get cart ID for user
-  const cartId = await prisma.cart.findUnique({
-    where: { userId: userId },
-    select: { id: true },
-  });
-
-  if (!cartId) {
-    return NextResponse.json(
-      { error: "لم يتم العثور على سلة مرتبطة بهذا المستخدم" },
-      { status: 400 }
-    );
-  }
-
-  // Get cart items for user
-  const cartItems = await prisma.cartItem.findMany({
-    where: { cartId: cartId.id },
-    include: { product: true },
-  });
+  // Combine cart items and coupon queries into a single transaction
+  const [cartItems, coupon] = await prisma.$transaction([
+    prisma.cartItem.findMany({
+      where: {
+        cart: {
+          userId: userId,
+        },
+      },
+      include: { product: true },
+    }),
+    prisma.coupon.findFirst({
+      where: {
+        code: couponCode,
+        isActive: true,
+        startDate: { lte: new Date() },
+        expirationDate: { gte: new Date() },
+      },
+    }),
+  ]);
 
   if (!cartItems || cartItems.length === 0) {
     return NextResponse.json(
@@ -41,43 +42,36 @@ export async function POST(req) {
     );
   }
 
-  const coupon = await prisma.coupon.findFirst({
-    where: {
-      code: couponCode,
-      isActive: true,
-      startDate: { lte: new Date() },
-      expirationDate: { gte: new Date() },
-    },
-  });
-
   if (!coupon) {
     return NextResponse.json({ message: "الكوبون غير صالح" }, { status: 400 });
   }
 
+  // Parallelize usage count queries
+  const [totalUsageCount, userUsageCount] = await Promise.all([
+    coupon.maxUsageCount
+      ? prisma.couponUsage.count({ where: { couponId: coupon.id } })
+      : Promise.resolve(0),
+    coupon.perUserUsageCount
+      ? prisma.couponUsage.count({
+          where: { couponId: coupon.id, userId: userId },
+        })
+      : Promise.resolve(0),
+  ]);
+
   // Check total coupon usage
-  if (coupon.maxUsageCount) {
-    const totalUsageCount = await prisma.couponUsage.count({
-      where: { couponId: coupon.id },
-    });
-    if (totalUsageCount >= coupon.maxUsageCount) {
-      return NextResponse.json(
-        { message: "تم استخدام هذا الكوبون بالكامل" },
-        { status: 400 }
-      );
-    }
+  if (coupon.maxUsageCount && totalUsageCount >= coupon.maxUsageCount) {
+    return NextResponse.json(
+      { message: "تم استخدام هذا الكوبون بالكامل" },
+      { status: 400 }
+    );
   }
 
   // Check user-specific coupon usage
-  if (coupon.perUserUsageCount) {
-    const userUsageCount = await prisma.couponUsage.count({
-      where: { couponId: coupon.id, userId: userId },
-    });
-    if (userUsageCount >= coupon.perUserUsageCount) {
-      return NextResponse.json(
-        { message: "تم استخدام هذا الكوبون من قبلك بالكامل" },
-        { status: 400 }
-      );
-    }
+  if (coupon.perUserUsageCount && userUsageCount >= coupon.perUserUsageCount) {
+    return NextResponse.json(
+      { message: "تم استخدام هذا الكوبون من قبلك بالكامل" },
+      { status: 400 }
+    );
   }
 
   if (coupon.type === "free_shipping") {

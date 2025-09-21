@@ -3,16 +3,17 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      take: 10,
-    });
-
-    const products = await prisma.product.findMany({
-      take: 10,
-      where: {
-        isActive: true,
-      },
-    });
+    const [categories, products] = await prisma.$transaction([
+      prisma.category.findMany({
+        take: 10,
+      }),
+      prisma.product.findMany({
+        take: 10,
+        where: {
+          isActive: true,
+        },
+      }),
+    ]);
 
     return NextResponse.json(
       {
