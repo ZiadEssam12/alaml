@@ -10,10 +10,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-  BreadcrumbEllipsis,
 } from "@/components/ui/breadcrumb";
 
-// This page expects to receive order data via API using the id param
 export default async function OrderDetailsPage({ params }) {
   const orderId = (await params).id;
   let order = {};
@@ -77,6 +75,7 @@ export default async function OrderDetailsPage({ params }) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">
           تفاصيل الطلب رقم #{order.id}
@@ -143,6 +142,13 @@ export default async function OrderDetailsPage({ params }) {
                 ))}
               </ul>
             </div>
+            {/* Coupon code section */}
+            {order.coupon?.code && (
+              <div className="mb-4">
+                <p className="text-muted-foreground mb-1">كود الكوبون:</p>
+                <p className="font-semibold">{order.coupon.code}</p>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-muted-foreground">المجموع الفرعي</p>
@@ -150,7 +156,14 @@ export default async function OrderDetailsPage({ params }) {
               </div>
               <div>
                 <p className="text-muted-foreground">تكلفة الشحن</p>
-                <p className="font-semibold">{order.shippingCost} جنيه</p>
+                <div className="flex items-center space-x-2">
+                  <p className="font-semibold">{order.shippingCost} جنيه</p>
+                  {order.coupon?.type === "free_shipping" && (
+                    <span className="text-sm text-green-600 bg-green-50 p-1 rounded">
+                      🎉 تم تطبيق كوبون الشحن المجاني
+                    </span>
+                  )}
+                </div>
               </div>
               <div>
                 <p className="text-muted-foreground">الخصم</p>

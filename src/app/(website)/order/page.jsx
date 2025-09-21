@@ -26,7 +26,6 @@ export default async function OrdersPage({}) {
     orders = data.data || [];
     pagination = data.pagination;
 
-    console.log("user orders: ", orders);
   } catch (error) {
     console.log("error:", error.message);
   }

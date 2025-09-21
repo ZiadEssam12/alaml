@@ -22,7 +22,16 @@ export async function GET(request, { params }) {
 
     const order = await prisma.order.findFirst({
       where: { id: orderId, userId },
-      include: { items: true },
+      include: {
+        items: true,
+        coupon: {
+          select: {
+            code: true,
+            type: true,
+            value: true,
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -34,8 +43,9 @@ export async function GET(request, { params }) {
         data: {
           order,
           items: order.items,
+          coupon: order.coupon, // Add selected coupon data to the response
         },
-        message: "Order and items fetched successfully",
+        message: "Order, items, and coupon fetched successfully",
       },
       { status: 200 }
     );
