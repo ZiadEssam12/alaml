@@ -31,31 +31,14 @@ export function CheckoutForm({ userId, items, total, coupon }) {
     zipCode: "",
     notes: "",
     paymentMethod: "cash", // Only COD
+    couponCode: null,
   });
 
   const [errors, setErrors] = useState({});
+
   const calculateShippingCost = () => {
     const couponType = coupon?.coupon.type;
-    const isFreeShipping = couponType === "free_shipping";
-    const isUnder200 = total < 200;
-
-    console.log("🚚 Shipping calculation:", {
-      total,
-      couponType,
-      isFreeShipping,
-      isUnder200,
-      couponExists: !!coupon,
-      willApplyFreeShipping: isUnder200 && isFreeShipping,
-    });
-
-    // Free shipping only applies to carts under 200 EGP with free_shipping coupon
-    if (isUnder200 && isFreeShipping) {
-      console.log("✅ Free shipping applied!");
-      return 0;
-    }
-
-    console.log("💰 Standard shipping cost applied");
-    return 30; // Standard shipping cost
+    return total < 200 && couponType === "free_shipping" ? 0 : 30;
   };
 
   const shippingCost = calculateShippingCost();
@@ -133,6 +116,7 @@ export function CheckoutForm({ userId, items, total, coupon }) {
       shippingZipCode: formData.zipCode,
       paymentMethod: formData.paymentMethod,
       notes: formData.notes,
+      couponCode: coupon?.coupon?.code || null,
     };
 
     try {

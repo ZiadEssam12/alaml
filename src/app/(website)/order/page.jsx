@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 import { cookies } from "next/headers";
 import { PaginationClient } from "@/components/Pagination";
+import Link from "next/link";
 
 export default async function OrdersPage({}) {
   const cookieStore = await cookies();
@@ -25,7 +26,7 @@ export default async function OrdersPage({}) {
     orders = data.data || [];
     pagination = data.pagination;
 
-    console.log("pagination :", pagination.maxPage);
+    console.log("user orders: ", orders);
   } catch (error) {
     console.log("error:", error.message);
   }
@@ -50,7 +51,7 @@ export default async function OrdersPage({}) {
           <div className="space-y-6">
             {orders.map((order) => (
               <div key={order.id}>
-                <a href={`/order/${order.id}`} className="block">
+                <Link href={`/order/${order.id}`} className="block">
                   <Card className="shadow-sm cursor-pointer hover:ring-2 hover:ring-primary transition">
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="text-lg">
@@ -118,7 +119,7 @@ export default async function OrdersPage({}) {
                       </div>
                     </CardContent>
                   </Card>
-                </a>
+                </Link>
               </div>
             ))}
             <div className="flex justify-center mt-8">

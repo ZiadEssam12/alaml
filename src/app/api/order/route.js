@@ -106,9 +106,12 @@ export async function POST(request) {
     let discount = 0;
 
     let shippingCost;
+    
     if (subtotal >= 200) {
       shippingCost = 0;
-    } else if (couponCode) {
+    } 
+    
+    if (couponCode) {
       try {
         const couponResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
