@@ -117,10 +117,8 @@ model User {
   role         UserRole      @default(user)
   cart         Cart?         // One-to-one relation
   orders       Order[]       // One-to-many relation
-  // Inverse relation for CouponUsage
-  couponUsages CouponUsage[]
 
-  @@index([role])
+  couponUsages CouponUsage[]
 }
 
 model Cart {
@@ -219,4 +217,9 @@ enum ReviewStatus {
   pending
   approved
   rejected
+}
+
+enum UserRole {
+  user
+  admin
 }
