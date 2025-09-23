@@ -27,7 +27,11 @@ async function getOrder(id) {
   );
   if (!res.ok) return null;
   const { data } = await res.json();
-  return data;
+  return {
+    ...data,
+    couponCode: data.couponCode || "-",
+    couponType: data.couponType || "-",
+  };
 }
 
 export default async function OrderDetailsPage({ params }) {
@@ -91,6 +95,14 @@ export default async function OrderDetailsPage({ params }) {
             <div className="mb-2">
               <span className="font-semibold">تاريخ الإنشاء:</span>{" "}
               {new Date(order.createdAt).toLocaleString("ar-EG")}
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold">كود الكوبون:</span>{" "}
+              {order.couponCode}
+            </div>
+            <div className="mb-2">
+              <span className="font-semibold">نوع الكوبون:</span>{" "}
+              {order.couponType}
             </div>
           </div>
           <div>

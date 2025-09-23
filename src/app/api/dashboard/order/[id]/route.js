@@ -9,11 +9,24 @@ export async function GET(req, { params }) {
     include: {
       user: true,
       items: true,
+      coupon: {
+        select: {
+          code: true,
+          type: true,
+        },
+      },
     },
   });
+
   if (!order)
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
-  return NextResponse.json({ data: order });
+  return NextResponse.json({
+    data: {
+      ...order,
+      couponCode: order.coupon?.code || null, // Add coupon code
+      couponType: order.coupon?.type || null, // Add coupon type
+    },
+  });
 }
 
 // PATCH /api/dashboard/order/[id]
