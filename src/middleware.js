@@ -32,7 +32,10 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL("/dashboard/login", req.url));
   }
 
-  if (pathname.startsWith("/api/dashboard") && !session) {
+  if (
+    pathname.startsWith("/api/dashboard") &&
+    (!session || session.role !== "admin")
+  ) {
     console.log("Unauthorized API access");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

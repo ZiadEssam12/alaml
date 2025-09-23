@@ -9,11 +9,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-import Cookies from "js-cookie";
+import { cookies } from "next/headers";
 async function getOrder(id) {
+  const cookieStore = await cookies();
   const token =
-    Cookies.get("authjs.session-token") ||
-    Cookies.get("__Secure-authjs.session-token");
+    cookieStore.get("authjs.session-token")?.value ||
+    cookieStore.get("__Secure-authjs.session-token")?.value;
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order/${id}`,
