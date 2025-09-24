@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>1&bsol;&period; Backend Tasks &#x1f4e6;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <p>To build a robust review system, you'll need to create a secure backend API and a performant frontend interface. The system will enforce business rules, like ensuring users are authenticated and have purchased the product before leaving a review, and that they can only submit one review per product.</p>
+<hr>
+<h3 id="1-backend-tasks-">1. Backend Tasks 📦</h3>
+<p>The backend will handle all data logic, validation, and interaction with the database. We'll use Next.js API Routes for this.</p>
+<h4 id="api-endpoints"><strong>API Endpoints</strong></h4>
+<ul>
+<li><strong><code>POST /api/reviews</code></strong>: Creates a new product review.
+<ul>
+<li><strong>Function Name</strong>: <code>handleCreateReview</code></li>
+<li><strong>Description</strong>: This is a <strong>protected route</strong> requiring user authentication. It validates the request body, checks if the user has a completed order for the specified product, and verifies if the user has already submitted a review for that product. If all checks pass, it creates a new review with a <code>pending</code> status.</li>
+</ul>
+</li>
+<li><strong><code>GET /api/reviews/:productId</code></strong>: Fetches all <strong>approved</strong> reviews for a specific product.
+<ul>
+<li><strong>Function Name</strong>: <code>handleGetProductReviews</code></li>
+<li><strong>Description</strong>: This is a <strong>public route</strong> and should be highly performant. It retrieves all reviews for a given product ID where the <code>status</code> is <code>approved</code>.</li>
+</ul>
+</li>
+<li><strong><code>GET /api/reviews/user/:userId</code></strong>: Fetches all reviews submitted by a specific user.
+<ul>
+<li><strong>Function Name</strong>: <code>handleGetUserReviews</code></li>
+<li><strong>Description</strong>: This is a <strong>protected route</strong>. It fetches all reviews associated with the authenticated user, allowing them to view their submission history.</li>
+</ul>
+</li>
+<li><strong><code>PUT /api/reviews/:reviewId</code></strong>: Updates a review (e.g., for moderation).
+<ul>
+<li><strong>Function Name</strong>: <code>handleUpdateReview</code></li>
+<li><strong>Description</strong>: This is an <strong>admin-only</strong> route. It updates a specific review's status (e.g., from <code>pending</code> to <code>approved</code> or <code>rejected</code>).</li>
+</ul>
+</li>
+<li><strong><code>DELETE /api/reviews/:reviewId</code></strong>: Deletes a review.
+<ul>
+<li><strong>Function Name</strong>: <code>handleDeleteReview</code></li>
+<li><strong>Description</strong>: This is an <strong>admin-only</strong> or user-specific route. It allows for the permanent removal of a review.</li>
+</ul>
+</li>
+</ul>
+<h4 id="core-logic--performance"><strong>Core Logic &amp; Performance</strong></h4>
+<ul>
+<li>
+<p><strong>Middleware for Authentication &amp; Authorization</strong>: Use a robust authentication solution like <strong>NextAuth.js</strong> to protect API routes. Create middleware that checks for a valid session and user role (<code>admin</code> vs. <code>user</code>).</p>
+</li>
+<li>
+<p><strong>Data Validation</strong>: Use a schema validation library like <strong>Zod</strong> to validate incoming request bodies (e.g., <code>rating</code> is an integer between 1-5, <code>comment</code> is a string).</p>
+</li>
+<li>
+<p><strong>Enforcing Business Rules</strong>:</p>
+<ol>
+<li>
+<p><strong>Authenticated User</strong>: The API route must check for a valid user session.</p>
+</li>
+<li>
+<p><strong>Purchased Product</strong>: Before creating a review, query the database to confirm the user has a <code>delivered</code> or <code>shipped</code> <code>Order</code> that includes the <code>productId</code> in its <code>OrderItem</code>s. Use a Prisma query to efficiently check this:</p>
+<pre><code class="language-prisma">const hasPurchased = await prisma.order.findFirst({
+  where: {
+    userId: userId,
+    status: { in: ['shipped', 'delivered'] },
+    items: { some: { productId: productId } }
+  }
+});
+</code></pre>
+</li>
+<li>
+<p><strong>One Review per User/Product</strong>: Before creating a review, query the database to ensure a review doesn't already exist for the <code>userId</code> and <code>productId</code> combination.</p>
+<pre><code class="language-prisma">const existingReview = await prisma.review.findFirst({
+  where: {
+    userId: userId,
+    productId: productId
+  }
+});
+</code></pre>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Performance Optimization (Next.js)</strong>:</p>
+<ul>
+<li><strong>Edge Functions</strong>: Deploy API routes as Edge Functions for low latency, as they run closer to the user.</li>
+<li><strong>Prisma Client</strong>: Prisma is highly performant. Ensure queries are optimized with proper <code>WHERE</code> clauses and <code>@@index</code> declarations as you've done in your schema.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="2-frontend-tasks-">2. Frontend Tasks 🎨</h3>
+<p>The frontend will be built with <strong>React</strong> and <strong>Next.js</strong> to provide a fast, user-friendly experience.</p>
+<h4 id="components--pages"><strong>Components &amp; Pages</strong></h4>
+<ul>
+<li>
+<p><strong><code>ProductReviewsList</code> Component</strong>: Displays the list of approved reviews.</p>
+<ul>
+<li><strong>Description</strong>: This component is a <strong>Server Component</strong> (or uses <code>getServerSideProps</code>) to fetch the reviews for a specific product ID on the server. This improves SEO and initial page load performance, as the reviews are part of the initial HTML.</li>
+<li><strong>Data Fetching</strong>: Use a function like <code>fetchApprovedReviews(productId)</code> that calls the <code>GET /api/reviews/:productId</code> endpoint.</li>
+<li><strong>UI</strong>: Each review will display the <code>userName</code>, <code>rating</code> (e.g., star icons), and <code>comment</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>ReviewForm</code> Component</strong>: Allows authenticated users to submit a new review.</p>
+<ul>
+<li><strong>Description</strong>: This should be a <strong>Client Component</strong>. It handles form state, validation, and submission. It is conditionally rendered:
+<ul>
+<li>Show the form only if the user is authenticated.</li>
+<li>Show a button to &quot;Write a Review&quot; if the user has purchased the product but hasn't reviewed it yet.</li>
+<li>Show a message like &quot;You have already reviewed this product&quot; if they've submitted one.</li>
+</ul>
+</li>
+<li><strong>Form Fields</strong>: A <code>rating</code> input (e.g., a star rating component) and a <code>comment</code> textarea.</li>
+<li><strong>Submission</strong>: On form submission, call the <code>POST /api/reviews</code> endpoint. Use <strong>React Hook Form</strong> with <strong>Zod</strong> for client-side form validation.</li>
+<li><strong>State Management</strong>: Use <strong>SWR</strong> or <strong>React Query</strong> for client-side data fetching and state management. When a new review is successfully submitted, these libraries can automatically re-validate and re-fetch the review data for a seamless UI update.</li>
+</ul>
+</li>
+</ul>
+<h4 id="conditional-ui-logic--performance"><strong>Conditional UI Logic &amp; Performance</strong></h4>
+<ul>
+<li><strong>User Session Check</strong>: Use <strong>NextAuth.js</strong>'s <code>useSession</code> hook to determine if a user is logged in.</li>
+<li><strong>Purchased Product Check</strong>: On the product page, the server-side logic (or a dedicated client-side hook) will check if the logged-in user has purchased the product. This can be done by a single server-side check that combines the purchase and review existence queries.</li>
+<li><strong>Performance Optimization</strong>:
+<ul>
+<li><strong>Server-Side Rendering (SSR)</strong>: The main product page with the review list should be rendered on the server to make it lightning fast for the user and search engines.</li>
+<li><strong>Lazy Loading</strong>: For products with hundreds of reviews, implement pagination or infinite scrolling to avoid loading all reviews at once.</li>
+<li><strong>Client-Side Hydration</strong>: Ensure the <code>ReviewForm</code> component is a client component (<code>'use client'</code>) to handle interactive form logic.</li>
+<li><strong>Image Optimization</strong>: If you add user avatars, use Next.js's <code>next/image</code> component for lazy loading and format optimization.</li>
+</ul>
+</li>
+</ul>
+
+            
+            
+        </body>
+        </html>

@@ -35,7 +35,7 @@ export default function ProductCard({ product }) {
     imageService.generateBlurredPlaceholder(imagePublicId);
 
   return (
-    <div className="group relative bg-card rounded-lg p-1 border hover:shadow-md transition-shadow">
+    <div className="group relative bg-card rounded-lg p-1">
       {/* Product Image */}
       <Link href={`/products/${product.slug}`}>
         <div className="relative h-48 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">
@@ -82,9 +82,9 @@ export default function ProductCard({ product }) {
           </h3>
         </Link>
 
-        <div className="flex items-centerjustify-start gap-3">
+        <div className="flex flex-col justify-start gap-1">
           {/* Rating */}
-          <div className="flex items-center gap-1 mb-2 order-2">
+          <div className="flex items-center gap-1 order-2">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -103,7 +103,7 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* Price */}
-          <div className="flex items-center justify-between mb-4 order-1">
+          <div className="flex items-center justify-between order-1">
             <span className="text-xl font-bold text-primary">
               {product.price} جنيه
             </span>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>1&bsol;&period; Backend Tasks for Admin Dashboard &#x1f46e;&zwj;&male;&#xfe0f;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <p>To build a comprehensive review system with a dashboard for administrators, you'll need to expand the backend API and create dedicated frontend components for the admin interface. This allows for moderation and management of reviews.</p>
+<hr>
+<h3 id="1-backend-tasks-for-admin-dashboard-️">1. Backend Tasks for Admin Dashboard 👮‍♂️</h3>
+<p>The dashboard endpoints will be protected and accessible only to users with the <code>admin</code> role.</p>
+<h4 id="api-endpoints"><strong>API Endpoints</strong></h4>
+<ul>
+<li><strong><code>GET /api/admin/reviews</code></strong>: Fetches all reviews, regardless of status.
+<ul>
+<li><strong>Function Name</strong>: <code>handleGetAllReviews</code></li>
+<li><strong>Description</strong>: This is a <strong>protected, admin-only route</strong>. It retrieves all reviews from the database, including those with <code>pending</code>, <code>approved</code>, and <code>rejected</code> statuses. This is crucial for the moderation queue.</li>
+</ul>
+</li>
+<li><strong><code>GET /api/admin/reviews/pending</code></strong>: Fetches all reviews awaiting moderation.
+<ul>
+<li><strong>Function Name</strong>: <code>handleGetPendingReviews</code></li>
+<li><strong>Description</strong>: A specialized <strong>protected, admin-only route</strong> that returns only reviews with a <code>pending</code> status. This allows the admin to quickly see what needs attention.</li>
+</ul>
+</li>
+<li><strong><code>PUT /api/admin/reviews/:reviewId/approve</code></strong>: Approves a review.
+<ul>
+<li><strong>Function Name</strong>: <code>handleApproveReview</code></li>
+<li><strong>Description</strong>: This <strong>admin-only endpoint</strong> changes a review's <code>status</code> from <code>pending</code> to <code>approved</code>. The <code>reviewId</code> is passed as a URL parameter.</li>
+</ul>
+</li>
+<li><strong><code>PUT /api/admin/reviews/:reviewId/reject</code></strong>: Rejects a review.
+<ul>
+<li><strong>Function Name</strong>: <code>handleRejectReview</code></li>
+<li><strong>Description</strong>: This <strong>admin-only endpoint</strong> changes a review's <code>status</code> from <code>pending</code> to <code>rejected</code>. The <code>reviewId</code> is passed as a URL parameter.</li>
+</ul>
+</li>
+<li><strong><code>DELETE /api/admin/reviews/:reviewId</code></strong>: Deletes a review.
+<ul>
+<li><strong>Function Name</strong>: <code>handleDeleteReview</code></li>
+<li><strong>Description</strong>: This <strong>admin-only endpoint</strong> permanently removes a review from the database.</li>
+</ul>
+</li>
+</ul>
+<h4 id="core-logic--performance"><strong>Core Logic &amp; Performance</strong></h4>
+<ul>
+<li>
+<p><strong>Admin Middleware</strong>: Implement a middleware function that specifically checks if the authenticated user has <code>role: 'admin'</code>. Any request to an <code>/api/admin</code> endpoint must pass this check.</p>
+</li>
+<li>
+<p><strong>Efficient Queries</strong>: For fetching all reviews, use Prisma's <code>findMany</code> method. Consider pagination for large datasets to prevent performance bottlenecks.</p>
+<pre><code class="language-prisma">// Example with pagination
+const reviews = await prisma.review.findMany({
+  skip: (page - 1) * pageSize,
+  take: pageSize,
+  orderBy: { createdAt: 'desc' }
+});
+</code></pre>
+</li>
+</ul>
+<hr>
+<h3 id="2-frontend-tasks-for-admin-dashboard-">2. Frontend Tasks for Admin Dashboard 💻</h3>
+<p>The admin dashboard will be a dedicated section of the application, accessible only to admins.</p>
+<h4 id="components--pages"><strong>Components &amp; Pages</strong></h4>
+<ul>
+<li><strong><code>AdminReviewsDashboard</code> Page</strong>: The main page for review management.
+<ul>
+<li><strong>Description</strong>: This page should be a <strong>protected route</strong> using Next.js middleware or <code>getServerSideProps</code> to check for the user's <code>admin</code> role before rendering.</li>
+<li><strong>Data Fetching</strong>: Use a hook or a server-side function to call <code>GET /api/admin/reviews/pending</code> (for a quick-view queue) and <code>GET /api/admin/reviews</code> (for a full list). Use <strong>React Query</strong> or <strong>SWR</strong> for efficient data fetching and caching, especially for a real-time moderation queue.</li>
+</ul>
+</li>
+<li><strong><code>ReviewModerationCard</code> Component</strong>: Displays a single review with moderation options.
+<ul>
+<li><strong>Description</strong>: This reusable component receives a review object as a prop.</li>
+<li><strong>UI</strong>: It displays the <code>productName</code>, <code>userName</code>, <code>rating</code>, and <code>comment</code>. It also includes two buttons: &quot;Approve&quot; and &quot;Reject.&quot;</li>
+<li><strong>Actions</strong>:
+<ul>
+<li>Clicking &quot;Approve&quot; calls the <code>PUT /api/admin/reviews/:reviewId/approve</code> endpoint.</li>
+<li>Clicking &quot;Reject&quot; calls the <code>PUT /api/admin/reviews/:reviewId/reject</code> endpoint.</li>
+</ul>
+</li>
+<li><strong>User Experience</strong>: After a successful API call, use the state management library (like React Query's <code>mutate</code> function) to automatically update the UI and remove the moderated review from the list without a full page reload.</li>
+</ul>
+</li>
+</ul>
+<h4 id="conditional-ui-logic--performance"><strong>Conditional UI Logic &amp; Performance</strong></h4>
+<ul>
+<li><strong>Role-Based Routing</strong>: Use a redirect in <code>middleware.ts</code> or <code>getServerSideProps</code> to send non-admin users away from the <code>/admin</code> routes.</li>
+<li><strong>Data Table</strong>: For a large number of reviews, use a component like <code>react-table</code> to build a sortable and filterable table. This enhances usability and performance by allowing admins to quickly find reviews by product, user, or status.</li>
+<li><strong>Real-time Updates</strong>: The <code>pending</code> reviews list is a perfect use case for automatic refetching. Set an interval on your data fetching hook to periodically check for new pending reviews, ensuring the admin is always working with the most current data.</li>
+</ul>
+
+            
+            
+        </body>
+        </html>
