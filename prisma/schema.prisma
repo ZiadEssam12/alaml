@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output = "../node_modules/.prisma/client"
+  provider      = "prisma-client-js"
+  output        = "../node_modules/.prisma/client"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -10,15 +10,15 @@ datasource db {
 }
 
 model Category {
-  id              String         @id @default(uuid())
-  name            String         @unique
-  icon            String
-  color           String
-  status          CategoryStatus
-  seoTitle        String         @unique
-  seoDescription  String
-  createdAt       DateTime       @default(now())
-  products        Product[]
+  id             String         @id @default(uuid())
+  name           String         @unique
+  icon           String
+  color          String
+  status         CategoryStatus
+  seoTitle       String         @unique
+  seoDescription String
+  createdAt      DateTime       @default(now())
+  products       Product[]
 
   @@index([status])
   @@index([createdAt])
@@ -37,6 +37,7 @@ model Product {
   category           Category   @relation(fields: [categoryID], references: [id])
   categoryID         String
   cartItems          CartItem[]
+  reviews            Review[] // Added opposite relation field for Review
   createdAt          DateTime   @default(now())
   updatedAt          DateTime?  @updatedAt
 
@@ -46,7 +47,7 @@ model Product {
 }
 
 model Order {
-  id                 String        @id @default(uuid())
+  id                 String      @id @default(uuid())
   customerName       String
   customerEmail      String
   customerPhone      String
@@ -59,21 +60,21 @@ model Order {
   discount           Float
   finalAmount        Float
   paymentMethod      String
-  status             OrderStatus   @default(pending)
+  status             OrderStatus @default(pending)
   trackingNumber     String?
   shippingCompanyURL String?
   notes              String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime?     @updatedAt
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime?   @updatedAt
 
-  userId             String
-  user               User          @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
-  couponId           String? 
-  coupon             Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
-  couponCode         String?       
+  couponId   String?
+  coupon     Coupon? @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponCode String?
 
-  couponUsages       CouponUsage[]
+  couponUsages CouponUsage[]
 
   @@index([userId])
   @@index([status])
@@ -105,18 +106,20 @@ model Review {
   status      ReviewStatus @default(pending)
   createdAt   DateTime     @default(now())
 
+  product Product @relation(fields: [productId], references: [id]) // Added relationship to Product
+
   @@index([productId])
   @@index([userId])
   @@index([status])
 }
 
 model User {
-  id           String        @id @default(uuid())
-  name         String
-  email        String?       @unique
-  role         UserRole      @default(user)
-  cart         Cart?         // One-to-one relation
-  orders       Order[]       // One-to-many relation
+  id     String   @id @default(uuid())
+  name   String
+  email  String?  @unique
+  role   UserRole @default(user)
+  cart   Cart? // One-to-one relation
+  orders Order[] // One-to-many relation
 
   couponUsages CouponUsage[]
 }
@@ -149,49 +152,49 @@ model CartItem {
 }
 
 model Coupon {
-  id                  String        @id @default(uuid()) @map("coupon_id")
-  code                String        @unique
-  description         String?       @db.Text
-  type                CouponType
-  value               Decimal       @db.Decimal(10, 2)
-  isActive            Boolean       @default(true) @map("is_active")
-  maxUsageCount       Int?          @map("max_usage_count")
-  perUserUsageCount   Int?          @map("per_user_usage_count")
-  maxDiscountAmount   Decimal?      @db.Decimal(10, 2) @map("max_discount_amount")
-  minCartAmount       Decimal?      @db.Decimal(10, 2) @map("min_cart_amount") @default(0.00)
-  startDate           DateTime      @map("start_date")
-  expirationDate      DateTime      @map("expiration_date")
-  createdAt           DateTime      @default(now()) @map("created_at")
-  
-  orders              Order[]
-  
-  usages              CouponUsage[]
+  id                String     @id @default(uuid()) @map("coupon_id")
+  code              String     @unique
+  description       String?    @db.Text
+  type              CouponType
+  value             Decimal    @db.Decimal(10, 2)
+  isActive          Boolean    @default(true) @map("is_active")
+  maxUsageCount     Int?       @map("max_usage_count")
+  perUserUsageCount Int?       @map("per_user_usage_count")
+  maxDiscountAmount Decimal?   @map("max_discount_amount") @db.Decimal(10, 2)
+  minCartAmount     Decimal?   @default(0.00) @map("min_cart_amount") @db.Decimal(10, 2)
+  startDate         DateTime   @map("start_date")
+  expirationDate    DateTime   @map("expiration_date")
+  createdAt         DateTime   @default(now()) @map("created_at")
 
-  @@map("coupons")
+  orders Order[]
+
+  usages CouponUsage[]
+
   @@index([isActive])
   @@index([startDate])
   @@index([expirationDate])
+  @@map("coupons")
 }
 
 model CouponUsage {
-  usageId   Int      @id @default(autoincrement()) @map("usage_id")
+  usageId Int @id @default(autoincrement()) @map("usage_id")
 
-  couponId  String   @map("coupon_id")
-  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  couponId String @map("coupon_id")
+  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
 
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  orderId   String   @map("order_id")
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   appliedAt DateTime @default(now()) @map("applied_at")
 
-  @@map("coupon_usages")
-  @@unique([couponId, userId, orderId])  // prevent duplicate application entries
+  @@unique([couponId, userId, orderId]) // prevent duplicate application entries
   @@index([couponId])
   @@index([userId])
   @@index([orderId])
+  @@map("coupon_usages")
 }
 
 enum CouponType {

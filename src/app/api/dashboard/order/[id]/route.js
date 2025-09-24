@@ -23,8 +23,8 @@ export async function GET(req, { params }) {
   return NextResponse.json({
     data: {
       ...order,
-      couponCode: order.coupon?.code || null, // Add coupon code
-      couponType: order.coupon?.type || null, // Add coupon type
+      couponCode: order.coupon?.code || null, 
+      couponType: order.coupon?.type || null, 
     },
   });
 }
