@@ -13,7 +13,7 @@ export default async function ProductReviewsContainer({
 }) {
   const reviewsData = await fetchProductReviews(productId, 1, 5);
 
-  const session = await auth();
+  const { user: session } = await auth();
   console.log("session : ", session);
 
   // Check user purchase and review status if logged in

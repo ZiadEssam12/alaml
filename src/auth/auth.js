@@ -30,7 +30,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (dbUser) {
-          token.role = dbUser.role; // Add role to the token
+          token.id = dbUser.id;
+          token.role = dbUser.role;
         }
       }
 
@@ -40,7 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          role: token.role, // Add role to the session
+          id: token.id,
+          role: token.role,
         };
       }
 
