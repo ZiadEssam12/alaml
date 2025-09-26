@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import RatingStatistics from "./RatingStatistics";
 import ReviewsPreviewClient from "./ReviewsPreviewClient";
 import ReviewForm from "./ReviewForm";
-import { Loader2 } from "lucide-react";
 import { auth } from "@/auth/auth";
 
 // Server Component - Main orchestrator for the review system
@@ -14,18 +13,19 @@ export default async function ProductReviewsContainer({
   const reviewsData = await fetchProductReviews(productId, 1, 5);
 
   const { user: session } = await auth();
-  console.log("session : ", session);
 
-  // Check user purchase and review status if logged in
   let userHasPurchased = false;
   let userHasReviewed = false;
 
-  if (session?.user?.id) {
+  if (session?.id) {
     [userHasPurchased, userHasReviewed] = await Promise.all([
-      checkUserPurchase(session.user.id, productId),
-      checkUserReview(session.user.id, productId),
+      checkUserPurchase(session.id, productId),
+      checkUserReview(session.id, productId),
     ]);
   }
+
+  console.log("user has purchased:", userHasPurchased);
+  console.log("user has reviewed:", userHasReviewed);
 
   return (
     <div className="space-y-6">
@@ -176,20 +176,85 @@ async function fetchProductReviews(productId, page = 1, pageSize = 5) {
 
 async function checkUserPurchase(userId, productId) {
   try {
-    const purchase = await prisma.order.findFirst({
-      where: {
-        userId,
-        status: { in: ["shipped", "delivered"] },
-        items: {
-          some: { productId },
+    console.log("🔍 Debugging purchase check:");
+    console.log("- User ID:", userId);
+    console.log("- Product ID:", productId);
+
+    // Step 1: Check if user has any orders at all
+    const userOrders = await prisma.order.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        status: true,
+        customerName: true,
+      },
+    });
+    console.log("📦 User orders:", userOrders);
+
+    // Step 2: Check if there are any order items for this product
+    const orderItems = await prisma.orderItem.findMany({
+      where: { productId },
+      select: {
+        id: true,
+        orderId: true,
+        productId: true,
+        productName: true,
+        order: {
+          select: {
+            userId: true,
+            status: true,
+            customerName: true,
+          },
         },
       },
-      select: { id: true },
     });
+    console.log("🛍️ Order items for product:", orderItems);
+
+    // Step 2.5: Check if any of the order items belong to the user's orders
+    const matchingItems = orderItems.filter((item) =>
+      userOrders.some((order) => order.id === item.orderId)
+    );
+    console.log("🔗 Matching order items for this user:", matchingItems);
+
+    // Step 3: Now do the actual check
+    console.log("🔍 Running final query with conditions:");
+    console.log("- userId:", userId);
+    console.log("- productId:", productId);
+    console.log("- statuses:", ["shipped", "delivered"]);
+
+    // Step 3.5: Test simpler query first
+    const simpleOrderCheck = await prisma.order.findFirst({
+      where: { userId },
+      select: { id: true, status: true },
+    });
+    console.log("📋 Simple order check for user:", simpleOrderCheck);
+
+    const purchase = await prisma.order.findFirst({
+      where: {
+        userId, // Use direct userId field instead of relationship
+        status: { in: ["shipped", "delivered"] },
+        items: {
+          some: {
+            productId: productId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        customerName: true,
+        items: {
+          where: { productId },
+          select: { productName: true, quantity: true },
+        },
+      },
+    });
+
+    console.log("✅ Final purchase result:", purchase);
 
     return !!purchase;
   } catch (error) {
-    console.error("Error checking user purchase:", error);
+    console.error("❌ Error checking user purchase:", error);
     return false;
   }
 }
