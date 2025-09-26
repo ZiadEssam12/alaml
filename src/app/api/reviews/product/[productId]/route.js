@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// GET /api/reviews/[productId] - Fetch approved reviews for a product
+// GET /api/reviews/product/[productId] - Fetch approved reviews for a product
 export async function GET(req, { params }) {
   const { productId } = await params;
 

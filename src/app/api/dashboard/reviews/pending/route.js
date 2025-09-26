@@ -1,30 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 
-// Helper function to check admin role
-async function checkAdminPermission() {
-  const session = await getServerSession(authOptions);
-  
-  if (!session) {
-    return { error: "غير مصرح لك", status: 401 };
-  }
-  
-  if (session.user.role !== "admin") {
-    return { error: "غير مصرح لك بالوصول لهذه الصفحة", status: 403 };
-  }
-  
-  return { session };
-}
-
-// GET /api/admin/reviews/pending - Fetch only pending reviews for moderation
+// GET /api/dashboard/reviews/pending - Fetch only pending reviews for moderation
 export async function GET(req) {
-  const permissionCheck = await checkAdminPermission();
-  if (permissionCheck.error) {
-    return NextResponse.json({ error: permissionCheck.error }, { status: permissionCheck.status });
-  }
-
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 10;
@@ -33,8 +11,8 @@ export async function GET(req) {
 
   try {
     // Get total count of pending reviews
-    const totalCount = await prisma.review.count({ 
-      where: { status: "pending" } 
+    const totalCount = await prisma.review.count({
+      where: { status: "pending" },
     });
 
     // Fetch pending reviews with pagination
@@ -73,6 +51,9 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error("Error fetching pending reviews:", error);
-    return NextResponse.json({ error: "حدث خطأ في جلب التقييمات المعلقة" }, { status: 500 });
+    return NextResponse.json(
+      { error: "حدث خطأ في جلب التقييمات المعلقة" },
+      { status: 500 }
+    );
   }
 }

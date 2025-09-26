@@ -1,32 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-
-// Helper function to check admin role
-async function checkAdminPermission() {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return { error: "غير مصرح لك", status: 401 };
-  }
-
-  if (session.user.role !== "admin") {
-    return { error: "غير مصرح لك بالوصول لهذه الصفحة", status: 403 };
-  }
-
-  return { session };
-}
 
 // PUT /api/dashboard/reviews/[reviewId]/reject - Reject a review
 export async function PUT(req, { params }) {
-  const permissionCheck = await checkAdminPermission();
-  if (permissionCheck.error) {
-    return NextResponse.json(
-      { error: permissionCheck.error },
-      { status: permissionCheck.status }
-    );
-  }
 
   const { reviewId } = await params;
 
