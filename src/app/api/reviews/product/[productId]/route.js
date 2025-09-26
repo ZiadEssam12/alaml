@@ -8,8 +8,37 @@ export async function GET(req, { params }) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 10;
+  const sort = searchParams.get("sort") || "newest";
+  const ratingFilter = searchParams.get("rating") || "all";
 
   const skip = (page - 1) * pageSize;
+
+  // Build sort order
+  let orderBy = { createdAt: "desc" }; // default: newest first
+  switch (sort) {
+    case "oldest":
+      orderBy = { createdAt: "asc" };
+      break;
+    case "highest":
+      orderBy = { rating: "desc" };
+      break;
+    case "lowest":
+      orderBy = { rating: "asc" };
+      break;
+    default:
+      orderBy = { createdAt: "desc" };
+  }
+
+  // Build rating filter
+  const ratingWhere =
+    ratingFilter !== "all" ? { rating: parseInt(ratingFilter) } : {};
+
+  // Combine filters
+  const whereClause = {
+    productId,
+    status: "approved",
+    ...ratingWhere,
+  };
 
   try {
     // Check if product exists first
@@ -24,21 +53,15 @@ export async function GET(req, { params }) {
 
     // Get total count of approved reviews for this product
     const totalCount = await prisma.review.count({
-      where: {
-        productId,
-        status: "approved",
-      },
+      where: whereClause,
     });
 
     // Fetch approved reviews for the product
     const reviews = await prisma.review.findMany({
-      where: {
-        productId,
-        status: "approved", // Only show approved reviews to public
-      },
+      where: whereClause,
       skip,
       take: pageSize,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       select: {
         id: true,
         userName: true,

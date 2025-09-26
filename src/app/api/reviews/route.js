@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next"; // Fixed import
-import { authOptions } from "@/lib/auth"; // Add your auth config
 import * as yup from "yup";
 
 const reviewSchema = yup.object().shape({
@@ -16,11 +14,7 @@ const reviewSchema = yup.object().shape({
 
 // POST /api/reviews
 export async function POST(req) {
-  // Fixed: Use getServerSession for API routes
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "غير مصرح لك" }, { status: 401 });
-  }
+
 
   const body = await req.json();
 

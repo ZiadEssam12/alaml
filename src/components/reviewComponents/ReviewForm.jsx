@@ -1,0 +1,291 @@
+"use client";
+
+import { useState } from "react";
+import { Star, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { useSession } from "next-auth/react";
+
+export default function ReviewForm({
+  productId,
+  productName,
+  onReviewSubmitted,
+  userHasPurchased = false,
+  userHasReviewed = false,
+}) {
+  const { data: session, status } = useSession();
+  const [isOpen, setIsOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  // Form validation
+  const isValid = rating > 0 && comment.trim().length >= 10;
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!isValid) {
+      setError("يرجى إضافة تقييم وتعليق (10 أحرف على الأقل)");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId,
+          rating,
+          comment: comment.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(true);
+        setRating(0);
+        setComment("");
+
+        // Call callback if provided
+        if (onReviewSubmitted) {
+          onReviewSubmitted(data.data);
+        }
+
+        // Close form after delay
+        setTimeout(() => {
+          setIsOpen(false);
+          setSuccess(false);
+        }, 2000);
+      } else {
+        setError(data.error || "حدث خطأ في إرسال التقييم");
+      }
+    } catch (error) {
+      setError("حدث خطأ في إرسال التقييم");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Render stars for rating input
+  const renderRatingStars = () => {
+    return Array(5)
+      .fill(0)
+      .map((_, index) => {
+        const starValue = index + 1;
+        const isActive = starValue <= (hoveredRating || rating);
+
+        return (
+          <button
+            key={index}
+            type="button"
+            onClick={() => setRating(starValue)}
+            onMouseEnter={() => setHoveredRating(starValue)}
+            onMouseLeave={() => setHoveredRating(0)}
+            className="p-1 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+            disabled={loading}
+          >
+            <Star
+              className={`w-8 h-8 transition-colors ${
+                isActive
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-gray-300 hover:text-yellow-300"
+              }`}
+            />
+          </button>
+        );
+      });
+  };
+
+  // Show login prompt
+  if (status === "loading") {
+    return (
+      <div className="bg-white rounded-lg border p-6">
+        <div className="flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="bg-white rounded-lg border p-6">
+        <div className="text-center">
+          <Star className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            شارك رأيك في المنتج
+          </h3>
+          <p className="text-gray-600 mb-4">قم بتسجيل الدخول لإضافة تقييمك</p>
+          <a
+            href="/login"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+          >
+            تسجيل الدخول
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // Show purchase requirement
+  if (!userHasPurchased) {
+    return (
+      <div className="bg-white rounded-lg border p-6">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 mx-auto mb-3 text-amber-500" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            قيم المنتج بعد الشراء
+          </h3>
+          <p className="text-gray-600">يمكنك إضافة تقييم بعد شراء هذا المنتج</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show already reviewed message
+  if (userHasReviewed) {
+    return (
+      <div className="bg-white rounded-lg border p-6">
+        <div className="text-center">
+          <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-500" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            شكراً لك على تقييمك
+          </h3>
+          <p className="text-gray-600">لقد قمت بتقييم هذا المنتج مسبقاً</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show review form
+  return (
+    <div className="bg-white rounded-lg border">
+      {!isOpen ? (
+        // Write Review Button
+        <div className="p-6">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              شارك تجربتك مع المنتج
+            </h3>
+            <p className="text-gray-600 mb-4">
+              ساعد العملاء الآخرين باختيار المنتج المناسب
+            </p>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              كتابة تقييم
+            </button>
+          </div>
+        </div>
+      ) : (
+        // Review Form
+        <div className="p-6">
+          {success ? (
+            <div className="text-center py-8">
+              <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                تم إرسال تقييمك بنجاح!
+              </h3>
+              <p className="text-gray-600">سيتم مراجعته ونشره قريباً</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Header */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  قيم منتج: {productName}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  تقييمك يساعد العملاء الآخرين في اتخاذ قرار الشراء
+                </p>
+              </div>
+
+              {/* Rating */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-3">
+                  التقييم *
+                </label>
+                <div className="flex items-center gap-1 mb-2">
+                  {renderRatingStars()}
+                </div>
+                <p className="text-xs text-gray-600">
+                  {rating > 0 && (
+                    <span>
+                      {rating === 1 && "ضعيف جداً"}
+                      {rating === 2 && "ضعيف"}
+                      {rating === 3 && "متوسط"}
+                      {rating === 4 && "جيد"}
+                      {rating === 5 && "ممتاز"}
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              {/* Comment */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  التعليق *
+                </label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="شارك تجربتك مع المنتج... (10 أحرف على الأقل)"
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  disabled={loading}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {comment.length}/500 حرف
+                </p>
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              {/* Form Actions */}
+              <div className="flex items-center gap-3 pt-4 border-t">
+                <button
+                  type="submit"
+                  disabled={!isValid || loading}
+                  className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      جاري الإرسال...
+                    </>
+                  ) : (
+                    "إرسال التقييم"
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  disabled={loading}
+                  className="px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

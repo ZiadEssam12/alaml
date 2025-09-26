@@ -1,15 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 
 // GET /api/reviews/user/[userId] - Fetch all reviews by a specific user
 export async function GET(req, { params }) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "غير مصرح لك" }, { status: 401 });
-  }
-
   const { userId } = await params;
 
   // Users can only view their own reviews (unless they are admin)

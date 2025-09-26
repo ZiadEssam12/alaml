@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import * as yup from "yup";
 
 const updateReviewSchema = yup.object().shape({
@@ -15,11 +13,6 @@ const updateReviewSchema = yup.object().shape({
 
 // PUT /api/reviews/[reviewId]
 export async function PUT(req, { params }) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "غير مصرح لك" }, { status: 401 });
-  }
-
   const { reviewId } = await params;
 
   // Check if review exists and belongs to the user
@@ -65,10 +58,6 @@ export async function PUT(req, { params }) {
 
 // DELETE /api/reviews/[reviewId]
 export async function DELETE(req, { params }) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "غير مصرح لك" }, { status: 401 });
-  }
 
   const { reviewId } = await params;
 

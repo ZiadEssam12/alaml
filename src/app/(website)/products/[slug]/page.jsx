@@ -17,6 +17,7 @@ import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 import { imageService } from "@/lib/image-service";
 import { cookies } from "next/headers";
 import ProductsList from "@/components/Home/productsList";
+import ProductReviewsContainer from "@/components/reviewComponents/ProductReviewsContainer";
 
 export default async function ProductPage({ params }) {
   const cookiesStore = await cookies();
@@ -243,6 +244,18 @@ export default async function ProductPage({ params }) {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <section className="border-t pt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+            آراء العملاء والتقييمات
+          </h2>
+
+          <ProductReviewsContainer
+            productId={displayProduct.id}
+            productName={displayProduct.name}
+          />
+        </section>
 
         {/* Similar products section  */}
         <ProductsList data={similarProducts} title="منتجات من نفس القسم" />
