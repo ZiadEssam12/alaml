@@ -1,5 +1,6 @@
 import { CartItems } from "@/components/cart/CartItems";
 import { CartSummary } from "@/components/cart/CartSummary";
+import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
@@ -8,15 +9,16 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function page() {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("userid")?.value;
+  const userToken = await getUserTokenFromHeaders();
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      userid: userId,
+      Authorization: `Bearer ${userToken}`,
     },
+    cache: "no-store",
+    credentials: "include",
   });
 
   const { data: cartItems } = await res.json();

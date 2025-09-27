@@ -4,13 +4,14 @@ import { getCookie, setCookie } from "@/lib/getCookies";
 import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { loadingContext } from "./LoadinContext";
+import { getUserTokenCSR } from "@/lib/auth-helpers-client";
 
 export const cartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { loading, setLoading } = useContext(loadingContext);
-
+  const userToken = getUserTokenCSR();
   useEffect(() => {
     let userId = getCookie("userid");
 
@@ -74,7 +75,7 @@ export const CartProvider = ({ children }) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        userid: userId,
+        Authorization: `Bearer ${userToken}`,
       },
       body: JSON.stringify({ item }),
     })

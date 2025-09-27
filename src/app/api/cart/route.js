@@ -1,3 +1,4 @@
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -37,11 +38,11 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userId = request.headers.get("userid");
+    const session = await getUserTokenSSR(request);
 
     const body = await request.json();
     const { item } = body;
-    if (!userId || !item) {
+    if (!session || !item) {
       return NextResponse.json(
         { error: "User id and item are required" },
         { status: 400 }
@@ -49,12 +50,12 @@ export async function POST(request) {
     }
 
     let cart = await prisma.cart.findFirst({
-      where: { userId },
+      where: { userId: session.id },
       include: { items: true },
     });
     if (!cart) {
       cart = await prisma.cart.create({
-        data: { userId },
+        data: { userId: session.id },
         include: { items: true },
       });
     }
