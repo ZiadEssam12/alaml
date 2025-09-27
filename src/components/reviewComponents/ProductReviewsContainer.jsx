@@ -9,19 +9,19 @@ import { auth } from "@/auth/auth";
 export default async function ProductReviewsContainer({
   productId,
   productName,
+  userPermissions = null,
 }) {
-  const reviewsData = await fetchProductReviews(productId, 1, 5);
+  const user = await auth();
+  console.log("Authenticated user:", user);
 
-  const { user: session } = await auth();
+  const reviewsData = await fetchProductReviews(productId, 1, 5);
 
   let userHasPurchased = false;
   let userHasReviewed = false;
 
-  if (session?.id) {
-    [userHasPurchased, userHasReviewed] = await Promise.all([
-      checkUserPurchase(session.id, productId),
-      checkUserReview(session.id, productId),
-    ]);
+  if (userPermissions) {
+    userHasPurchased = userPermissions.hasPurchased;
+    userHasReviewed = userPermissions.hasReviewed;
   }
 
   console.log("user has purchased:", userHasPurchased);
@@ -75,7 +75,6 @@ function ReviewFormSkeleton() {
   );
 }
 
-// Server-side data fetching functions
 async function fetchProductReviews(productId, page = 1, pageSize = 5) {
   try {
     // Get product reviews with stats
@@ -171,104 +170,5 @@ async function fetchProductReviews(productId, page = 1, pageSize = 5) {
         hasPrevious: false,
       },
     };
-  }
-}
-
-async function checkUserPurchase(userId, productId) {
-  try {
-    console.log("🔍 Debugging purchase check:");
-    console.log("- User ID:", userId);
-    console.log("- Product ID:", productId);
-
-    // Step 1: Check if user has any orders at all
-    const userOrders = await prisma.order.findMany({
-      where: { userId },
-      select: {
-        id: true,
-        status: true,
-        customerName: true,
-      },
-    });
-    console.log("📦 User orders:", userOrders);
-
-    // Step 2: Check if there are any order items for this product
-    const orderItems = await prisma.orderItem.findMany({
-      where: { productId },
-      select: {
-        id: true,
-        orderId: true,
-        productId: true,
-        productName: true,
-        order: {
-          select: {
-            userId: true,
-            status: true,
-            customerName: true,
-          },
-        },
-      },
-    });
-    console.log("🛍️ Order items for product:", orderItems);
-
-    // Step 2.5: Check if any of the order items belong to the user's orders
-    const matchingItems = orderItems.filter((item) =>
-      userOrders.some((order) => order.id === item.orderId)
-    );
-    console.log("🔗 Matching order items for this user:", matchingItems);
-
-    // Step 3: Now do the actual check
-    console.log("🔍 Running final query with conditions:");
-    console.log("- userId:", userId);
-    console.log("- productId:", productId);
-    console.log("- statuses:", ["shipped", "delivered"]);
-
-    // Step 3.5: Test simpler query first
-    const simpleOrderCheck = await prisma.order.findFirst({
-      where: { userId },
-      select: { id: true, status: true },
-    });
-    console.log("📋 Simple order check for user:", simpleOrderCheck);
-
-    const purchase = await prisma.order.findFirst({
-      where: {
-        userId, // Use direct userId field instead of relationship
-        status: { in: ["shipped", "delivered"] },
-        items: {
-          some: {
-            productId: productId,
-          },
-        },
-      },
-      select: {
-        id: true,
-        status: true,
-        customerName: true,
-        items: {
-          where: { productId },
-          select: { productName: true, quantity: true },
-        },
-      },
-    });
-
-    console.log("✅ Final purchase result:", purchase);
-
-    return !!purchase;
-  } catch (error) {
-    console.error("❌ Error checking user purchase:", error);
-    return false;
-  }
-}
-
-async function checkUserReview(userId, productId) {
-  try {
-    const review = await prisma.review.findFirst({
-      where: { userId, productId },
-      select: { id: true },
-    });
-
-    return !!review;
-  } catch (error) {
-    console.error("Error checking user review:", error);
-    return false;
   }
 }
