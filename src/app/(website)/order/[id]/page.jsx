@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
-import { cookies } from "next/headers";
+import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,8 +16,7 @@ export default async function OrderDetailsPage({ params }) {
   const orderId = (await params).id;
   let order = {};
 
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("userid")?.value;
+  const userToken = await getUserTokenFromHeaders();
 
   try {
     const res = await fetch(
@@ -25,7 +24,7 @@ export default async function OrderDetailsPage({ params }) {
       {
         headers: {
           "Content-Type": "application/json",
-          userid: userId,
+          Authorization: `Bearer ${userToken}`,
         },
         cache: "no-store",
       }
@@ -75,7 +74,7 @@ export default async function OrderDetailsPage({ params }) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      
+
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">
           تفاصيل الطلب رقم #{order.id}

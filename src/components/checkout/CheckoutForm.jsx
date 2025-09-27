@@ -12,9 +12,8 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cartContext } from "@/Context/Cart";
 
-export function CheckoutForm({ userId, items, total, coupon }) {
+export function CheckoutForm({ items, total, coupon }) {
   console.log("🔄 CheckoutForm Props Received:", {
-    userId,
     itemsCount: items?.length,
     total,
     coupon,
@@ -53,8 +52,8 @@ export function CheckoutForm({ userId, items, total, coupon }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          userid: userId,
         },
+        credentials: "include", // Include cookies in the request
         body: JSON.stringify(orderData),
       });
       const result = await res.json();

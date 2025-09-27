@@ -1,18 +1,18 @@
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // GET: Get all order items for a specific order by user id
 export async function GET(request, { params }) {
   try {
-    const userId = request.headers.get("userid");
+    const session = await getUserTokenSSR(request);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.id;
     const orderId = (await params).id;
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User id is required" },
-        { status: 400 }
-      );
-    }
     if (!orderId) {
       return NextResponse.json(
         { error: "Order id is required" },

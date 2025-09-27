@@ -1,16 +1,18 @@
+import { auth } from "@/auth/auth";
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // GET: Get all orders for a user with pagination
 export async function GET(request) {
   try {
-    const userId = request.headers.get("userid");
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User id is required" },
-        { status: 400 }
-      );
+    const session = await getUserTokenSSR(request);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const userId = session.id;
+
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
@@ -52,13 +54,12 @@ export async function GET(request) {
 // POST: Create a new order
 export async function POST(request) {
   try {
-    const userId = request.headers.get("userid");
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Missing userId in headers" },
-        { status: 400 }
-      );
+    const session = await getUserTokenSSR(request);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const userId = session.id;
 
     const body = await request.json();
     const {

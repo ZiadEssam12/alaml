@@ -37,28 +37,9 @@ export async function getUserTokenSSR(request) {
  */
 export async function getUserTokenFromHeaders() {
   try {
-    const cookieStore = cookies();
-    const sessionCookie = cookieStore.get(cookieKey);
+    const cookieStore = await cookies();
 
-    if (!sessionCookie) {
-      return null;
-    }
-
-    // Create a mock request object for getToken
-    const mockRequest = {
-      headers: {
-        cookie: `${cookieKey}=${sessionCookie.value}`,
-      },
-    };
-
-    const session = await getToken({
-      req: mockRequest,
-      secret: process.env.AUTH_SECRET,
-      salt: cookieKey,
-      cookieName: cookieKey,
-    });
-
-    return session;
+    return cookieStore.get(cookieKey)?.value;
   } catch (error) {
     console.error("Error getting token from headers:", error);
     return null;

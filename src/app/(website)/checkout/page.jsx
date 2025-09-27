@@ -1,67 +1,85 @@
 import { CartSummary } from "@/components/cart/CartSummary";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
-import { cookies } from "next/headers";
+import { auth } from "@/auth/auth";
+import prisma from "@/lib/prisma";
 import Link from "next/link";
 import React from "react";
 
 export default async function page({ searchParams }) {
-  const cookiesStore = await cookies();
-  const userId = cookiesStore.get("userid")?.value;
-
   const searchParamsData = await searchParams;
   const couponCode = searchParamsData?.coupon;
 
-  console.log("🔍 Checkout Page Debug:", {
-    userId,
-    couponCode,
-    searchParams: Object.fromEntries(searchParamsData.entries?.() || []),
-  });
+  let cartItems = [];
   let coupon = null;
+  let userId = null;
 
-  if (couponCode && userId) {
-    try {
-      const couponResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/coupons/apply`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            userid: userId,
+  try {
+    const session = await auth();
+    userId = session?.user?.id;
+
+    if (userId) {
+      const cart = await prisma.cart.findFirst({
+        where: { userId },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
           },
-          body: JSON.stringify({ couponCode }),
-        }
-      );
+        },
+      });
 
-      const couponResult = await couponResponse.json();
+      cartItems = cart?.items || [];
 
-      if (couponResponse.ok) {
-        coupon = couponResult;
+      // Apply coupon if provided
+      if (couponCode) {
+        try {
+          // Direct database call for coupon
+          const couponData = await prisma.coupon.findFirst({
+            where: {
+              code: couponCode,
+              isActive: true,
+              startDate: { lte: new Date() },
+              expirationDate: { gte: new Date() },
+            },
+          });
 
-        if (!coupon || typeof coupon !== "object") {
-          coupon = null;
-        } else if (!coupon.coupon.type) {
-          coupon = null;
+          if (couponData) {
+            // Calculate discount (simplified version)
+            const cartTotal = cartItems.reduce(
+              (acc, item) => acc + item.price * item.quantity,
+              0
+            );
+
+            let discount = 0;
+            if (couponData.type === "percentage") {
+              const percentageDiscount =
+                (cartTotal * Number(couponData.value)) / 100;
+              discount = Math.min(
+                percentageDiscount,
+                Number(couponData.maxDiscountAmount) || percentageDiscount
+              );
+            } else if (couponData.type === "fixed") {
+              discount = Math.min(
+                Number(couponData.value),
+                Number(couponData.maxDiscountAmount) || Number(couponData.value)
+              );
+            }
+
+            coupon = {
+              coupon: couponData,
+              discount,
+              message: "تم تطبيق الكوبون بنجاح",
+            };
+          }
+        } catch (error) {
+          console.error("💥 Failed to apply coupon:", error);
         }
       }
-    } catch (error) {
-      console.error("💥 Failed to apply coupon:", error);
     }
+  } catch (error) {
+    console.error("Error in checkout page:", error);
   }
-
-  const resCart = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {
-    headers: {
-      "Content-Type": "application/json",
-      userid: userId,
-    },
-    cache: "no-store",
-  });
-
-  const cartItems = await resCart.json().then((res) => {
-    if (res.error) {
-      return [];
-    }
-    return res.data.items;
-  });
 
   const total = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -106,12 +124,7 @@ export default async function page({ searchParams }) {
       <h1 className="text-2xl font-bold mb-8">إتمام الطلب</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
-          <CheckoutForm
-            items={cartItems}
-            total={total}
-            userId={userId}
-            coupon={coupon}
-          />
+          <CheckoutForm items={cartItems} total={total} coupon={coupon} />
         </div>
         <div>
           <CartSummary

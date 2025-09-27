@@ -5,10 +5,10 @@ import { Package } from "lucide-react";
 import { cookies } from "next/headers";
 import { PaginationClient } from "@/components/Pagination";
 import Link from "next/link";
+import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
 
 export default async function OrdersPage({}) {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get("userid")?.value;
+  const userToken = await getUserTokenFromHeaders();
   let orders = [];
   let pagination = {};
 
@@ -16,7 +16,7 @@ export default async function OrdersPage({}) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/order`, {
       headers: {
         "Content-Type": "application/json",
-        userid: userId,
+        Authorization: `Bearer ${userToken}`,
       },
       cache: "no-store",
     });
@@ -25,7 +25,6 @@ export default async function OrdersPage({}) {
 
     orders = data.data || [];
     pagination = data.pagination;
-
   } catch (error) {
     console.log("error:", error.message);
   }
