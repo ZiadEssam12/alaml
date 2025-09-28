@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import * as yup from "yup";
+import { cookieKey } from "@/lib/auth-helpers";
+import { getToken } from "next-auth/jwt";
 
 const reviewSchema = yup.object().shape({
   productId: yup.string().required("معرف المنتج مطلوب"),
@@ -14,7 +16,12 @@ const reviewSchema = yup.object().shape({
 
 // POST /api/reviews
 export async function POST(req) {
-
+  const session = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    salt: cookieKey,
+    cookieName: cookieKey,
+  });
 
   const body = await req.json();
 
@@ -39,11 +46,11 @@ export async function POST(req) {
   // Fixed: Correct query structure for order items
   const hasPurchased = await prisma.order.findFirst({
     where: {
-      userId: session.user.id,
+      userId: session.id,
       status: { in: ["shipped", "delivered"] },
       items: {
         some: {
-          productId: productId, // This matches OrderItem.productId
+          productId: productId,
         },
       },
     },
@@ -59,7 +66,7 @@ export async function POST(req) {
   // Check if user already submitted a review for the product
   const existingReview = await prisma.review.findFirst({
     where: {
-      userId: session.user.id,
+      userId: session.id,
       productId,
     },
   });
@@ -75,12 +82,12 @@ export async function POST(req) {
   const review = await prisma.review.create({
     data: {
       productId,
-      productName: product.name, // Use actual product name from database
-      userId: session.user.id,
-      userName: session.user.name,
+      productName: product.name,
+      userId: session.id,
+      userName: session.name,
       rating,
       comment,
-      status: "pending", // Default status
+      status: "pending",
     },
   });
 

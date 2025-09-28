@@ -12,7 +12,6 @@ export default async function ProductReviewsContainer({
   userPermissions = null,
 }) {
   const user = await auth();
-  console.log("Authenticated user:", user);
 
   const reviewsData = await fetchProductReviews(productId, 1, 5);
 
@@ -23,9 +22,6 @@ export default async function ProductReviewsContainer({
     userHasPurchased = userPermissions.hasPurchased;
     userHasReviewed = userPermissions.hasReviewed;
   }
-
-  console.log("user has purchased:", userHasPurchased);
-  console.log("user has reviewed:", userHasReviewed);
 
   return (
     <div className="space-y-6">

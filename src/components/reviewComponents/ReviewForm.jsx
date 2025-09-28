@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Star, Loader2, CheckCircle, AlertCircle, X } from "lucide-react";
 import { useSession } from "next-auth/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ReviewForm({
   productId,
@@ -60,7 +68,7 @@ export default function ReviewForm({
           onReviewSubmitted(data.data);
         }
 
-        // Close form after delay
+        // Close modal after delay
         setTimeout(() => {
           setIsOpen(false);
           setSuccess(false);
@@ -166,126 +174,128 @@ export default function ReviewForm({
     );
   }
 
-  // Show review form
+  // Show review modal trigger
   return (
     <div className="bg-white rounded-lg border">
-      {!isOpen ? (
-        // Write Review Button
-        <div className="p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              شارك تجربتك مع المنتج
-            </h3>
-            <p className="text-gray-600 mb-4">
-              ساعد العملاء الآخرين باختيار المنتج المناسب
-            </p>
-            <button
-              onClick={() => setIsOpen(true)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              كتابة تقييم
-            </button>
-          </div>
-        </div>
-      ) : (
-        // Review Form
-        <div className="p-6">
-          {success ? (
-            <div className="text-center py-8">
-              <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                تم إرسال تقييمك بنجاح!
-              </h3>
-              <p className="text-gray-600">سيتم مراجعته ونشره قريباً</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Header */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <div className="p-6">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            شارك تجربتك مع المنتج
+          </h3>
+          <p className="text-gray-600 mb-4">
+            ساعد العملاء الآخرين باختيار المنتج المناسب
+          </p>
+
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+                كتابة تقييم
+              </Button>
+            </DialogTrigger>
+
+            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-right">
                   قيم منتج: {productName}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  تقييمك يساعد العملاء الآخرين في اتخاذ قرار الشراء
-                </p>
-              </div>
+                </DialogTitle>
+              </DialogHeader>
 
-              {/* Rating */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-3">
-                  التقييم *
-                </label>
-                <div className="flex items-center gap-1 mb-2">
-                  {renderRatingStars()}
+              {success ? (
+                <div className="text-center py-8">
+                  <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    تم إرسال تقييمك بنجاح!
+                  </h3>
+                  <p className="text-gray-600">سيتم مراجعته ونشره قريباً</p>
                 </div>
-                <p className="text-xs text-gray-600">
-                  {rating > 0 && (
-                    <span>
-                      {rating === 1 && "ضعيف جداً"}
-                      {rating === 2 && "ضعيف"}
-                      {rating === 3 && "متوسط"}
-                      {rating === 4 && "جيد"}
-                      {rating === 5 && "ممتاز"}
-                    </span>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <p className="text-sm text-gray-600 text-right">
+                      تقييمك يساعد العملاء الآخرين في اتخاذ قرار الشراء
+                    </p>
+                  </div>
+
+                  {/* Rating */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-3 text-right">
+                      التقييم *
+                    </label>
+                    <div className="flex items-center justify-center gap-1 mb-2">
+                      {renderRatingStars()}
+                    </div>
+                    <p className="text-xs text-gray-600 text-center">
+                      {rating > 0 && (
+                        <span>
+                          {rating === 1 && "ضعيف جداً"}
+                          {rating === 2 && "ضعيف"}
+                          {rating === 3 && "متوسط"}
+                          {rating === 4 && "جيد"}
+                          {rating === 5 && "ممتاز"}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Comment */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2 text-right">
+                      التعليق *
+                    </label>
+                    <textarea
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder="شارك تجربتك مع المنتج... (10 أحرف على الأقل)"
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-right"
+                      disabled={loading}
+                      dir="rtl"
+                    />
+                    <p className="text-xs text-gray-500 mt-1 text-right">
+                      {comment.length}/500 حرف
+                    </p>
+                  </div>
+
+                  {/* Error Message */}
+                  {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-700 text-right">{error}</p>
+                    </div>
                   )}
-                </p>
-              </div>
 
-              {/* Comment */}
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  التعليق *
-                </label>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="شارك تجربتك مع المنتج... (10 أحرف على الأقل)"
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                  disabled={loading}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  {comment.length}/500 حرف
-                </p>
-              </div>
+                  {/* Form Actions */}
+                  <div className="flex items-center gap-3 pt-4 border-t">
+                    <Button
+                      type="submit"
+                      disabled={!isValid || loading}
+                      className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          جاري الإرسال...
+                        </>
+                      ) : (
+                        "إرسال التقييم"
+                      )}
+                    </Button>
 
-              {/* Error Message */}
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+                    <Button
+                      type="button"
+                      onClick={() => setIsOpen(false)}
+                      disabled={loading}
+                      variant="outline"
+                      className="px-4 py-3"
+                    >
+                      إلغاء
+                    </Button>
+                  </div>
+                </form>
               )}
-
-              {/* Form Actions */}
-              <div className="flex items-center gap-3 pt-4 border-t">
-                <button
-                  type="submit"
-                  disabled={!isValid || loading}
-                  className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      جاري الإرسال...
-                    </>
-                  ) : (
-                    "إرسال التقييم"
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  disabled={loading}
-                  className="px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </form>
-          )}
+            </DialogContent>
+          </Dialog>
         </div>
-      )}
+      </div>
     </div>
   );
 }
