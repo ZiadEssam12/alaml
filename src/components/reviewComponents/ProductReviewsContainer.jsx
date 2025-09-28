@@ -1,20 +1,15 @@
 import { Suspense } from "react";
-import prisma from "@/lib/prisma";
 import RatingStatistics from "./RatingStatistics";
 import ReviewsPreviewClient from "./ReviewsPreviewClient";
 import ReviewForm from "./ReviewForm";
-import { auth } from "@/auth/auth";
 
 // Server Component - Main orchestrator for the review system
 export default async function ProductReviewsContainer({
   productId,
   productName,
   userPermissions = null,
+  reviewsData = null,
 }) {
-  const user = await auth();
-
-  const reviewsData = await fetchProductReviews(productId, 1, 5);
-
   let userHasPurchased = false;
   let userHasReviewed = false;
 
@@ -22,6 +17,23 @@ export default async function ProductReviewsContainer({
     userHasPurchased = userPermissions.hasPurchased;
     userHasReviewed = userPermissions.hasReviewed;
   }
+
+  // Fallback reviews data structure if not provided
+  const defaultReviewsData = {
+    reviews: [],
+    stats: { averageRating: 0, totalReviews: 0 },
+    ratingDistribution: Array(5).fill(0),
+    pagination: {
+      page: 1,
+      pageSize: 5,
+      totalCount: 0,
+      totalPages: 0,
+      hasNext: false,
+      hasPrevious: false,
+    },
+  };
+
+  const reviews = reviewsData || defaultReviewsData;
 
   return (
     <div className="space-y-6">
@@ -39,17 +51,17 @@ export default async function ProductReviewsContainer({
         {/* Rating Statistics - Left Side */}
         <div className="lg:col-span-1">
           <RatingStatistics
-            averageRating={reviewsData.stats.averageRating}
-            totalReviews={reviewsData.stats.totalReviews}
-            ratingDistribution={reviewsData.ratingDistribution}
+            averageRating={reviews.stats.averageRating}
+            totalReviews={reviews.stats.totalReviews}
+            ratingDistribution={reviews.ratingDistribution}
           />
         </div>
 
         {/* Reviews Preview - Right Side */}
         <div className="lg:col-span-2">
           <ReviewsPreviewClient
-            initialReviews={reviewsData.reviews}
-            totalReviews={reviewsData.stats.totalReviews}
+            initialReviews={reviews.reviews}
+            totalReviews={reviews.stats.totalReviews}
             productId={productId}
           />
         </div>
@@ -69,102 +81,4 @@ function ReviewFormSkeleton() {
       </div>
     </div>
   );
-}
-
-async function fetchProductReviews(productId, page = 1, pageSize = 5) {
-  try {
-    // Get product reviews with stats
-    const [reviews, totalCount, ratingStats, ratingDistribution] =
-      await Promise.all([
-        // Get reviews
-        prisma.review.findMany({
-          where: {
-            productId,
-            status: "approved",
-          },
-          skip: (page - 1) * pageSize,
-          take: pageSize,
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            userName: true,
-            rating: true,
-            comment: true,
-            createdAt: true,
-          },
-        }),
-
-        // Get total count
-        prisma.review.count({
-          where: {
-            productId,
-            status: "approved",
-          },
-        }),
-
-        // Get rating statistics
-        prisma.review.aggregate({
-          where: {
-            productId,
-            status: "approved",
-          },
-          _avg: {
-            rating: true,
-          },
-          _count: {
-            rating: true,
-          },
-        }),
-
-        // Get rating distribution
-        prisma.review.groupBy({
-          by: ["rating"],
-          where: {
-            productId,
-            status: "approved",
-          },
-          _count: {
-            rating: true,
-          },
-        }),
-      ]);
-
-    // Process rating distribution
-    const distribution = Array(5).fill(0);
-    ratingDistribution.forEach(({ rating, _count }) => {
-      distribution[rating - 1] = _count.rating;
-    });
-
-    return {
-      reviews,
-      stats: {
-        averageRating: ratingStats._avg.rating || 0,
-        totalReviews: ratingStats._count.rating || 0,
-      },
-      ratingDistribution: distribution,
-      pagination: {
-        page,
-        pageSize,
-        totalCount,
-        totalPages: Math.ceil(totalCount / pageSize),
-        hasNext: page * pageSize < totalCount,
-        hasPrevious: page > 1,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching product reviews:", error);
-    return {
-      reviews: [],
-      stats: { averageRating: 0, totalReviews: 0 },
-      ratingDistribution: Array(5).fill(0),
-      pagination: {
-        page: 1,
-        pageSize,
-        totalCount: 0,
-        totalPages: 0,
-        hasNext: false,
-        hasPrevious: false,
-      },
-    };
-  }
 }

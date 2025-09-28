@@ -19,9 +19,6 @@ export async function GET(request, { params }) {
     const role = session?.role;
     const userId = session?.id;
 
-    console.log("Session data:", session);
-    console.log("User ID:", userId);
-
     const { id } = await params;
     if (!id) {
       return NextResponse.json(
@@ -70,7 +67,6 @@ export async function GET(request, { params }) {
         select: { id: true },
       });
       hasPurchased = !!purchase;
-      console.log("User has purchased:", !!purchase);
 
       // Check if user has reviewed the product
       const review = await prisma.review.findFirst({
@@ -78,15 +74,86 @@ export async function GET(request, { params }) {
         select: { id: true },
       });
       hasReviewed = !!review;
-      console.log("User has reviewed:", !!review);
     }
 
-    console.log("Final results:", {
-      userId,
-      userHasPurchased: hasPurchased,
-      userHasReviewed: hasReviewed,
-      canReview: hasPurchased && !hasReviewed,
+    // Fetch product reviews with stats
+    const [reviews, totalCount, ratingStats, ratingDistribution] =
+      await Promise.all([
+        // Get reviews
+        prisma.review.findMany({
+          where: {
+            productId: product.id,
+            // status: "approved",
+          },
+          skip: 0, // First page only
+          take: 5, // Limit to 5 reviews
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            userName: true,
+            rating: true,
+            comment: true,
+            createdAt: true,
+          },
+        }),
+
+        // Get total count
+        prisma.review.count({
+          where: {
+            productId: product.id,
+            // status: "approved",
+          },
+        }),
+
+        // Get rating statistics
+        prisma.review.aggregate({
+          where: {
+            productId: product.id,
+            // status: "approved",
+          },
+          _avg: {
+            rating: true,
+          },
+          _count: {
+            rating: true,
+          },
+        }),
+
+        // Get rating distribution
+        prisma.review.groupBy({
+          by: ["rating"],
+          where: {
+            productId: product.id,
+            // status: "approved",
+          },
+          _count: {
+            rating: true,
+          },
+        }),
+      ]);
+
+    // Process rating distribution
+    const distribution = Array(5).fill(0);
+    ratingDistribution.forEach(({ rating, _count }) => {
+      distribution[rating - 1] = _count.rating;
     });
+
+    const reviewsData = {
+      reviews,
+      stats: {
+        averageRating: ratingStats._avg.rating || 0,
+        totalReviews: ratingStats._count.rating || 0,
+      },
+      ratingDistribution: distribution,
+      pagination: {
+        page: 1,
+        pageSize: 5,
+        totalCount,
+        totalPages: Math.ceil(totalCount / 5),
+        hasNext: totalCount > 5,
+        hasPrevious: false,
+      },
+    };
 
     const userPermissions = userId
       ? {
@@ -102,6 +169,7 @@ export async function GET(request, { params }) {
           product,
           similarProducts,
           userPermissions: userPermissions,
+          reviews: reviewsData,
         },
         message: "Product fetched successfully",
       },
@@ -113,51 +181,5 @@ export async function GET(request, { params }) {
       { error: "Failed to fetch product" },
       { status: 500 }
     );
-  }
-}
-
-async function checkUserPurchase(userId, productId) {
-  try {
-    const purchase = await prisma.order.findFirst({
-      where: {
-        userId,
-        status: { in: ["shipped", "delivered"] },
-        items: {
-          some: {
-            productId: productId,
-          },
-        },
-      },
-      select: { id: true },
-    });
-
-    console.log(
-      "Purchase check for user:",
-      userId,
-      "product:",
-      productId,
-      "result:",
-      !!purchase
-    );
-
-    return !!purchase;
-  } catch (error) {
-    console.error("Error checking user purchase:", error);
-    return false;
-  }
-}
-
-// Helper function to check if user has reviewed the product
-async function checkUserReview(userId, productId) {
-  try {
-    const review = await prisma.review.findFirst({
-      where: { userId, productId },
-      select: { id: true },
-    });
-
-    return !!review;
-  } catch (error) {
-    console.error("Error checking user review:", error);
-    return false;
   }
 }

@@ -72,7 +72,12 @@ export default async function ProductPage({ params }) {
   }
 
   const { data } = await res.json();
-  const { product: displayProduct, similarProducts, userPermissions } = data;
+  const {
+    product: displayProduct,
+    similarProducts,
+    userPermissions,
+    reviews: reviewsData,
+  } = data;
 
   const publicImageIds = displayProduct.imageUrls.map((url) =>
     imageService.extractPublicId(url)
@@ -255,6 +260,7 @@ export default async function ProductPage({ params }) {
             productId={displayProduct.id}
             productName={displayProduct.name}
             userPermissions={userPermissions}
+            reviewsData={reviewsData}
           />
         </section>
 
