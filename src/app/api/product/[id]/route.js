@@ -19,6 +19,9 @@ export async function GET(request, { params }) {
     const role = session?.role;
     const userId = session?.id;
 
+    console.log("Session data:", session);
+    console.log("User ID:", userId);
+
     const { id } = await params;
     if (!id) {
       return NextResponse.json(
@@ -49,25 +52,47 @@ export async function GET(request, { params }) {
     });
 
     // Check user permissions if authenticated
-    const userHasPurchased = userId
-      ? await checkUserPurchase(userId, product.id)
-      : false;
-    const userHasReviewed = userId
-      ? await checkUserReview(userId, product.id)
-      : false;
+    let hasPurchased = false;
+    let hasReviewed = false;
+
+    if (userId) {
+      // Check if user has purchased the product
+      const purchase = await prisma.order.findFirst({
+        where: {
+          userId,
+          status: { in: ["shipped", "delivered"] },
+          items: {
+            some: {
+              productId: product.id,
+            },
+          },
+        },
+        select: { id: true },
+      });
+      hasPurchased = !!purchase;
+      console.log("User has purchased:", !!purchase);
+
+      // Check if user has reviewed the product
+      const review = await prisma.review.findFirst({
+        where: { userId, productId: product.id },
+        select: { id: true },
+      });
+      hasReviewed = !!review;
+      console.log("User has reviewed:", !!review);
+    }
 
     console.log("Final results:", {
       userId,
-      userHasPurchased,
-      userHasReviewed,
-      canReview: userHasPurchased && !userHasReviewed,
+      userHasPurchased: hasPurchased,
+      userHasReviewed: hasReviewed,
+      canReview: hasPurchased && !hasReviewed,
     });
 
     const userPermissions = userId
       ? {
-          hasPurchased: userHasPurchased,
-          hasReviewed: userHasReviewed,
-          canReview: userHasPurchased && !userHasReviewed,
+          hasPurchased: hasPurchased,
+          hasReviewed: hasReviewed,
+          canReview: hasPurchased && !hasReviewed,
         }
       : null;
 
