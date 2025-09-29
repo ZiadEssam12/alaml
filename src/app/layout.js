@@ -63,7 +63,9 @@ export default async function RootLayout({ children }) {
           <LoadingProvider>
             <CartProvider>
               <SessionProvider>
-                <div className="min-h-screen flex flex-col">{children}</div>
+                <div className="min-h-screen flex flex-col overflow-x-hidden">
+                  {children}
+                </div>
               </SessionProvider>
               <Toaster position="bottom-right" />
               <Loading />
