@@ -21,6 +21,7 @@ export async function getUserTokenSSR(request) {
       salt: cookieKey,
       cookieName: cookieKey,
     });
+    
 
     return session;
   } catch (error) {
