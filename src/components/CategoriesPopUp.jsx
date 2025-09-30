@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,6 +9,7 @@ export default function CategoriesPopUp({ title, data, children }) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const pathName = usePathname();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const getCategories = async () => {
@@ -24,18 +25,72 @@ export default function CategoriesPopUp({ title, data, children }) {
     setOpen(false);
   }, [pathName]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (open) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      window.addEventListener("scroll", handleScroll, true);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape" && open) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
   const handleClose = () => setOpen(false);
 
   return (
     <>
       {/* Overlay */}
       {open && (
-        <div className="fixed top-0 left-0 right-0 w-full h-screen bg-black opacity-10 -z-[1] p-0 m-0"></div>
+        <div
+          className="fixed top-0 left-0 right-0 w-full h-screen bg-black/30 z-40 p-0 m-0"
+          onClick={handleClose}
+          aria-hidden="true"
+        ></div>
       )}
 
       <div
+        ref={dropdownRef}
         className="relative inline-block z-50 bg-background/65 rounded-full py-3 px-3"
-        onMouseLeave={handleClose}
       >
         {open && (
           <div className="absolute h-10 right-0 left-0 -bottom-4 w-full rounded-md bg-transparent" />
