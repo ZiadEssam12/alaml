@@ -83,7 +83,7 @@ export async function GET(request, { params }) {
         prisma.review.findMany({
           where: {
             productId: product.id,
-            // status: "approved",
+            status: "approved",
           },
           skip: 0, // First page only
           take: 5, // Limit to 5 reviews
@@ -91,6 +91,7 @@ export async function GET(request, { params }) {
           select: {
             id: true,
             userName: true,
+            userId: true,
             rating: true,
             comment: true,
             createdAt: true,

@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import { useSession } from "next-auth/react";
 
 // Server Component - Shows initial reviews for SEO and performance
 export default function ReviewsPreview({
@@ -8,6 +9,10 @@ export default function ReviewsPreview({
   totalReviews = 0,
   onShowMore,
 }) {
+  const { data: session } = useSession();
+  console.log("session :", session);
+  console.log("review , ", reviews[0]);
+  const userId = session?.user?.id || null;
   // Render individual star rating
   const renderStars = (rating) => {
     return Array(5)
@@ -71,6 +76,7 @@ export default function ReviewsPreview({
         {reviews.map((review) => (
           <div key={review.id} className="p-6">
             {/* Review Header */}
+
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 {/* User Avatar Placeholder */}
@@ -79,8 +85,13 @@ export default function ReviewsPreview({
                 </div>
 
                 <div>
-                  <div className="font-medium text-gray-900">
-                    {review.userName || "مستخدم مجهول"}
+                  <div className="flex gap-2 items-center">
+                    <div className="font-medium text-gray-900">
+                      {review.userName || "مستخدم مجهول"}
+                    </div>
+                    {review.userId === userId && (
+                      <span className="text-xs text-gray-500">أنت</span>
+                    )}
                   </div>
                   <div className="text-sm text-gray-500">
                     {formatDate(review.createdAt)}
