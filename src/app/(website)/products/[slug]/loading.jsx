@@ -89,6 +89,27 @@ export default function ProductPageLoading() {
             </div>
           </div>
         </div>
+        {/* Reviews section skeleton */}
+        <section className="border-t pt-12 mb-12">
+          <div className="mb-8 h-8 w-64 bg-muted rounded animate-pulse" />
+          <div className="space-y-6">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-card rounded-xl p-6 border shadow flex flex-col gap-3 animate-pulse"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-muted rounded-full" />
+                  <div className="w-32 h-4 bg-muted rounded" />
+                  <div className="w-20 h-4 bg-muted rounded" />
+                </div>
+                <div className="w-full h-4 bg-muted rounded" />
+                <div className="w-5/6 h-4 bg-muted rounded" />
+                <div className="w-4/6 h-4 bg-muted rounded" />
+              </div>
+            ))}
+          </div>
+        </section>
         {/* Similar products section skeleton */}
         <div className="mt-12">
           <div className="mb-4 h-6 w-48 bg-muted rounded animate-pulse" />
