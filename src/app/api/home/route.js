@@ -11,7 +11,9 @@ export async function GET() {
         take: 10,
         where: {
           isActive: true,
+          stockQuantity: { gt: 0 },
         },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 
