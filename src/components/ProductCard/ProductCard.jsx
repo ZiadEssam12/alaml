@@ -35,7 +35,11 @@ export default function ProductCard({ product }) {
     imageService.generateBlurredPlaceholder(imagePublicId);
 
   return (
-    <div className="group relative bg-card rounded-lg p-1">
+    <div
+      className={`group relative bg-card rounded-lg p-1 ${
+        !isOutOfStock ? "order-1" : "order-2"
+      }`}
+    >
       {/* Product Image */}
       <Link href={`/products/${product.slug}`}>
         <div className="relative h-48 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">

@@ -122,8 +122,10 @@ export default function ProductInfo({ product }) {
         <div className="flex items-center justify-center gap-3">
           {isAdding ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              جاري الإضافة...
+              <span className="inline-flex items-center gap-2">
+                <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                جاري الإضافة
+              </span>
             </>
           ) : isIteminCart ? (
             <>

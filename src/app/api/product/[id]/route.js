@@ -102,7 +102,7 @@ export async function GET(request, { params }) {
         prisma.review.count({
           where: {
             productId: product.id,
-            // status: "approved",
+            status: "approved",
           },
         }),
 
@@ -110,7 +110,7 @@ export async function GET(request, { params }) {
         prisma.review.aggregate({
           where: {
             productId: product.id,
-            // status: "approved",
+            status: "approved",
           },
           _avg: {
             rating: true,
@@ -125,7 +125,7 @@ export async function GET(request, { params }) {
           by: ["rating"],
           where: {
             productId: product.id,
-            // status: "approved",
+            status: "approved",
           },
           _count: {
             rating: true,
