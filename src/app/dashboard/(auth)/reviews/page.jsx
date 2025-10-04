@@ -271,6 +271,7 @@ function ReviewsManagementContent() {
                   <th className="px-4 py-2">التقييم</th>
                   <th className="px-4 py-2">التعليق</th>
                   <th className="px-4 py-2">الحالة</th>
+                  <th className="px-4 py-2">السبب</th>
                   <th className="px-4 py-2">التاريخ</th>
                   <th className="px-4 py-2">الإجراءات</th>
                 </tr>
@@ -317,6 +318,15 @@ function ReviewsManagementContent() {
                       </td>
                       <td className="px-4 py-3">
                         {getStatusBadge(review.status)}
+                      </td>
+                      <td className="px-4 py-3">
+                        {review.reason ? (
+                          <p className="text-sm text-red-600">
+                            {review.reason}
+                          </p>
+                        ) : (
+                          <span className="text-sm text-green-600">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         {new Date(review.createdAt).toLocaleDateString(

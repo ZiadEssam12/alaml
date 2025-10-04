@@ -104,6 +104,7 @@ model Review {
   rating      Int
   comment     String
   status      ReviewStatus @default(pending)
+  reason      String?      
   createdAt   DateTime     @default(now())
 
   product Product @relation(fields: [productId], references: [id]) // Added relationship to Product

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import * as yup from "yup";
 import { cookieKey } from "@/lib/auth-helpers";
 import { getToken } from "next-auth/jwt";
+import { classifyReview } from "@/lib/utils";
 
 const reviewSchema = yup.object().shape({
   productId: yup.string().required("معرف المنتج مطلوب"),
@@ -36,7 +37,7 @@ export async function POST(req) {
   // Fixed: Check if product exists first
   const product = await prisma.product.findUnique({
     where: { id: productId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, description: true },
   });
 
   if (!product) {
@@ -63,7 +64,6 @@ export async function POST(req) {
     );
   }
 
-  // Check if user already submitted a review for the product
   const existingReview = await prisma.review.findFirst({
     where: {
       userId: session.id,
@@ -78,7 +78,22 @@ export async function POST(req) {
     );
   }
 
-  // Create the review with product name from database
+  let status = "pending";
+
+  const { classification, reason } = await classifyReview(
+    product.description,
+    comment
+  );
+
+  if (classification === "spam") {
+    status = "rejected";
+  }
+  if (classification === "natural") {
+    status = "approved";
+  }
+
+  console.log({ classification, reason });
+
   const review = await prisma.review.create({
     data: {
       productId,
@@ -87,9 +102,21 @@ export async function POST(req) {
       userName: session.name,
       rating,
       comment,
-      status: "pending",
+      status,
+      reason,
     },
   });
+
+  if (classification === "spam") {
+    return NextResponse.json(
+      {
+        error:
+          "تم تقديم التقييم ولكنه قيد المراجعة بسبب تصنيفه كمحتوى غير مرغوب فيه",
+        review,
+      },
+      { status: 201 }
+    );
+  }
 
   return NextResponse.json({ data: review }, { status: 201 });
 }

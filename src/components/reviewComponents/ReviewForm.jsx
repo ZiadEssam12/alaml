@@ -76,6 +76,8 @@ export default function ReviewForm({
       } else {
         setError(data.error || "حدث خطأ في إرسال التقييم");
       }
+
+      
     } catch (error) {
       setError("حدث خطأ في إرسال التقييم");
     } finally {
