@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 
 export default function ReviewForm({
   productId,
@@ -39,45 +40,44 @@ export default function ReviewForm({
       setError("يرجى إضافة تقييم وتعليق (10 أحرف على الأقل)");
       return;
     }
-
     setLoading(true);
     setError("");
 
-    try {
-      const response = await fetch("/api/reviews", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId,
-          rating,
-          comment: comment.trim(),
-        }),
-      });
-
+    const reviewPromise = fetch("/api/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, rating, comment: comment.trim() }),
+    }).then(async (response) => {
       const data = await response.json();
+      if (!response.ok)
+        throw new Error(
+          data.error ||
+            "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية"
+        );
+      return data;
+    });
 
-      if (response.ok) {
+    toast.promise(reviewPromise, {
+      loading: "يتم مراجعة التقييم",
+      success: "تم قبول التقييم",
+      error: "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية",
+    });
+
+    try {
+      const data = await reviewPromise;
+
+      if (data) {
         setSuccess(true);
         setRating(0);
         setComment("");
 
-        // Call callback if provided
         if (onReviewSubmitted) {
           onReviewSubmitted(data.data);
         }
 
-        // Close modal after delay
-        setTimeout(() => {
-          setIsOpen(false);
-          setSuccess(false);
-        }, 2000);
-      } else {
-        setError(data.error || "حدث خطأ في إرسال التقييم");
+        setIsOpen(false);
+        setSuccess(false);
       }
-
-      
     } catch (error) {
       setError("حدث خطأ في إرسال التقييم");
     } finally {

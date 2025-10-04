@@ -114,9 +114,8 @@ export async function POST(req) {
           "تم تقديم التقييم ولكنه قيد المراجعة بسبب تصنيفه كمحتوى غير مرغوب فيه",
         review,
       },
-      { status: 201 }
+      { status: 422 }
     );
   }
-
   return NextResponse.json({ data: review }, { status: 201 });
 }

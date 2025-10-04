@@ -28,7 +28,7 @@ export async function getCurrentSessionData(request) {
  * @returns {Promise<object | null>} A promise that resolves to the parsed JSON
  *   classification result, or null if an error occurs.
  */
-export async function classifyReview(productDescription, userReview) {
+export async function classifyReview(productDescription, userReview, stars) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
   if (!GEMINI_API_KEY) {
@@ -43,6 +43,8 @@ export async function classifyReview(productDescription, userReview) {
 
   تقييم المستخدم: ${userReview}
 
+  عدد النجوم: ${stars}
+  
   حلل تقييم المستخدم بالنسبة لوصف المنتج وصنف التقييم كـ 'طبيعي' أو 'سبام'. إذا كان التصنيف 'سبام'، قدم سبب مختصر باللغة العربية (مثل: 'عدم تطابق بين الوصف والتقييم'، 'تقييم عام وغير مخصص للمنتج'، 'محتوى ترويجي'، 'محتوى غير ذي صلة'، أو 'سبب آخر').
 
   أرجو أن يكون الإخراج فقط ككائن JSON بدون أي شرح أو نص إضافي، وبالهيكل التالي:
