@@ -42,6 +42,7 @@ export default function ReviewForm({
     }
     setLoading(true);
     setError("");
+    setIsOpen(false);
 
     const reviewPromise = fetch("/api/reviews", {
       method: "POST",
@@ -65,34 +66,26 @@ export default function ReviewForm({
       }),
       {
         loading: "يتم مراجعة التقييم",
-        success: "تم قبول التقييم",
-        error: (err) => {
-          // If the error is a spam review (status 422)
-          if (err?.status === 422) {
-            return (
-              err.message ||
-              "تم تقديم التقييم ولكنه قيد المراجعة بسبب تصنيفه كمحتوى غير مرغوب فيه"
-            );
+        success: (data) => {
+          // If the response is a spam review (status 422)
+          if (data?.status === 422) {
+            return data.message || "تم إرسال التقييم للمراجعة اليدوية";
           }
-          // Otherwise, it's a network/server error
-          return "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية";
+          return "تم قبول التقييم";
         },
+        error: "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية",
       }
     );
 
     try {
       const data = await reviewPromise;
-
       if (data) {
         setSuccess(true);
         setRating(0);
         setComment("");
-
         if (onReviewSubmitted) {
           onReviewSubmitted(data.data);
         }
-
-        setIsOpen(false);
         setSuccess(false);
       }
     } finally {

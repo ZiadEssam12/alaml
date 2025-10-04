@@ -110,11 +110,10 @@ export async function POST(req) {
   if (classification === "spam") {
     return NextResponse.json(
       {
-        error:
-          "تم تقديم التقييم ولكنه قيد المراجعة بسبب تصنيفه كمحتوى غير مرغوب فيه",
+        error: "التقييم تحت المراجعة اليدوبة",
         review,
       },
-      { status: 422 }
+      { status: 201 }
     );
   }
   return NextResponse.json({ data: review }, { status: 201 });

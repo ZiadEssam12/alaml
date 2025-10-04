@@ -38,39 +38,44 @@ export async function classifyReview(productDescription, userReview, stars) {
     return null;
   }
   const prompt = `
-  تحليل تقييم منتج
+  Product Review Analysis
 
-  وصف المنتج:
+  Note:
+  The product description and user review may be written in Arabic.
+  Always analyze correctly regardless of the language used.
+  The final output (JSON and reason) must be in English only.
+
+  Product Description:
   ${productDescription}
 
-  تقييم المستخدم:
+  User Review:
   ${userReview}
 
-  عدد النجوم:
+  Star Rating:
   ${stars}
 
-  المطلوب:
-  حلل تقييم المستخدم مقارنةً بوصف المنتج لتحديد ما إذا كان التقييم "طبيعي" أو "سبام".
+  Task:
+  Analyze the user’s review compared to the product description to determine whether the review is "natural" or "spam".
 
-  صنّف التقييم كـ "سبام" في الحالات التالية فقط:
-  1. عدم تطابق واضح بين وصف المنتج والتقييم المكتوب.
-  2. التقييم عام وغير مخصص للمنتج (مثل "جيد جداً" بدون تفاصيل تشير للمنتج).
-  3. وجود محتوى ترويجي أو دعائي.
-  4. محتوى لا علاقة له بالمنتج أو خارج السياق.
-  5. تعارض واضح بين عدد النجوم والمحتوى المكتوب (مثل تعليق سلبي مع 5 نجوم أو تعليق إيجابي مع نجمة واحدة).
-  6. التقييم غير واضح، غامض، أو غير مكتمل (مثل نص قصير جداً أو غير مفهوم).
-  7. التقييم يحتوي على رموز أو كلمات عشوائية لا تشكل جملة ذات معنى.
+  Classify the review as "spam" only if one or more of the following apply:
+  1. There is a clear mismatch between the product description and the written review.
+  2. The review is too generic or not specific to the product (e.g., "Very good" with no product-related details).
+  3. The review contains promotional or advertising content.
+  4. The review is unrelated to the product or off-topic.
+  5. There is a clear inconsistency between the star rating and the review content (e.g., a negative comment with 5 stars or a positive comment with 1 star).
+  6. The review is unclear, incomplete, or too short to make sense.
+  7. The review includes random symbols, meaningless text, or gibberish.
 
-  إذا تم تصنيف التقييم كـ "سبام"، اختر أقرب سبب من القائمة أعلاه، أو استخدم "سبب آخر" إذا لم ينطبق أي منها تماماً.
+  If the review is classified as "spam", choose the most relevant reason from the list above, or use "Other reason" if none fully apply.
 
-  المخرجات المطلوبة:
-  أعد النتيجة فقط بصيغة JSON بدون أي نص إضافي، وبالهيكل التالي:
+  Output:
+  Return the result strictly as JSON only (no additional text), with this structure:
   {
     "classification": "natural" | "spam",
-    "reason": "" | "عدم تطابق بين الوصف والتقييم" | "تقييم عام وغير مخصص للمنتج" | "محتوى ترويجي" | "محتوى غير ذي صلة" | "عدم تناسق بين عدد النجوم والتعليق" | "تقييم غير واضح أو غير مكتمل" | "سبب آخر"
+    "reason": "" | "Mismatch between description and review" | "Generic or non-specific review" | "Promotional content" | "Unrelated content" | "Inconsistency between stars and comment" | "Unclear or incomplete review" | "Other reason"
   }
   `;
-
+  
   const payload = {
     contents: [
       {
