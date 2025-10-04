@@ -47,21 +47,38 @@ export default function ReviewForm({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, rating, comment: comment.trim() }),
-    }).then(async (response) => {
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.error ||
-            "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية"
-        );
-      return data;
     });
 
-    toast.promise(reviewPromise, {
-      loading: "يتم مراجعة التقييم",
-      success: "تم قبول التقييم",
-      error: "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية",
-    });
+    toast.promise(
+      reviewPromise.then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          // Attach status to error for toast
+          const error = new Error(
+            data.error ||
+              "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية"
+          );
+          error.status = response.status;
+          throw error;
+        }
+        return data;
+      }),
+      {
+        loading: "يتم مراجعة التقييم",
+        success: "تم قبول التقييم",
+        error: (err) => {
+          // If the error is a spam review (status 422)
+          if (err?.status === 422) {
+            return (
+              err.message ||
+              "تم تقديم التقييم ولكنه قيد المراجعة بسبب تصنيفه كمحتوى غير مرغوب فيه"
+            );
+          }
+          // Otherwise, it's a network/server error
+          return "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية";
+        },
+      }
+    );
 
     try {
       const data = await reviewPromise;
@@ -78,8 +95,6 @@ export default function ReviewForm({
         setIsOpen(false);
         setSuccess(false);
       }
-    } catch (error) {
-      setError("حدث خطأ في إرسال التقييم");
     } finally {
       setLoading(false);
     }
