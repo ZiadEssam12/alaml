@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import SearchBox from "@/components/dashbaord/SearchBox";
 import { PaginationClient } from "@/components/Pagination";
+import { enReasonToArabic } from "@/lib/utils";
 
 // Fetch reviews from Next.js API
 const fetchReviews = async ({ page, pageSize, status }) => {
@@ -322,7 +323,7 @@ function ReviewsManagementContent() {
                       <td className="px-4 py-3">
                         {review.reason ? (
                           <p className="text-sm text-red-600">
-                            {review.reason}
+                            {enReasonToArabic(review.reason)}
                           </p>
                         ) : (
                           <span className="text-sm text-green-600">-</span>

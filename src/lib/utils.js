@@ -75,7 +75,7 @@ export async function classifyReview(productDescription, userReview, stars) {
     "reason": "" | "Mismatch between description and review" | "Generic or non-specific review" | "Promotional content" | "Unrelated content" | "Inconsistency between stars and comment" | "Unclear or incomplete review" | "Other reason"
   }
   `;
-  
+
   const payload = {
     contents: [
       {
@@ -152,5 +152,28 @@ export async function classifyReview(productDescription, userReview, stars) {
   } catch (error) {
     console.error("Error classifying review:", error);
     return null;
+  }
+}
+
+export function enReasonToArabic(reason) {
+  switch (reason) {
+    case "":
+      return "";
+    case "Mismatch between description and review":
+      return "عدم تطابق بين الوصف والتقييم";
+    case "Generic or non-specific review":
+      return "تقييم عام أو غير محدد";
+    case "Promotional content":
+      return "محتوى ترويجي";
+    case "Unrelated content":
+      return "محتوى غير ذي صلة";
+    case "Inconsistency between stars and comment":
+      return "عدم اتساق بين النجوم والتعليق";
+    case "Unclear or incomplete review":
+      return "تقييم غير واضح أو غير مكتمل";
+    case "Other reason":
+      return "سبب آخر";
+    default:
+      return reason;
   }
 }

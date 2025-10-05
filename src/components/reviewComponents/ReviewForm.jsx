@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function ReviewForm({
   productId,
@@ -28,6 +29,7 @@ export default function ReviewForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   // Form validation
   const isValid = rating > 0 && comment.trim().length >= 10;
@@ -56,6 +58,7 @@ export default function ReviewForm({
       toast.dismiss(toastId);
       if (response.ok) {
         toast.success(data.message);
+        router.refresh();
       }
     } catch (err) {
       toast.dismiss(toastId);
