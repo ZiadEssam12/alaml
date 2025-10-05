@@ -15,25 +15,18 @@ export async function middleware(req) {
   });
   const { pathname } = req.nextUrl;
 
-  // console.log("md : session : ", session);
+  // Allow all users to access /login
+  if (pathname === "/login") return NextResponse.next();
 
-  if (session) {
-    req.headers.set("x-user-session", JSON.stringify(session)); // Add session to headers
-  }
-
-  if (session?.role === "admin" && pathname === "/dashboard/login") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
+  // Restrict /dashboard pages to admin only
   if (
     pathname.startsWith("/dashboard") &&
-    pathname !== "/dashboard/login" &&
     (!session || session.role !== "admin")
   ) {
-    console.log("Redirecting to /dashboard/login");
-    return NextResponse.redirect(new URL("/dashboard/login", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  // Restrict /api/dashboard endpoints to admin only
   if (
     pathname.startsWith("/api/dashboard") &&
     (!session || session.role !== "admin")
@@ -42,6 +35,7 @@ export async function middleware(req) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // All other routes are open
   return NextResponse.next();
 }
 
