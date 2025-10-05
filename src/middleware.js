@@ -14,9 +14,13 @@ export async function middleware(req) {
     cookieName: cookieKey,
   });
   const { pathname } = req.nextUrl;
-
+  console.log("Middleware session:", session);
   // Allow all users to access /login
-  if (pathname === "/login") return NextResponse.next();
+  if (pathname.startsWith("/login") && !session.id)
+    return NextResponse.redirect(new URL("/login", req.url));
+
+  if (pathname.startsWith("/login") && session.role === "user")
+    return NextResponse.redirect(new URL("/", req.url));
 
   // Restrict /dashboard pages to admin only
   if (

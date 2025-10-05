@@ -44,51 +44,29 @@ export default function ReviewForm({
     setError("");
     setIsOpen(false);
 
-    const reviewPromise = fetch("/api/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, rating, comment: comment.trim() }),
-    });
-
-    toast.promise(
-      reviewPromise.then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) {
-          // Attach status to error for toast
-          const error = new Error(
-            data.error ||
-              "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية"
-          );
-          error.status = response.status;
-          throw error;
-        }
-        return data;
-      }),
-      {
-        loading: "يتم مراجعة التقييم",
-        success: (data) => {
-          // If the response is a spam review (status 422)
-          if (data?.status === 422) {
-            return data.message || "تم إرسال التقييم للمراجعة اليدوية";
-          }
-          return "تم قبول التقييم";
-        },
-        error: "حدث خطأ أثناء مراجعة التقييم تم الارسال الى المراجعة اليدوية",
-      }
-    );
+    const toastId = toast.loading("يتم مراجعة التقييم");
 
     try {
-      const data = await reviewPromise;
-      if (data) {
-        setSuccess(true);
-        setRating(0);
-        setComment("");
-        if (onReviewSubmitted) {
-          onReviewSubmitted(data.data);
-        }
-        setSuccess(false);
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, rating, comment: comment.trim() }),
+      });
+      const data = await response.json();
+      toast.dismiss(toastId);
+      if (response.ok) {
+        toast.success(data.message);
       }
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error("حدث خطأ أثناء مراجعة التقييم");
     } finally {
+      setSuccess(true);
+      setRating(0);
+      setComment("");
+      if (onReviewSubmitted) {
+        onReviewSubmitted(data.data);
+      }
       setLoading(false);
     }
   };
