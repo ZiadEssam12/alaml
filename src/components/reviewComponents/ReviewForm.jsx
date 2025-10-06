@@ -20,6 +20,7 @@ export default function ReviewForm({
   onReviewSubmitted,
   userHasPurchased = false,
   userHasReviewed = false,
+  userReview = null,
 }) {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -152,14 +153,20 @@ export default function ReviewForm({
 
   // Show already reviewed message
   if (userHasReviewed) {
+    return null;
+  }
+
+  if (userReview) {
     return (
       <div className="bg-white rounded-lg border p-6">
         <div className="text-center">
-          <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-500" />
+          <X className="w-12 h-12 mx-auto mb-3 text-gray-300" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            شكراً لك على تقييمك
+            تقييم قيد المراجعة
           </h3>
-          <p className="text-gray-600">لقد قمت بتقييم هذا المنتج مسبقاً</p>
+          <p className="text-gray-600">
+            لقد قمت بإرسال تقييم لهذا المنتج وهو قيد المراجعة حالياً.
+          </p>
         </div>
       </div>
     );

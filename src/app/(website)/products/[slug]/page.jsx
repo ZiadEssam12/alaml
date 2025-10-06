@@ -89,6 +89,8 @@ export default async function ProductPage({ params }) {
 
   displayProduct.responsiveImageUrls = responsiveUrls;
 
+  const { userReview } = userPermissions;
+
   return (
     <div className="min-h-screen pb-10">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -261,6 +263,7 @@ export default async function ProductPage({ params }) {
             productName={displayProduct.name}
             userPermissions={userPermissions}
             reviewsData={reviewsData}
+            userReview={userReview}
           />
         </section>
 

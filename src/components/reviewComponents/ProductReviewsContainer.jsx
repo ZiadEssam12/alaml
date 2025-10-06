@@ -9,6 +9,7 @@ export default async function ProductReviewsContainer({
   productName,
   userPermissions = null,
   reviewsData = null,
+  userReview = null,
 }) {
   let userHasPurchased = false;
   let userHasReviewed = false;

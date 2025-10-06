@@ -51,7 +51,7 @@ export async function GET(request, { params }) {
     // Check user permissions if authenticated
     let hasPurchased = false;
     let hasReviewed = false;
-
+    let review = null;
     if (userId) {
       // Check if user has purchased the product
       const purchase = await prisma.order.findFirst({
@@ -69,7 +69,7 @@ export async function GET(request, { params }) {
       hasPurchased = !!purchase;
 
       // Check if user has reviewed the product
-      const review = await prisma.review.findFirst({
+      review = await prisma.review.findFirst({
         where: { userId, productId: product.id },
         select: { id: true },
       });
@@ -161,6 +161,7 @@ export async function GET(request, { params }) {
           hasPurchased: hasPurchased,
           hasReviewed: hasReviewed,
           canReview: hasPurchased && !hasReviewed,
+          userReview: review?.status !== "approved" ? review : null,
         }
       : null;
 
