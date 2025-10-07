@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { useSession, signOut, signIn } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { User, LogOut, ShoppingCart, List, Box, UserPlus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -14,7 +14,6 @@ export default function UserProfileDropdown() {
 
   const handleToggle = () => setOpen((prev) => !prev);
   const handleLogout = () => signOut();
-  const handleLogin = () => signIn();
   const closeDropdown = () => setOpen(false);
 
   // Handle click outside
@@ -143,16 +142,13 @@ export default function UserProfileDropdown() {
               </div>
             ) : (
               <div className="py-2 px-4">
-                <button
-                  onClick={() => {
-                    handleLogin();
-                    closeDropdown();
-                  }}
+                <Link
+                  href="/login"
                   className="w-full flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors justify-center"
                 >
                   <UserPlus className="h-4 w-4" />
                   تسجيل الدخول
-                </button>
+                </Link>
               </div>
             )}
           </div>

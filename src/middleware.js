@@ -16,10 +16,9 @@ export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
   // Allow all users to access /login
-  if (pathname.startsWith("/login") && !session.id)
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (pathname.startsWith("/login") && !session?.id) return NextResponse.next();
 
-  if (pathname.startsWith("/login") && session.role === "user")
+  if (pathname.startsWith("/login") && session?.role === "user")
     return NextResponse.redirect(new URL("/", req.url));
 
   // Restrict /dashboard pages to admin only

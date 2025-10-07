@@ -1,5 +1,4 @@
 import { signIn } from "@/auth/auth";
-// import { FcGoogle } from "react-icons/fc";
 
 export default function SignIn() {
   return (
