@@ -89,7 +89,7 @@ export default async function ProductPage({ params }) {
 
   displayProduct.responsiveImageUrls = responsiveUrls;
 
-  const { userReview } = userPermissions;
+  const userReview = userPermissions?.userReview;
 
   return (
     <div className="min-h-screen pb-10">
