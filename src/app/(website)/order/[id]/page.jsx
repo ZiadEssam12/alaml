@@ -11,30 +11,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getOrderDetails } from "@/lib/api/shop/orderAPI";
 
 export default async function OrderDetailsPage({ params }) {
   const orderId = (await params).id;
-  let order = {};
-
-  const userToken = await getUserTokenFromHeaders();
-
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userToken}`,
-        },
-        cache: "no-store",
-      }
-    );
-
-    const { data } = await res.json();
-    order = data.order;
-  } catch (error) {
-    console.log("error:", error.message);
-  }
+  const order = await getOrderDetails(orderId);
 
   if (!order) {
     return (

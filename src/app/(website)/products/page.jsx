@@ -2,8 +2,7 @@ import { ProductFilters } from "@/components/Filter";
 import { PaginationClient } from "@/components/Pagination";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import SortingForm from "@/components/SortingForm";
-import Link from "next/link";
-import React from "react";
+import { getProducts } from "@/lib/api/shop/productAPI";
 
 export default async function Page({ searchParams }) {
   const {
@@ -16,25 +15,15 @@ export default async function Page({ searchParams }) {
     sort = "new-to-old",
   } = (await searchParams) || {};
 
-  // Build query string for API
-  const params = new URLSearchParams();
-  if (categories) params.append("categories", categories);
-  if (minPrice) params.append("minPrice", minPrice);
-  if (maxPrice) params.append("maxPrice", maxPrice);
-  if (inStock) params.append("inStock", inStock);
-  if (page) params.append("page", page);
-  if (q) params.append("q", q);
-  if (sort) params.append("sort", sort);
-
-  console.log("q value :", q);
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product?${params.toString()}`,
-    { cache: "no-store" }
-  );
-  const data = await res.json();
-  const products = data.data || [];
-  const { maxPage: totalPages } = data.pagination || {};
+  const { products, totalPages } = await getProducts({
+    categories,
+    minPrice,
+    maxPrice,
+    inStock,
+    page,
+    q,
+    sort,
+  });
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">

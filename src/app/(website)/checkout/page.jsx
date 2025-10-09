@@ -1,7 +1,7 @@
 import { CartSummary } from "@/components/cart/CartSummary";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { auth } from "@/auth/auth";
-import prisma from "@/lib/prisma";
+import { getCartDetails } from "@/lib/api/shop/cartAPI";
 import Link from "next/link";
 import React from "react";
 
@@ -9,82 +9,10 @@ export default async function page({ searchParams }) {
   const searchParamsData = await searchParams;
   const couponCode = searchParamsData?.coupon;
 
-  let cartItems = [];
-  let coupon = null;
-  let userId = null;
+  const session = await auth();
+  const userId = session?.user?.id;
 
-  try {
-    const session = await auth();
-    userId = session?.user?.id;
-
-    if (userId) {
-      const cart = await prisma.cart.findFirst({
-        where: { userId },
-        include: {
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-      });
-
-      cartItems = cart?.items || [];
-
-      // Apply coupon if provided
-      if (couponCode) {
-        try {
-          // Direct database call for coupon
-          const couponData = await prisma.coupon.findFirst({
-            where: {
-              code: couponCode,
-              isActive: true,
-              startDate: { lte: new Date() },
-              expirationDate: { gte: new Date() },
-            },
-          });
-
-          if (couponData) {
-            // Calculate discount (simplified version)
-            const cartTotal = cartItems.reduce(
-              (acc, item) => acc + item.price * item.quantity,
-              0
-            );
-
-            let discount = 0;
-            if (couponData.type === "percentage") {
-              const percentageDiscount =
-                (cartTotal * Number(couponData.value)) / 100;
-              discount = Math.min(
-                percentageDiscount,
-                Number(couponData.maxDiscountAmount) || percentageDiscount
-              );
-            } else if (couponData.type === "fixed") {
-              discount = Math.min(
-                Number(couponData.value),
-                Number(couponData.maxDiscountAmount) || Number(couponData.value)
-              );
-            }
-
-            coupon = {
-              coupon: couponData,
-              discount,
-              message: "تم تطبيق الكوبون بنجاح",
-            };
-          }
-        } catch (error) {
-          console.error("💥 Failed to apply coupon:", error);
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Error in checkout page:", error);
-  }
-
-  const total = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const { cartItems, coupon, total } = await getCartDetails(userId, couponCode);
 
   if (cartItems.length === 0) {
     return (

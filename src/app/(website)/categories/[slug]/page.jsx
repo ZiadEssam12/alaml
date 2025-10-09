@@ -3,17 +3,12 @@ import ProductCard from "@/components/ProductCard/ProductCard";
 import Link from "next/link";
 import React from "react";
 import SortingForm from "@/components/SortingForm";
+import { getCategoryDetails } from "@/lib/api/shop/categoryAPI";
 
 export default async function page({ params }) {
   const { slug } = await params;
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${slug}`
-  );
-  const data = await res.json();
-  const category = data.data;
-  const pagination = data.pagination;
-  const products = category.products;
+  const { category, pagination, products } = await getCategoryDetails(slug);
 
   const currentSort = null; // No sort by default
   const currentFilters = null; // No filters by default

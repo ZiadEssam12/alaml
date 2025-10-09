@@ -1,5 +1,3 @@
-import prisma from "@/lib/prisma";
-import Image from "next/image";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,28 +13,32 @@ import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
 
 import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 import { imageService } from "@/lib/image-service";
-import { cookies } from "next/headers";
 import ProductsList from "@/components/Home/productsList";
 import ProductReviewsContainer from "@/components/reviewComponents/ProductReviewsContainer";
+import { getProduct } from "@/lib/api/shop/productAPI";
 
 export default async function ProductPage({ params }) {
-  const cookiesStore = await cookies();
-  const token =
-    cookiesStore.get("authjs.session-token")?.value ||
-    cookiesStore.get("__Secure-authjs.session-token")?.value;
-
   const { slug } = await params;
+  const {
+    product: displayProduct,
+    similarProducts,
+    userPermissions,
+    reviews: reviewsData,
+  } = await getProduct(slug);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/product/${slug}`,
-    {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+  const publicImageIds = displayProduct.imageUrls.map((url) =>
+    imageService.extractPublicId(url)
   );
-  if (!res.ok) {
+
+  const responsiveUrls = publicImageIds.map((id) =>
+    imageService.generateResponsiveUrls(id)
+  );
+
+  displayProduct.responsiveImageUrls = responsiveUrls;
+
+  const userReview = userPermissions?.userReview;
+
+  if (!displayProduct) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white dark:bg-card rounded-2xl shadow-lg p-8 text-center border">
@@ -70,26 +72,6 @@ export default async function ProductPage({ params }) {
       </div>
     );
   }
-
-  const { data } = await res.json();
-  const {
-    product: displayProduct,
-    similarProducts,
-    userPermissions,
-    reviews: reviewsData,
-  } = data;
-
-  const publicImageIds = displayProduct.imageUrls.map((url) =>
-    imageService.extractPublicId(url)
-  );
-
-  const responsiveUrls = publicImageIds.map((id) =>
-    imageService.generateResponsiveUrls(id)
-  );
-
-  displayProduct.responsiveImageUrls = responsiveUrls;
-
-  const userReview = userPermissions?.userReview;
 
   return (
     <div className="min-h-screen pb-10">
