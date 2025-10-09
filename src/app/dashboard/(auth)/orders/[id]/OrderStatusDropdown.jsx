@@ -26,15 +26,10 @@ export default function OrderStatusDropdown({ orderId, currentStatus }) {
     setSuccess(false);
     setError("");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order/${orderId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status }),
-        }
+      const { updateOrderStatus } = await import(
+        "@/lib/api/dashboard/ordersAPI"
       );
-      if (!res.ok) throw new Error("فشل التحديث");
+      await updateOrderStatus(orderId, status);
       setSuccess(true);
     } catch (err) {
       setError("حدث خطأ أثناء تحديث الحالة");

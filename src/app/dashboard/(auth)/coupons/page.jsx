@@ -9,6 +9,12 @@ import toast from "react-hot-toast";
 import { PaginationClient } from "@/components/Pagination";
 import SearchBox from "@/components/dashbaord/SearchBox";
 import { useSearchParams } from "next/navigation";
+import {
+  fetchCoupons,
+  createCoupon,
+  updateCoupon,
+  toggleCouponStatus,
+} from "@/lib/api/dashboard/couponsAPI";
 
 const AddingCouponForm = dynamic(() => import("./AddingCouponForm"), {
   loading: () => <CouponFormSkeleton />,
@@ -24,44 +30,24 @@ function CouponFormSkeleton() {
   );
 }
 
-const fetchCoupons = async ({ q, page, pageSize }) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons?page=${page}&pageSize=${pageSize}&q=${q}`
-  );
-  const data = await response.json();
-  return data;
-};
-
 function CouponsManagementContent() {
   const handleToggleStatus = async (couponId, currentStatus) => {
     const action = currentStatus ? "إلغاء تنشيط" : "تنشيط";
     if (confirm(`هل أنت متأكد من ${action} هذا الكوبون؟`)) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons/${couponId}/toggle-status`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ isActive: !currentStatus }),
-          }
-        );
-        if (res.ok) {
-          toast.success(`تم ${action} الكوبون بنجاح`);
-          // Refresh coupons list
-          const { data, pagination } = await fetchCoupons({
-            q,
-            page,
-            pageSize,
-          });
-          setCoupons(data);
-          setPagination(pagination);
-        } else {
-          const errorMsg = await res.text();
-          toast.error(`خطأ في تغيير الحالة: ${errorMsg}`);
-        }
+        await toggleCouponStatus(couponId, !currentStatus);
+        toast.success(`تم ${action} الكوبون بنجاح`);
+        // Refresh coupons list
+        const { data, pagination } = await fetchCoupons({
+          q,
+          page,
+          pageSize,
+        });
+        setCoupons(data);
+        setPagination(pagination);
       } catch (error) {
         console.error("Error toggling coupon status:", error);
-        toast.error("فشل في تغيير حالة الكوبون");
+        toast.error(error.message || "فشل في تغيير حالة الكوبون");
       }
     }
   };
@@ -130,37 +116,12 @@ function CouponsManagementContent() {
         expirationDate: formData.expirationDate,
       };
 
-      let res;
       if (editingCoupon) {
-        res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons/${editingCoupon.id}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(couponData),
-          }
-        );
-        if (res.ok) toast.success("تم تحديث الكوبون بنجاح");
-        else {
-          const errorMsg = await res.text();
-          toast.error(`خطأ في التحديث: ${errorMsg}`);
-          throw new Error("Update failed");
-        }
+        await updateCoupon(editingCoupon.id, couponData);
+        toast.success("تم تحديث الكوبون بنجاح");
       } else {
-        res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/coupons`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(couponData),
-          }
-        );
-        if (res.ok) toast.success("تم إضافة الكوبون بنجاح");
-        else {
-          const errorMsg = await res.text();
-          toast.error(`خطأ في الإضافة: ${errorMsg}`);
-          throw new Error("Add failed");
-        }
+        await createCoupon(couponData);
+        toast.success("تم إضافة الكوبون بنجاح");
       }
 
       setDialogOpen(false);

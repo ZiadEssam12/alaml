@@ -23,17 +23,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import SearchBox from "@/components/dashbaord/SearchBox";
 import { useSearchParams } from "next/navigation";
 import { PaginationClient } from "@/components/Pagination";
-
-const fetchCategories = async ({ page = 1, pageSize = 10, q = "" }) => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories?page=${page}&pageSize=${pageSize}&q=${q}`
-  );
-  let categoriesData = await res.json();
-  if (!Array.isArray(categoriesData.data)) {
-    return [];
-  }
-  return categoriesData;
-};
+import {
+  fetchCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "@/lib/api/dashboard/categoriesAPI";
 
 function CategoriesManagementContent() {
   const [categories, setCategories] = useState([]);
@@ -86,29 +81,12 @@ function CategoriesManagementContent() {
         ...formData,
       };
 
-      let res;
       if (editingCategory) {
-        res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories/${editingCategory.id}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(categoryData),
-          }
-        );
-        if (res.ok) toast.success("تم تحديث القسم بنجاح");
-        else throw new Error("Update failed");
+        await updateCategory(editingCategory.id, categoryData);
+        toast.success("تم تحديث القسم بنجاح");
       } else {
-        res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...categoryData, createdAt: new Date() }),
-          }
-        );
-        if (res.ok) toast.success("تم إضافة القسم بنجاح");
-        else throw new Error("Add failed");
+        await createCategory(categoryData);
+        toast.success("تم إضافة القسم بنجاح");
       }
 
       setDialogOpen(false);
@@ -138,18 +116,9 @@ function CategoriesManagementContent() {
   const handleDelete = async (categoryId) => {
     if (confirm("هل أنت متأكد من حذف هذا القسم؟")) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/categories/${categoryId}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (res.ok) {
-          toast.success("تم حذف القسم بنجاح");
-          await loadCategories();
-        } else {
-          throw new Error("خطأ في حذف القسم");
-        }
+        await deleteCategory(categoryId);
+        toast.success("تم حذف القسم بنجاح");
+        await loadCategories();
       } catch (error) {
         console.error("Error deleting category:", error);
         toast.error("خطأ في حذف القسم");

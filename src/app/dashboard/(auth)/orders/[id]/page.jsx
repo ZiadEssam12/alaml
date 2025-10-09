@@ -9,30 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-import { cookies } from "next/headers";
-async function getOrder(id) {
-  const cookieStore = await cookies();
-  const token =
-    cookieStore.get("authjs.session-token")?.value ||
-    cookieStore.get("__Secure-authjs.session-token")?.value;
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order/${id}`,
-    {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  if (!res.ok) return null;
-  const { data } = await res.json();
-  return {
-    ...data,
-    couponCode: data.couponCode || "-",
-    couponType: data.couponType || "-",
-  };
-}
+import { getOrder } from "@/lib/api/dashboard/ordersAPI";
 
 export default async function OrderDetailsPage({ params }) {
   const { id } = await params;

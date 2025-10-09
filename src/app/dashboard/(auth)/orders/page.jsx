@@ -1,30 +1,8 @@
-import { cookies } from "next/headers";
-
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PaginationClient } from "@/components/Pagination";
 import SearchBox from "@/components/dashbaord/SearchBox";
-
-async function getOrders(page = 1, pageSize = 10, q = "") {
-  const params = new URLSearchParams({ page, pageSize });
-  const cookieStore = await cookies();
-  const token =
-    cookieStore.get("authjs.session-token")?.value ||
-    cookieStore.get("__Secure-authjs.session-token")?.value;
-
-  if (q) params.set("q", q);
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order?${params.toString()}`,
-    {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  if (!res.ok) throw new Error("Failed to fetch orders");
-  return res.json();
-}
+import { getOrders } from "@/lib/api/dashboard/ordersAPI";
 
 export default async function OrdersPage({ searchParams }) {
   const page = parseInt((await searchParams)?.page || "1", 10);
