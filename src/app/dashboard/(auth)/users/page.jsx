@@ -1,31 +1,5 @@
-import { cookies } from "next/headers";
 import UsersClient from "./UsersClient";
-
-async function getUsers(role = "user", page = 1, pageSize = 10, q = "") {
-  const params = new URLSearchParams({ role, page, pageSize });
-  if (q) params.set("q", q);
-
-  const cookieStore = await cookies();
-  const token =
-    cookieStore.get("authjs.session-token")?.value ||
-    cookieStore.get("__Secure-authjs.session-token")?.value;
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users?${params.toString()}`,
-    {
-      cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!res.ok) {
-    console.error("Failed to fetch users:", await res.json());
-    throw new Error("Failed to fetch users");
-  }
-  return res.json();
-}
+import { getUsers } from "@/lib/api/dashboard/usersAPI";
 
 export default async function UsersPage({ searchParams }) {
   const q = (await searchParams)?.q || "";

@@ -17,77 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
-
-import Cookies from "js-cookie";
 import toast from "react-hot-toast";
-
-async function createAdmin({ name, email }) {
-  const token =
-    Cookies.get("authjs.session-token") ||
-    Cookies.get("__Secure-authjs.session-token");
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name, email }),
-    }
-  );
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to create admin");
-  }
-  return res.json();
-}
-
-async function updateUser(id, data) {
-  const token =
-    Cookies.get("authjs.session-token") ||
-    Cookies.get("__Secure-authjs.session-token");
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users/${id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    }
-  );
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to update user");
-  }
-  return res.json();
-}
-
-async function deleteUser(id) {
-  const token =
-    Cookies.get("authjs.session-token") ||
-    Cookies.get("__Secure-authjs.session-token");
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users/${id}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to delete user");
-  }
-  return res.json();
-}
+import {
+  createAdmin,
+  updateUser,
+  deleteUser,
+} from "@/lib/api/dashboard/usersAPI.client";
 
 export default function UsersClient({
   initialUsersData,
