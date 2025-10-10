@@ -13,7 +13,7 @@ import {
   X,
   Eye,
   EyeOff,
-} from "lucide-react";  
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { ProductCardSkeleton } from "@/components/dashbaord/product/skelaton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +21,12 @@ import { imageService } from "@/lib/image-service";
 import { useSearchParams } from "next/navigation";
 import SearchBox from "@/components/dashbaord/SearchBox";
 import { PaginationClient } from "@/components/Pagination";
+import {
+  createProduct,
+  updateProduct,
+  toggleProductStatus,
+  fetchProductsDataClient,
+} from "@/lib/api/dashboard/productsAPI.client";
 
 // Dynamic import for AddingProductForm with skeleton loader
 const AddingProductForm = dynamic(() => import("./AddingProductForm"), {
@@ -78,19 +84,6 @@ function ProductFormSkeleton() {
   );
 }
 
-// Fetch products and categories from Next.js API
-const fetchData = async ({ q, page, pageSize }) => {
-  const productsRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products?page=${page}&pageSize=${pageSize}&q=${q}`
-  );
-  const data = await productsRes.json();
-
-  const { products, categories } = data.data;
-  const { pagination } = data;
-
-  return { products, categories, pagination };
-};
-
 function ProductsManagementContent() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -118,11 +111,12 @@ function ProductsManagementContent() {
     const fetchDataWrapper = async () => {
       try {
         setLoading(true);
-        const { products, categories, pagination } = await fetchData({
-          q,
-          page,
-          pageSize,
-        });
+        const { products, categories, pagination } =
+          await fetchProductsDataClient({
+            q,
+            page,
+            pageSize,
+          });
 
         if (products) {
           setProducts(products);
@@ -165,34 +159,27 @@ function ProductsManagementContent() {
         updatedAt: new Date(),
       };
 
-      let res;
       if (editingProduct) {
-        res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${editingProduct.id}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(productData),
-          }
-        );
-        if (res.ok) toast.success("تم تحديث المنتج بنجاح");
-        else throw new Error("Update failed");
+        await updateProduct(editingProduct.id, productData);
+        toast.success("تم تحديث المنتج بنجاح");
       } else {
-        res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...productData, createdAt: new Date() }),
-          }
-        );
-        if (res.ok) toast.success("تم إضافة المنتج بنجاح");
-        else throw new Error("Add failed");
+        await createProduct(productData);
+        toast.success("تم إضافة المنتج بنجاح");
       }
 
       setDialogOpen(false);
       resetForm();
-      fetchData();
+
+      // Refresh data
+      const { products, categories, pagination } =
+        await fetchProductsDataClient({
+          q,
+          page,
+          pageSize,
+        });
+      setProducts(products);
+      setCategories(categories);
+      setPagination(pagination);
     } catch (error) {
       console.error("Error saving product:", error);
       toast.error("خطأ في حفظ المنتج");
@@ -218,32 +205,19 @@ function ProductsManagementContent() {
 
     if (confirm(confirmMessage)) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/products/${productId}/toggle-status`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ isActive: !currentStatus }),
-          }
+        await toggleProductStatus(productId, !currentStatus);
+
+        const newStatus = !currentStatus;
+        toast.success(`تم ${newStatus ? "تنشيط" : "إلغاء تنشيط"} المنتج بنجاح`);
+
+        // Update the local state immediately for better UX
+        setProducts(
+          products.map((product) =>
+            product.id === productId
+              ? { ...product, isActive: newStatus }
+              : product
+          )
         );
-
-        if (res.ok) {
-          const newStatus = !currentStatus;
-          toast.success(
-            `تم ${newStatus ? "تنشيط" : "إلغاء تنشيط"} المنتج بنجاح`
-          );
-
-          // Update the local state immediately for better UX
-          setProducts(
-            products.map((product) =>
-              product.id === productId
-                ? { ...product, isActive: newStatus }
-                : product
-            )
-          );
-        } else {
-          throw new Error("Toggle failed");
-        }
       } catch (error) {
         console.error("Error toggling product status:", error);
         toast.error("خطأ في تغيير حالة المنتج");

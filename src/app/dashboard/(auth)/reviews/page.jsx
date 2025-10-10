@@ -10,22 +10,12 @@ import { useSearchParams } from "next/navigation";
 import SearchBox from "@/components/dashbaord/SearchBox";
 import { PaginationClient } from "@/components/Pagination";
 import { enReasonToArabic } from "@/lib/utils";
-
-// Fetch reviews from Next.js API
-const fetchReviews = async ({ page, pageSize, status }) => {
-  const statusParam = status ? `&status=${status}` : "";
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/reviews?page=${page}&pageSize=${pageSize}${statusParam}`
-  );
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || "فشل في جلب التقييمات");
-  }
-
-  const data = await res.json();
-  return data.data;
-};
+import {
+  fetchReviewsClient,
+  approveReview,
+  rejectReview,
+  deleteReview,
+} from "@/lib/api/dashboard/reviewsAPI.client";
 
 function ReviewsManagementContent() {
   const [reviews, setReviews] = useState([]);
@@ -43,7 +33,7 @@ function ReviewsManagementContent() {
       try {
         setLoading(true);
         const statusFilter = filterStatus === "all" ? "" : filterStatus;
-        const { reviews, pagination } = await fetchReviews({
+        const { reviews, pagination } = await fetchReviewsClient({
           page,
           pageSize,
           status: statusFilter,
@@ -74,34 +64,19 @@ function ReviewsManagementContent() {
   const handleApprove = async (reviewId) => {
     if (confirm("هل أنت متأكد من قبول هذا التقييم؟")) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/reviews/${reviewId}/approve`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-          }
+        await approveReview(reviewId);
+        toast.success("تم قبول التقييم بنجاح");
+        // Update local state
+        setReviews(
+          reviews.map((review) =>
+            review.id === reviewId ? { ...review, status: "approved" } : review
+          )
         );
-
-        if (res.ok) {
-          toast.success("تم قبول التقييم بنجاح");
-          // Update local state
-          setReviews(
-            reviews.map((review) =>
-              review.id === reviewId
-                ? { ...review, status: "approved" }
-                : review
-            )
-          );
-        } else {
-          const errorData = await res.json();
-          toast.error(
-            errorData.error || "فشل في قبول التقييم. الرجاء المحاولة مرة أخرى"
-          );
-        }
       } catch (error) {
         console.error("Error approving review:", error);
         toast.error(
-          "حدث خطأ غير متوقع. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى"
+          error.message ||
+            "حدث خطأ غير متوقع. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى"
         );
       }
     }
@@ -110,34 +85,19 @@ function ReviewsManagementContent() {
   const handleReject = async (reviewId) => {
     if (confirm("هل أنت متأكد من رفض هذا التقييم؟")) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/reviews/${reviewId}/reject`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-          }
+        await rejectReview(reviewId);
+        toast.success("تم رفض التقييم بنجاح");
+        // Update local state
+        setReviews(
+          reviews.map((review) =>
+            review.id === reviewId ? { ...review, status: "rejected" } : review
+          )
         );
-
-        if (res.ok) {
-          toast.success("تم رفض التقييم بنجاح");
-          // Update local state
-          setReviews(
-            reviews.map((review) =>
-              review.id === reviewId
-                ? { ...review, status: "rejected" }
-                : review
-            )
-          );
-        } else {
-          const errorData = await res.json();
-          toast.error(
-            errorData.error || "فشل في رفض التقييم. الرجاء المحاولة مرة أخرى"
-          );
-        }
       } catch (error) {
         console.error("Error rejecting review:", error);
         toast.error(
-          "حدث خطأ غير متوقع. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى"
+          error.message ||
+            "حدث خطأ غير متوقع. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى"
         );
       }
     }
@@ -150,28 +110,15 @@ function ReviewsManagementContent() {
       )
     ) {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/reviews/${reviewId}`,
-          {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-
-        if (res.ok) {
-          toast.success("تم حذف التقييم بنجاح");
-          // Remove from local state
-          setReviews(reviews.filter((review) => review.id !== reviewId));
-        } else {
-          const errorData = await res.json();
-          toast.error(
-            errorData.error || "فشل في حذف التقييم. الرجاء المحاولة مرة أخرى"
-          );
-        }
+        await deleteReview(reviewId);
+        toast.success("تم حذف التقييم بنجاح");
+        // Remove from local state
+        setReviews(reviews.filter((review) => review.id !== reviewId));
       } catch (error) {
         console.error("Error deleting review:", error);
         toast.error(
-          "حدث خطأ غير متوقع. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى"
+          error.message ||
+            "حدث خطأ غير متوقع. الرجاء التحقق من اتصال الإنترنت والمحاولة مرة أخرى"
         );
       }
     }
