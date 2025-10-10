@@ -25,10 +25,8 @@ function AddingProductForm({
   formData,
   setFormData,
   editingProduct,
-  setEditingProduct,
   handleSubmit,
   categories,
-  resetForm,
 }) {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

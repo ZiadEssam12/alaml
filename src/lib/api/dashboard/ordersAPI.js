@@ -66,13 +66,22 @@ export const getOrder = async (id) => {
   }
 };
 
-export const updateOrderStatus = async (orderId, status) => {
+// Server-side function for updating order status (with authentication)
+export const updateOrderStatusServer = async (orderId, status) => {
   try {
+    const cookieStore = await cookies();
+    const token =
+      cookieStore.get("authjs.session-token")?.value ||
+      cookieStore.get("__Secure-authjs.session-token")?.value;
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/order/${orderId}`,
       {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status }),
       }
     );

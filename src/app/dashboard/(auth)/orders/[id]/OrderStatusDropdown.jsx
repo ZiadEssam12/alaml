@@ -26,10 +26,10 @@ export default function OrderStatusDropdown({ orderId, currentStatus }) {
     setSuccess(false);
     setError("");
     try {
-      const { updateOrderStatus } = await import(
-        "@/lib/api/dashboard/ordersAPI"
+      const { updateOrderStatusClient } = await import(
+        "@/lib/api/dashboard/ordersAPI.client"
       );
-      await updateOrderStatus(orderId, status);
+      await updateOrderStatusClient(orderId, status);
       setSuccess(true);
     } catch (err) {
       setError("حدث خطأ أثناء تحديث الحالة");
