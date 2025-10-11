@@ -44,8 +44,12 @@ export default function CategoriesPopUp({ title, data, children }) {
   }, [open]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (open) {
+    const handleScroll = (event) => {
+      if (
+        open &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setOpen(false);
       }
     };
