@@ -24,7 +24,12 @@ export default async function ProductPage({ params }) {
     similarProducts,
     userPermissions,
     reviews: reviewsData,
+    options,
+    variants,
   } = await getProduct(slug);
+
+  console.log("product options:", options);
+  console.log("product variants:", variants);
 
   const publicImageIds = displayProduct.imageUrls.map((url) =>
     imageService.extractPublicId(url)

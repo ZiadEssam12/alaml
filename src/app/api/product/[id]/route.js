@@ -77,61 +77,95 @@ export async function GET(request, { params }) {
     }
 
     // Fetch product reviews with stats
-    const [reviews, totalCount, ratingStats, ratingDistribution] =
-      await Promise.all([
-        // Get reviews
-        prisma.review.findMany({
-          where: {
-            productId: product.id,
-            status: "approved",
-          },
-          skip: 0, // First page only
-          take: 5, // Limit to 5 reviews
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            userName: true,
-            userId: true,
-            rating: true,
-            comment: true,
-            createdAt: true,
-          },
-        }),
+    const [
+      reviews,
+      totalCount,
+      ratingStats,
+      ratingDistribution,
+      options,
+      variants,
+    ] = await Promise.all([
+      // reviews (unchanged)
+      prisma.review.findMany({
+        where: { productId: product.id, status: "approved" },
+        skip: 0,
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          userName: true,
+          userId: true,
+          rating: true,
+          comment: true,
+          createdAt: true,
+        },
+      }),
+      prisma.review.count({
+        where: { productId: product.id, status: "approved" },
+      }),
+      prisma.review.aggregate({
+        where: { productId: product.id, status: "approved" },
+        _avg: { rating: true },
+        _count: { rating: true },
+      }),
+      prisma.review.groupBy({
+        by: ["rating"],
+        where: { productId: product.id, status: "approved" },
+        _count: { rating: true },
+      }),
 
-        // Get total count
-        prisma.review.count({
-          where: {
-            productId: product.id,
-            status: "approved",
+      // Product options with ordered values
+      prisma.productOption.findMany({
+        where: { productId: product.id },
+        orderBy: { position: "asc" },
+        select: {
+          id: true,
+          name: true,
+          presentation: true,
+          position: true,
+          values: {
+            orderBy: { position: "asc" },
+            select: {
+              id: true,
+              value: true,
+              hex: true,
+              imageUrl: true,
+              position: true,
+            },
           },
-        }),
+        },
+      }),
 
-        // Get rating statistics
-        prisma.review.aggregate({
-          where: {
-            productId: product.id,
-            status: "approved",
+      // Variants with their option/value selections
+      prisma.productVariant.findMany({
+        where: { productId: product.id },
+        select: {
+          id: true,
+          sku: true,
+          price: true,
+          stockQuantity: true,
+          isActive: true,
+          imageUrls: true,
+          combinationHash: true,
+          options: {
+            // ProductVariant.options: ProductVariantOption[]
+            select: {
+              optionId: true,
+              valueId: true,
+              option: { select: { name: true, position: true } },
+              value: {
+                select: {
+                  value: true,
+                  hex: true,
+                  imageUrl: true,
+                  position: true,
+                },
+              },
+            },
           },
-          _avg: {
-            rating: true,
-          },
-          _count: {
-            rating: true,
-          },
-        }),
-
-        // Get rating distribution
-        prisma.review.groupBy({
-          by: ["rating"],
-          where: {
-            productId: product.id,
-            status: "approved",
-          },
-          _count: {
-            rating: true,
-          },
-        }),
-      ]);
+        },
+      }),
+    ]);
 
     // Process rating distribution
     const distribution = Array(5).fill(0);
@@ -170,8 +204,10 @@ export async function GET(request, { params }) {
         data: {
           product,
           similarProducts,
-          userPermissions: userPermissions,
+          userPermissions,
           reviews: reviewsData,
+          options,
+          variants,
         },
         message: "Product fetched successfully",
       },
