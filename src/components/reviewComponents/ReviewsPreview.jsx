@@ -10,9 +10,8 @@ export default function ReviewsPreview({
   onShowMore,
 }) {
   const { data: session } = useSession();
-  console.log("session :", session);
-  console.log("review , ", reviews[0]);
   const userId = session?.user?.id || null;
+  
   // Render individual star rating
   const renderStars = (rating) => {
     return Array(5)

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Product Variants - Backend Admin &lpar;Dashboard&rpar; API</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="product-variants---backend-admin-dashboard-api">Product Variants - Backend Admin (Dashboard) API</h1>
+<p>This document defines admin endpoints to manage product options, option values, and variants.</p>
+<p>Base: <code>/dashboard/products/:productId</code></p>
+<h2 id="options">Options</h2>
+<ul>
+<li>GET <code>/options</code>
+<ul>
+<li>Purpose: List all options for the product ordered by <code>position</code>.</li>
+<li>Behavior: Returns an array with each option including its values ordered by <code>position</code> when needed by UI, or omit values if a lightweight list is preferred.</li>
+<li>Validation: Ensure <code>productId</code> exists and the caller is authorized (admin).</li>
+<li>200 <code>{ options: Option[] }</code></li>
+</ul>
+</li>
+<li>POST <code>/options</code>
+<ul>
+<li>Purpose: Create a new option for the product.</li>
+<li>Body <code>{ name: string, presentation?: &quot;swatch&quot;|&quot;pill&quot;|&quot;select&quot; }</code></li>
+<li>Behavior: Creates with <code>position</code> set to the next index (append). Enforces uniqueness of <code>name</code> per product (schema <code>@@unique([productId, name])</code>).</li>
+<li>Errors: 409 if an option with the same name already exists.</li>
+<li>201 <code>{ option }</code></li>
+</ul>
+</li>
+<li>PUT <code>/options/:optionId</code>
+<ul>
+<li>Purpose: Update option metadata and/or reorder via <code>position</code>.</li>
+<li>Body <code>{ name?, position?, presentation? }</code></li>
+<li>Behavior: Supports partial update. If <code>position</code> changes, reorder other options accordingly (stable reindex) if UI requires strict ordering.</li>
+<li>Errors: 404 if not found, 409 if new <code>name</code> conflicts.</li>
+<li>200 <code>{ option }</code></li>
+</ul>
+</li>
+<li>DELETE <code>/options/:optionId</code>
+<ul>
+<li>Purpose: Remove an option and its values.</li>
+<li>Behavior: Cascades to <code>ProductOptionValue</code> and to <code>ProductVariantOption</code> via schema. Any <code>ProductVariant</code> that no longer represents a full combination should be deleted or marked inactive per business rule.</li>
+<li>Errors: 404 if not found.</li>
+<li>204</li>
+</ul>
+</li>
+</ul>
+<h2 id="option-values">Option Values</h2>
+<ul>
+<li>POST <code>/options/:optionId/values</code>
+<ul>
+<li>Purpose: Add a value to an option.</li>
+<li>Body <code>{ value: string, hex?: string, imageUrl?: string, position?: number }</code></li>
+<li>Behavior: Creates value with <code>position</code> appended unless provided. Enforces uniqueness of <code>value</code> per option (schema <code>@@unique([optionId, value])</code>).</li>
+<li>Errors: 404 if option not found, 409 on duplicate <code>value</code>.</li>
+<li>Side-effect: Consider revalidating variants; any existing variants missing this value are unaffected until generated.</li>
+<li>201 <code>{ value }</code></li>
+</ul>
+</li>
+<li>PUT <code>/options/:optionId/values/:valueId</code>
+<ul>
+<li>Purpose: Update a specific option value.</li>
+<li>Body <code>{ value?, hex?, imageUrl?, position? }</code></li>
+<li>Behavior: Partial update; if <code>position</code> changes, reorder siblings.</li>
+<li>Errors: 404 if not found, 409 if <code>value</code> duplicates another.</li>
+<li>200 <code>{ value }</code></li>
+</ul>
+</li>
+<li>DELETE <code>/options/:optionId/values/:valueId</code>
+<ul>
+<li>Purpose: Remove a specific option value.</li>
+<li>Behavior: Cascades to <code>ProductVariantOption</code>. Variants referencing the removed value will lose completeness; delete or mark those variants inactive.</li>
+<li>Errors: 404 if not found.</li>
+<li>204</li>
+</ul>
+</li>
+</ul>
+<h2 id="variants">Variants</h2>
+<ul>
+<li>GET <code>/variants</code>
+<ul>
+<li>Purpose: List all variants for the product.</li>
+<li>Behavior: Returns variants including their selected option/value pairs (join rows) to make combinations explicit.</li>
+<li>Filtering: Support <code>?active=true/false</code>, <code>?inStock=true/false</code> and pagination when counts are large.</li>
+<li>200 <code>{ variants: Variant[] }</code></li>
+</ul>
+</li>
+<li>POST <code>/variants/generate</code>
+<ul>
+<li>Purpose: Generate variants from the cartesian product of current option values.</li>
+<li>Body <code>{ strategy: &quot;cartesian&quot;, includeInactive?: boolean }</code></li>
+<li>Behavior: Computes all combinations, creates missing variants only. Does not overwrite existing ones.</li>
+<li>Constraints: Compute <code>combinationHash</code> from sorted <code>valueId</code>s and enforce uniqueness. Optionally create as inactive (<code>isActive=false</code>) when bulk-generating.</li>
+<li>Returns counts of created vs already-existing combinations.</li>
+<li>201 <code>{ created: number, existing: number }</code></li>
+</ul>
+</li>
+<li>PUT <code>/variants/:variantId</code>
+<ul>
+<li>Purpose: Update a variant’s commercial fields.</li>
+<li>Body <code>{ sku?, price?, stockQuantity?, isActive?, imageUrls? }</code></li>
+<li>Behavior: Partial update; validate <code>price</code> is non-negative and <code>stockQuantity</code> is &gt;= 0. Ensure <code>sku</code> uniqueness if provided.</li>
+<li>Errors: 404 if not found, 409 if <code>sku</code> violates uniqueness.</li>
+<li>200 <code>{ variant }</code></li>
+</ul>
+</li>
+<li>PUT <code>/variants/bulk</code>
+<ul>
+<li>Purpose: Apply a uniform update to multiple variants.</li>
+<li>Body <code>{ ids: string[], set: Partial&lt;Variant&gt; }</code></li>
+<li>Behavior: Only allow whitelisted fields in <code>set</code> (e.g., <code>price</code>, <code>stockQuantity</code>, <code>isActive</code>). Reject changes to structural fields (options/values) here.</li>
+<li>200 <code>{ updated: number }</code></li>
+</ul>
+</li>
+<li>DELETE <code>/variants/:variantId</code>
+<ul>
+<li>Purpose: Remove a variant.</li>
+<li>Behavior: Cascades to <code>ProductVariantOption</code> via schema.</li>
+<li>Errors: 404 if not found. Optionally 409 if business rules prevent deleting the last active variant when product requires at least one.</li>
+<li>204</li>
+</ul>
+</li>
+</ul>
+<h2 id="errors">Errors</h2>
+<ul>
+<li>400 validation</li>
+<li>404 not found</li>
+<li>409 conflict (duplicate combination)</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>On option value delete, cascade delete affected variant-option rows and variants that no longer have full combination.</li>
+<li>Unique index on (productId, combinationHash).</li>
+</ul>
+<h3 id="validation--security">Validation &amp; security</h3>
+<ul>
+<li>All endpoints require admin authentication/authorization.</li>
+<li>Validate <code>productId</code> and that referenced <code>optionId</code>/<code>valueId</code>/<code>variantId</code> belong to the same product.</li>
+<li>Guard against race conditions when generating variants (use <code>combinationHash @unique</code> to safely ignore duplicates).</li>
+</ul>
+<h3 id="reordering-considerations">Reordering considerations</h3>
+<ul>
+<li>When updating <code>position</code>, use a stable reindex to avoid duplicate positions.</li>
+<li>Provide a drag-and-drop endpoint if frequent reordering is needed, or accept an array of <code>{ id, position }</code>.</li>
+</ul>
+<h3 id="example-prisma-fragments">Example Prisma fragments</h3>
+<ul>
+<li>Generate <code>combinationHash</code>:</li>
+</ul>
+<pre><code class="language-ts"><span class="hljs-keyword">function</span> <span class="hljs-title function_">combinationHashFromValueIds</span>(<span class="hljs-params">valueIds: <span class="hljs-built_in">string</span>[]</span>) {
+  <span class="hljs-keyword">return</span> [...valueIds].<span class="hljs-title function_">sort</span>().<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;-&quot;</span>);
+}
+</code></pre>
+<ul>
+<li>Create a variant with join rows:</li>
+</ul>
+<pre><code class="language-ts"><span class="hljs-keyword">await</span> prisma.<span class="hljs-property">productVariant</span>.<span class="hljs-title function_">create</span>({
+  <span class="hljs-attr">data</span>: {
+    productId,
+    price,
+    stockQuantity,
+    <span class="hljs-attr">isActive</span>: includeInactive ? <span class="hljs-literal">false</span> : <span class="hljs-literal">true</span>,
+    combinationHash,
+    <span class="hljs-attr">options</span>: {
+      <span class="hljs-attr">create</span>: selectedPairs.<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">{ optionId, valueId }</span>) =&gt;</span> ({ optionId, valueId })),
+    },
+  },
+});
+</code></pre>
+
+            
+            
+        </body>
+        </html>
