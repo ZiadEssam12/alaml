@@ -24,15 +24,6 @@ export const CreateOptionInput = yup.object({
 });
 
 // Update option metadata only (no values)
-export const UpdateOptionInput = yup.object({
-  name: yup.string().trim().optional(),
-  presentation: yup
-    .string()
-    .oneOf([...PresentationEnum, null], "نوع العرض غير صالح")
-    .nullable()
-    .optional(),
-  position: yup.number().integer().min(0).optional(),
-});
 
 // Create additional value for existing option
 export const CreateOptionValueInput = yup.object({
@@ -45,19 +36,6 @@ export const CreateOptionValueInput = yup.object({
     .optional(),
   imageUrl: yup.string().url("رابط صورة غير صالح").nullable().optional(),
   position: yup.number().integer().min(0).default(0).optional(),
-});
-
-// Update option value
-export const UpdateOptionValueInput = yup.object({
-  value: yup.string().trim().optional(),
-  hex: yup
-    .string()
-    .trim()
-    .matches(/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/, "لون hex غير صالح")
-    .nullable()
-    .optional(),
-  imageUrl: yup.string().url("رابط صورة غير صالح").nullable().optional(),
-  position: yup.number().integer().min(0).optional(),
 });
 
 // Full option schema (for responses)
@@ -100,4 +78,24 @@ export const OptionsListResponse = yup.object({
       hasPreviousPage: yup.boolean().required(),
     })
     .optional(),
+});
+
+export const UpdateOptionOrValueInput = yup.object({
+  // Option fields
+  name: yup.string().trim().optional(),
+  presentation: yup
+    .string()
+    .oneOf([...PresentationEnum, null], "نوع العرض غير صالح")
+    .nullable()
+    .optional(),
+  // Value fields
+  value: yup.string().trim().optional(),
+  hex: yup
+    .string()
+    .trim()
+    .matches(/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/, "لون hex غير صالح")
+    .nullable()
+    .optional(),
+  imageUrl: yup.string().url("رابط صورة غير صالح").nullable().optional(),
+  position: yup.number().integer().min(0).optional(),
 });
