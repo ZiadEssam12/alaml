@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { UpdateOptionOrValueInput } from "@/schema/dashboard/productOptions";
 
+// Endpoint : base/products/[productId]/options/[optionId]
+// Method : PUT
+// Updates option and/or a specific value (if valueId is provided)
 export async function PUT(request, { params }) {
   try {
     const { id: productId, optionId } = await params;
@@ -23,43 +26,85 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
+    const { valueId, ...fields } = body; // Extract valueId from body
+
     let validated;
     // Validation Schema check
     try {
-      validated = await UpdateOptionOrValueInput.validate(body, {
+      validated = await UpdateOptionOrValueInput.validate(fields, {
         abortEarly: false,
       });
     } catch (error) {
       console.log("error:", error.message);
       return NextResponse.json(
-        { error: "فشل في التحقق من صحة البيانات" },
+        { error: "فشل في التحقق من صحة البيانات", details: error.errors },
         { status: 400 }
       );
     }
 
-    const optionFields = {
-      name: validated.name,
-      position: validated.position,
-    };
+    // Separate option fields from value fields
+    const optionFields = {};
+    if (validated.name !== undefined) optionFields.name = validated.name;
+    if (validated.presentation !== undefined)
+      optionFields.presentation = validated.presentation;
 
-    const valueFields = {
-      value: validated.value,
-      hex: validated.hex,
-      imageUrl: validated.imageUrl,
-      position: validated.valuePosition,
-    };
+    const valueFields = {};
+    if (validated.value !== undefined) valueFields.value = validated.value;
+    if (validated.hex !== undefined) valueFields.hex = validated.hex;
+    if (validated.imageUrl !== undefined)
+      valueFields.imageUrl = validated.imageUrl;
 
-    await prisma.$transaction([
-      prisma.productOption.update({
-        where: { id: optionId },
-        data: optionFields,
-      }),
-      prisma.productOptionValue.update({
-        where: { id: valueId },
-        data: valueFields,
-      }),
-    ]);
+    // Handle position: if updating a value, use it for the value; otherwise for the option
+    const hasValueFields = Object.keys(valueFields).length > 0;
+    if (validated.position !== undefined) {
+      if (hasValueFields && valueId) {
+        valueFields.position = validated.position;
+      } else {
+        optionFields.position = validated.position;
+      }
+    }
 
+    // Check if value fields are provided but valueId is missing
+    if (hasValueFields && !valueId) {
+      return NextResponse.json(
+        { error: "معرف القيمة مطلوب عند تعديل قيمة الخيار" },
+        { status: 400 }
+      );
+    }
+
+    // Verify valueId belongs to this option if provided
+    if (valueId) {
+      const value = await prisma.productOptionValue.findFirst({
+        where: { id: valueId, optionId },
+      });
+      if (!value) {
+        return NextResponse.json(
+          { error: "القيمة غير موجودة أو لا تنتمي لهذا الخيار" },
+          { status: 404 }
+        );
+      }
+    }
+
+    // Perform updates in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Update option if there are option fields
+      if (Object.keys(optionFields).length > 0) {
+        await tx.productOption.update({
+          where: { id: optionId },
+          data: optionFields,
+        });
+      }
+
+      // Update value if valueId is provided and there are value fields
+      if (valueId && Object.keys(valueFields).length > 0) {
+        await tx.productOptionValue.update({
+          where: { id: valueId },
+          data: valueFields,
+        });
+      }
+    });
+
+    // Fetch and return the updated option with all values
     const updatedOption = await prisma.productOption.findUnique({
       where: { id: optionId },
       include: {
@@ -78,16 +123,16 @@ export async function PUT(request, { params }) {
 
     return NextResponse.json({ option: updatedOption }, { status: 200 });
   } catch (error) {
-    console.log("error:", error.message);
+    console.error("error:", error.message);
     return NextResponse.json(
       { error: "حدث خطأ اثناء تعديل الاختيار" },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
 
+// Endpoint : base/products/[productId]/options/[optionId]
+// Method : Delete
 export async function DELETE(request, { params }) {
   try {
     const { id: productId, optionId } = await params;
