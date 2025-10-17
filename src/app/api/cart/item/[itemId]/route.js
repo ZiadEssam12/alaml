@@ -21,46 +21,86 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { quantity } = body;
 
-    const userCart = await prisma.cart.findUnique({
-      where: { userId },
-      select: { id: true },
-    });
+    // Use transaction for data consistency and atomicity
+    const updatedItem = await prisma.$transaction(async (tx) => {
+      // Get user cart
+      const userCart = await tx.cart.findUnique({
+        where: { userId },
+        select: { id: true },
+      });
 
-    const itemData = await prisma.cartItem.findUnique({
-      where: { id: itemId, cartId: userCart.id },
-    });
+      if (!userCart) {
+        throw new Error("تعذر العثور على السلة");
+      }
 
-    const product = await prisma.product.findUnique({
-      where: { id: itemData.productId },
-    });
+      // Get cart item
+      const itemData = await tx.cartItem.findUnique({
+        where: { id: itemId, cartId: userCart.id },
+        select: { id: true, quantity: true, productId: true, cartId: true },
+      });
 
-    if (
-      itemData.quantity + quantity > product.stockQuantity ||
-      itemData.quantity + quantity > product.maxQuantityPerUser
-    ) {
-      return NextResponse.json(
-        { error: "عدد الكمية غير كافٍ" },
-        { status: 403 }
-      );
-    }
+      if (!itemData) {
+        throw new Error("تعذر العثور على عنصر السلة");
+      }
 
-    const updatedItem = await prisma.cartItem.update({
-      where: {
-        id: itemId,
-        cartId: userCart.id,
-      },
-      data: {
-        quantity: {
-          increment: quantity,
+      // Get product
+      const product = await tx.product.findUnique({
+        where: { id: itemData.productId },
+      });
+
+      if (!product) {
+        throw new Error("تعذر العثور على المنتج");
+      }
+
+      // Validate quantity
+      if (
+        itemData.quantity + quantity > product.stockQuantity ||
+        itemData.quantity + quantity > product.maxQuantityPerUser
+      ) {
+        throw new Error("عدد الكمية غير كافٍ");
+      }
+
+      // Update cart item
+      return await tx.cartItem.update({
+        where: {
+          id: itemId,
+          cartId: userCart.id,
         },
-      },
+        data: {
+          quantity: {
+            increment: quantity,
+          },
+        },
+      });
     });
+
     return NextResponse.json(
       { data: updatedItem, message: "تم تحديث عنصر السلة بنجاح" },
       { status: 200 }
     );
   } catch (error) {
     console.log("error:", error.message);
+
+    // Handle specific transaction errors
+    if (error.message === "تعذر العثور على السلة") {
+      return NextResponse.json({ error: "السلة غير موجودة" }, { status: 404 });
+    }
+    if (error.message === "تعذر العثور على عنصر السلة") {
+      return NextResponse.json(
+        { error: "عنصر السلة غير موجود" },
+        { status: 404 }
+      );
+    }
+    if (error.message === "تعذر العثور على المنتج") {
+      return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
+    }
+    if (error.message === "عدد الكمية غير كافٍ") {
+      return NextResponse.json(
+        { error: "عدد الكمية غير كافٍ" },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       { error: "فشل تحديث عنصر السلة" },
       { status: 500 }

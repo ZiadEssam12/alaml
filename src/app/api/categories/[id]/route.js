@@ -19,15 +19,25 @@ export async function GET(request, { params }) {
 
     if (!category) {
       return NextResponse.json(
-        { error: "Category not found" },  
+        { error: "Category not found" },
         { status: 404 }
       );
     }
 
-    // Get products for this category with pagination
-    const total = await prisma.product.count({
-      where: { categoryID: category.id },
-    });
+    const [total, products] = await Promise.all([
+      prisma.product.count({
+        where: { categoryID: category.id },
+      }),
+      prisma.product.findMany({
+        where: { categoryID: category.id },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+    ]);
+
     const sort = searchParams.get("sort") || "new-to-old";
     let orderBy = {};
     switch (sort) {
@@ -46,12 +56,6 @@ export async function GET(request, { params }) {
       default:
         orderBy = { createdAt: "desc" };
     }
-    const products = await prisma.product.findMany({
-      where: { categoryID: category.id },
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy,
-    });
 
     return NextResponse.json(
       {

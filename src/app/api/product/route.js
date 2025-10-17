@@ -56,15 +56,17 @@ export async function GET(request) {
       ];
     }
 
-    const totalProducts = await prisma.product.count({ where });
-    const maxPage = Math.ceil(totalProducts / limit);
+    const [totalProducts, products] = await Promise.all([
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy,
+      }),
+    ]);
 
-    const products = await prisma.product.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy,
-    });
+    const maxPage = Math.ceil(totalProducts / limit);
 
     return NextResponse.json(
       {
