@@ -17,7 +17,8 @@ export async function getProduct(slug) {
       }
     );
     if (!res.ok) {
-      throw new Error("Failed to fetch product");
+      const error = await res.json();
+      return { error: error.message || "حدث خطأ ما، يرجى المحاولة مرة أخرى" };
     }
     const { data } = await res.json();
     return data;
