@@ -39,45 +39,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Get similar products
-    const similarProducts = await prisma.product.findMany({
-      where: {
-        categoryID: product.categoryID,
-        isActive: true,
-        NOT: { id: product.id },
-      },
-      take: 4,
-    });
-
-    // Check user permissions if authenticated
-    let hasPurchased = false;
-    let hasReviewed = false;
-    let review = null;
-    if (userId) {
-      // Check if user has purchased the product
-      const purchase = await prisma.order.findFirst({
-        where: {
-          userId,
-          status: { in: ["shipped", "delivered"] },
-          items: {
-            some: {
-              productId: product.id,
-            },
-          },
-        },
-        select: { id: true },
-      });
-      hasPurchased = !!purchase;
-
-      // Check if user has reviewed the product
-      review = await prisma.review.findFirst({
-        where: { userId, productId: product.id },
-        select: { id: true },
-      });
-      hasReviewed = !!review;
-    }
-
-    // Fetch product reviews with stats
+    // Fetch product reviews with stats, similar products, and user permissions
     const [
       reviews,
       totalCount,
@@ -85,6 +47,9 @@ export async function GET(request, { params }) {
       ratingDistribution,
       options,
       variants,
+      similarProducts,
+      purchase,
+      review,
     ] = await Promise.all([
       // reviews (unchanged)
       prisma.review.findMany({
@@ -166,6 +131,40 @@ export async function GET(request, { params }) {
           },
         },
       }),
+
+      // Get similar products
+      prisma.product.findMany({
+        where: {
+          categoryID: product.categoryID,
+          isActive: true,
+          NOT: { id: product.id },
+        },
+        take: 4,
+      }),
+
+      // Check if user has purchased the product (null if not authenticated)
+      userId
+        ? prisma.order.findFirst({
+            where: {
+              userId,
+              status: { in: ["shipped", "delivered"] },
+              items: {
+                some: {
+                  productId: product.id,
+                },
+              },
+            },
+            select: { id: true },
+          })
+        : null,
+
+      // Check if user has reviewed the product (null if not authenticated)
+      userId
+        ? prisma.review.findFirst({
+            where: { userId, productId: product.id },
+            select: { id: true },
+          })
+        : null,
     ]);
 
     // Process rating distribution
@@ -173,6 +172,10 @@ export async function GET(request, { params }) {
     ratingDistribution.forEach(({ rating, _count }) => {
       distribution[rating - 1] = _count.rating;
     });
+
+    // Process user permissions
+    const hasPurchased = !!purchase;
+    const hasReviewed = !!review;
 
     const reviewsData = {
       reviews,
