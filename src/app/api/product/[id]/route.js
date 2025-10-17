@@ -1,20 +1,10 @@
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
-import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
-
-const cookieKey =
-  process.env.NODE_ENV === "production"
-    ? "__Secure-authjs.session-token"
-    : "authjs.session-token";
 
 export async function GET(request, { params }) {
   try {
-    const session = await getToken({
-      req: request,
-      secret: process.env.AUTH_SECRET,
-      salt: cookieKey,
-      cookieName: cookieKey,
-    });
+    const session = await getUserTokenSSR(request);
 
     const role = session?.role;
     const userId = session?.id;
