@@ -62,77 +62,76 @@ export default function RatingStatistics({
         تقييمات العملاء
       </h3>
 
-      {/* Overall Rating Display */}
-      <div className="flex items-center gap-4 pb-4 border-b">
-        <div className="text-center">
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {formattedAverage}
-          </div>
-          <div className="text-sm text-gray-500">من 5</div>
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center gap-1 mb-2">
-            {renderStars(averageRating, "w-5 h-5")}
-          </div>
-          <div className="text-sm text-gray-600">
-            {totalReviews} تقييم عالمي
-          </div>
-        </div>
-      </div>
-
-      {/* Rating Distribution */}
-      <div className="space-y-2">
-        {[5, 4, 3, 2, 1].map((rating) => {
-          const count = distribution[rating - 1] || 0;
-          const percentage = getPercentage(count);
-
-          return (
-            <div key={rating} className="flex items-center gap-2 text-sm">
-              <span className="w-8 text-gray-700">{rating} نجوم</span>
-
-              <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className="h-full bg-yellow-400 transition-all duration-300"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-
-              <span className="w-12 text-right text-gray-600">
-                {percentage}%
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Additional Stats */}
-      {totalReviews > 0 && (
-        <div className="pt-4 border-t">
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <div className="text-lg font-semibold text-green-600">
-                {getPercentage(distribution[4] + distribution[3])}%
-              </div>
-              <div className="text-xs text-gray-500">تقييم إيجابي</div>
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-blue-600">
-                {totalReviews}
-              </div>
-              <div className="text-xs text-gray-500">إجمالي التقييمات</div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* No reviews message */}
-      {totalReviews === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <Star className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-          <p>لا توجد تقييمات بعد</p>
-          <p className="text-sm">كن أول من يقيم هذا المنتج</p>
+      {totalReviews === 0 ? (
+        <div className="text-center py-4 text-gray-500">
+          <Star className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+          <p className="text-sm">لا توجد تقييمات بعد</p>
         </div>
+      ) : (
+        <>
+          {/* Overall Rating Display */}
+          <div className="flex items-center gap-4 pb-4 border-b">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {formattedAverage}
+              </div>
+              <div className="text-sm text-gray-500">من 5</div>
+            </div>
+
+            <div className="flex-1">
+              <div className="flex items-center gap-1 mb-2">
+                {renderStars(averageRating, "w-5 h-5")}
+              </div>
+              <div className="text-sm text-gray-600">
+                {totalReviews} تقييم عالمي
+              </div>
+            </div>
+          </div>
+
+          {/* Rating Distribution */}
+          <div className="space-y-2">
+            {[5, 4, 3, 2, 1].map((rating) => {
+              const count = distribution[rating - 1] || 0;
+              const percentage = getPercentage(count);
+
+              return (
+                <div key={rating} className="flex items-center gap-2 text-sm">
+                  <span className="w-8 text-gray-700">{rating} نجوم</span>
+
+                  <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="h-full bg-yellow-400 transition-all duration-300"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+
+                  <span className="w-12 text-right text-gray-600">
+                    {percentage}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Additional Stats */}
+          <div className="pt-4 border-t">
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <div className="text-lg font-semibold text-green-600">
+                  {getPercentage(distribution[4] + distribution[3])}%
+                </div>
+                <div className="text-xs text-gray-500">تقييم إيجابي</div>
+              </div>
+              <div>
+                <div className="text-lg font-semibold text-blue-600">
+                  {totalReviews}
+                </div>
+                <div className="text-xs text-gray-500">إجمالي التقييمات</div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

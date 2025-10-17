@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Product Variants - Website Frontend</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="product-variants---website-frontend">Product Variants - Website Frontend</h1>
+<p>This document describes the architecture, components, data flows, and integration patterns to support Product Options (e.g., Size, Color) and Variants on the public website.</p>
+<h2 id="goals">Goals</h2>
+<ul>
+<li>Each Product can have one or more Options (e.g., Size, Color).</li>
+<li>Each Option has one or more Values (e.g., Size: S, M, L; Color: Red, Blue).</li>
+<li>A Variant represents a concrete combination of option values with its own price, SKU, stock, and image(s).</li>
+<li>Seamless UX for selecting variant and adding to cart.</li>
+</ul>
+<h2 id="data-shapes">Data Shapes</h2>
+<ul>
+<li>Product (expanded)
+<ul>
+<li>id, name, slug, description, basePrice, images[]</li>
+<li>options: Option[]</li>
+<li>variants: Variant[]</li>
+</ul>
+</li>
+<li>Option
+<ul>
+<li>id, name (e.g., &quot;Size&quot;), position (sort)</li>
+<li>values: OptionValue[]</li>
+</ul>
+</li>
+<li>OptionValue
+<ul>
+<li>id, value (e.g., &quot;M&quot;), hex (for color), imageUrl?, position</li>
+</ul>
+</li>
+<li>Variant
+<ul>
+<li>id, sku, price, stockQuantity, imageUrls[], isActive</li>
+<li>options: Array&lt;{ optionId: string, valueId: string }&gt;</li>
+</ul>
+</li>
+</ul>
+<h2 id="pages--components">Pages &amp; Components</h2>
+<ul>
+<li>
+<p>Product Page: <code>src/app/(website)/products/[slug]/page.jsx</code></p>
+<ul>
+<li>Fetch product with options and variants.</li>
+<li>State: <code>selectedValues: Record&lt;optionId, valueId&gt;</code></li>
+<li>Compute <code>selectedVariant</code> by matching variant.options with selectedValues.</li>
+<li>Components:
+<ul>
+<li><code>&lt;OptionPicker /&gt;</code> generic option UI
+<ul>
+<li>Props: <code>option, selectedValueId, onSelect(valueId)</code></li>
+<li>For Color show swatches using value.hex; for Size show buttons; fallback to select.</li>
+</ul>
+</li>
+<li><code>&lt;PriceDisplay /&gt;</code> shows variant price or base price.</li>
+<li><code>&lt;AddToCartButton /&gt;</code> posts selectedVariantId and quantity.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Cart Mini/Drawer</p>
+<ul>
+<li>Line item includes <code>variantId</code> and resolved option values for display.</li>
+</ul>
+</li>
+</ul>
+<h2 id="state-management-hooks">State Management Hooks</h2>
+<ul>
+<li>
+<p><code>useVariantSelection(product)</code></p>
+<ul>
+<li>Inputs: product.options, product.variants</li>
+<li>Returns:
+<ul>
+<li>selectedValues (state)</li>
+<li>setSelected(optionId, valueId)</li>
+<li>selectedVariant</li>
+<li>availability map: <code>{ [variantId]: boolean }</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>useAddToCart()</code></p>
+<ul>
+<li><code>add({ productId, variantId, quantity })</code></li>
+<li>Validates variant availability client-side</li>
+</ul>
+</li>
+</ul>
+<h2 id="api-integration">API Integration</h2>
+<ul>
+<li>GET <code>/api/product/:slug</code> → returns product with options and variants.</li>
+<li>POST <code>/api/cart/items</code> Body: <code>{ productId, variantId, quantity }</code></li>
+<li>Optional: GET <code>/api/product/:id/variant/:variantId</code> for hydration.</li>
+</ul>
+<h2 id="input-names-domform">Input Names (DOM/Form)</h2>
+<ul>
+<li>For OptionPicker, names follow: <code>option[&lt;optionId&gt;]</code></li>
+<li>Example:
+<ul>
+<li><code>option[opt_size] = val_m</code></li>
+<li><code>option[opt_color] = val_red</code></li>
+</ul>
+</li>
+<li>Quantity input: <code>quantity</code></li>
+</ul>
+<h2 id="edge-cases">Edge Cases</h2>
+<ul>
+<li>Product with zero variants: use base product price/stock.</li>
+<li>Option without values: hide picker.</li>
+<li>Variant out of stock: disable Add to Cart; show &quot;غير متاح&quot;.</li>
+<li>Invalid selection: disable CTA until all required options selected.</li>
+</ul>
+<h2 id="performance">Performance</h2>
+<ul>
+<li>Lazy compute selectedVariant; memoize with useMemo.</li>
+<li>Defer high-res images for variant until selected.</li>
+</ul>
+<h2 id="analytics">Analytics</h2>
+<ul>
+<li>Fire view_item_variant when selection changes.</li>
+</ul>
+
+            
+            
+        </body>
+        </html>

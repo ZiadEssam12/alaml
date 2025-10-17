@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 export async function PUT(request, { params }) {
   try {
     // 1- getting product and variant IDs from params
-    const { id: productId, id: variantId } = await params;
+    const { id: productId, variantId } = await params;
 
     // 2- checking for required params
     if (!productId) {
@@ -60,7 +60,7 @@ export async function PUT(request, { params }) {
 // Method : Delete
 export async function DELETE(request, { params }) {
   try {
-    const { id: productId, id: variantId } = await params;
+    const { id: productId, variantId } = await params;
     if (!productId) {
       return NextResponse.json({ error: "معرف المنتج مطلوب" }, { status: 400 });
     }
