@@ -30,7 +30,7 @@ export default async function ProductPage({ params }) {
 
   // if the product is not found, show a friendly message
   // or if the product is only shown for admin and the user is not an admin
-    if (!displayProduct) {
+  if (!displayProduct) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white dark:bg-card rounded-2xl shadow-lg p-8 text-center border">
@@ -68,7 +68,6 @@ export default async function ProductPage({ params }) {
   const publicImageIds = displayProduct.imageUrls.map((url) =>
     imageService.extractPublicId(url)
   );
-
   const responsiveUrls = publicImageIds.map((id) =>
     imageService.generateResponsiveUrls(id)
   );
@@ -76,8 +75,6 @@ export default async function ProductPage({ params }) {
   displayProduct.responsiveImageUrls = responsiveUrls;
 
   const userReview = userPermissions?.userReview;
-
-
 
   return (
     <div className="min-h-screen pb-10">

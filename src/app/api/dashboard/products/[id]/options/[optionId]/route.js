@@ -175,11 +175,12 @@ export async function DELETE(request, { params }) {
         where: { id: optionId },
       });
 
-      // Delete or deactivate affected variants since they no longer have complete combinations
+      // Deactivate affected variants since they no longer have complete combinations
       if (variantIds.length > 0) {
-        // Option 1: Delete variants entirely
-        await tx.productVariant.deleteMany({
+        // Deactivate variants instead of deleting
+        await tx.productVariant.updateMany({
           where: { id: { in: variantIds } },
+          data: { isActive: false },
         });
       }
     });

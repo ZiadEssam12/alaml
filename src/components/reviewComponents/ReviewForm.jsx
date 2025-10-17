@@ -117,23 +117,7 @@ export default function ReviewForm({
   }
 
   if (!session) {
-    return (
-      <div className="bg-white rounded-lg border p-6">
-        <div className="text-center">
-          <Star className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            شارك رأيك في المنتج
-          </h3>
-          <p className="text-gray-600 mb-4">قم بتسجيل الدخول لإضافة تقييمك</p>
-          <a
-            href="/login"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-          >
-            تسجيل الدخول
-          </a>
-        </div>
-      </div>
-    );
+    return;
   }
 
   // Show purchase requirement
