@@ -56,14 +56,6 @@ export default function Hero() {
                   <ArrowRight className="mr-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="text-lg px-8 py-3"
-              >
-                <Link href="/categories">الفئات</Link>
-              </Button>
             </div>
           </div>
 

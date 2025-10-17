@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // Update endpoint for product variants
-// endpoint : base/products/[id]/variants/[id]
+// endpoint : base/products/[id]/variants/[variantid]
 // Method : PUT
 export async function PUT(request, { params }) {
   try {
@@ -56,7 +56,7 @@ export async function PUT(request, { params }) {
 }
 
 // Delete endpoint for variant options
-// endpoint : base/products/[id]/variants/[id]
+// endpoint : base/products/[id]/variants/[variantid]
 // Method : Delete
 export async function DELETE(request, { params }) {
   try {

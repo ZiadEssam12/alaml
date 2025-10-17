@@ -43,6 +43,7 @@ export async function GET(request, { params }) {
     const similarProducts = await prisma.product.findMany({
       where: {
         categoryID: product.categoryID,
+        isActive: true,
         NOT: { id: product.id },
       },
       take: 4,
