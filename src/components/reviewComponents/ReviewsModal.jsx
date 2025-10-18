@@ -135,33 +135,33 @@ export default function ReviewsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col border border-gray-200 dark:border-slate-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">جميع التقييمات</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">جميع التقييمات</h2>
+            <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
               {totalReviews} تقييم للمنتج
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors text-gray-900 dark:text-slate-400"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filters */}
-        <div className="p-6 border-b bg-gray-50">
+        <div className="p-6 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">
+              <Filter className="w-4 h-4 text-gray-600 dark:text-slate-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
                 فرز وتصفية:
               </span>
             </div>
@@ -170,7 +170,7 @@ export default function ReviewsModal({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
               <option value="newest">الأحدث أولاً</option>
               <option value="oldest">الأقدم أولاً</option>
@@ -182,7 +182,7 @@ export default function ReviewsModal({
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
               <option value="all">جميع التقييمات</option>
               <option value="5">5 نجوم</option>
@@ -199,14 +199,14 @@ export default function ReviewsModal({
           {reviews.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <Star className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p className="text-gray-500">
+                <Star className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-700" />
+                <p className="text-gray-500 dark:text-slate-400">
                   لا توجد تقييمات تطابق المعايير المحددة
                 </p>
               </div>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-gray-200 dark:divide-slate-800">
               {reviews.map((review, index) => (
                 <div key={`${review.id}-${index}`} className="p-6">
                   {/* Review Header */}
@@ -218,10 +218,10 @@ export default function ReviewsModal({
                       </div>
 
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900 dark:text-slate-100">
                           {review.userName || "مستخدم مجهول"}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 dark:text-slate-400">
                           {formatDate(review.createdAt)}
                         </div>
                       </div>
@@ -235,18 +235,18 @@ export default function ReviewsModal({
 
                   {/* Review Content */}
                   {review.comment && (
-                    <div className="text-gray-700 leading-relaxed mb-3">
+                    <div className="text-gray-700 dark:text-slate-300 leading-relaxed mb-3">
                       {review.comment}
                     </div>
                   )}
 
                   {/* Quality Labels */}
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                       ✓ عملية شراء موثقة
                     </span>
                     {review.rating >= 4 && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
                         ⭐ تقييم ممتاز
                       </span>
                     )}
@@ -258,11 +258,11 @@ export default function ReviewsModal({
 
           {/* Load More Button */}
           {hasMore && (
-            <div className="p-6 border-t">
+            <div className="p-6 border-t border-gray-200 dark:border-slate-800">
               <button
                 onClick={loadMoreReviews}
                 disabled={loading}
-                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

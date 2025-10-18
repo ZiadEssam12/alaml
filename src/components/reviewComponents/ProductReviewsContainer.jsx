@@ -74,11 +74,11 @@ export default async function ProductReviewsContainer({
 // Loading skeleton for review form
 function ReviewFormSkeleton() {
   return (
-    <div className="bg-white rounded-lg border p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-6">
       <div className="animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div className="h-10 bg-gray-200 rounded mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+        <div className="h-10 bg-gray-200 dark:bg-slate-700 rounded mb-4"></div>
+        <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded w-1/2"></div>
       </div>
     </div>
   );

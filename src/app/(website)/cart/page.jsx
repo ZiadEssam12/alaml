@@ -1,7 +1,6 @@
 import { CartItems } from "@/components/cart/CartItems";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 

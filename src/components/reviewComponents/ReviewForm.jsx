@@ -108,9 +108,9 @@ export default function ReviewForm({
   // Show login prompt
   if (status === "loading") {
     return (
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-6">
         <div className="flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600 dark:text-blue-400" />
         </div>
       </div>
     );
@@ -123,13 +123,13 @@ export default function ReviewForm({
   // Show purchase requirement
   if (!userHasPurchased) {
     return (
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-6">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 mx-auto mb-3 text-amber-500" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
             قيم المنتج بعد الشراء
           </h3>
-          <p className="text-gray-600">يمكنك إضافة تقييم بعد شراء هذا المنتج</p>
+          <p className="text-gray-600 dark:text-slate-400">يمكنك إضافة تقييم بعد شراء هذا المنتج</p>
         </div>
       </div>
     );
@@ -142,13 +142,13 @@ export default function ReviewForm({
 
   if (userReview) {
     return (
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-6">
         <div className="text-center">
-          <X className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <X className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-700" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
             تقييم قيد المراجعة
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-slate-400">
             لقد قمت بإرسال تقييم لهذا المنتج وهو قيد المراجعة حالياً.
           </p>
         </div>
@@ -158,26 +158,26 @@ export default function ReviewForm({
 
   // Show review modal trigger
   return (
-    <div className="bg-white rounded-lg border">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800">
       <div className="p-6">
         <div className="text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
             شارك تجربتك مع المنتج
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 dark:text-slate-400 mb-4">
             ساعد العملاء الآخرين باختيار المنتج المناسب
           </p>
 
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">
+              <Button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg">
                 كتابة تقييم
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 border border-gray-200 dark:border-slate-800">
               <DialogHeader>
-                <DialogTitle className="text-right">
+                <DialogTitle className="text-right text-gray-900 dark:text-slate-100">
                   قيم منتج: {productName}
                 </DialogTitle>
               </DialogHeader>
@@ -185,28 +185,28 @@ export default function ReviewForm({
               {success ? (
                 <div className="text-center py-8">
                   <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
                     تم إرسال تقييمك بنجاح!
                   </h3>
-                  <p className="text-gray-600">سيتم مراجعته ونشره قريباً</p>
+                  <p className="text-gray-600 dark:text-slate-400">سيتم مراجعته ونشره قريباً</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <p className="text-sm text-gray-600 text-right">
+                    <p className="text-sm text-gray-600 dark:text-slate-400 text-right">
                       تقييمك يساعد العملاء الآخرين في اتخاذ قرار الشراء
                     </p>
                   </div>
 
                   {/* Rating */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-3 text-right">
+                    <label className="block text-sm font-medium text-gray-900 dark:text-slate-100 mb-3 text-right">
                       التقييم *
                     </label>
                     <div className="flex items-center justify-center gap-1 mb-2">
                       {renderRatingStars()}
                     </div>
-                    <p className="text-xs text-gray-600 text-center">
+                    <p className="text-xs text-gray-600 dark:text-slate-400 text-center">
                       {rating > 0 && (
                         <span>
                           {rating === 1 && "ضعيف جداً"}
@@ -221,7 +221,7 @@ export default function ReviewForm({
 
                   {/* Comment */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-2 text-right">
+                    <label className="block text-sm font-medium text-gray-900 dark:text-slate-100 mb-2 text-right">
                       التعليق *
                     </label>
                     <textarea
@@ -229,28 +229,28 @@ export default function ReviewForm({
                       onChange={(e) => setComment(e.target.value)}
                       placeholder="شارك تجربتك مع المنتج... (10 أحرف على الأقل)"
                       rows={4}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-right"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 resize-none text-right"
                       disabled={loading}
                       dir="rtl"
                     />
-                    <p className="text-xs text-gray-500 mt-1 text-right">
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 text-right">
                       {comment.length}/500 حرف
                     </p>
                   </div>
 
                   {/* Error Message */}
                   {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-700 text-right">{error}</p>
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-lg">
+                      <p className="text-sm text-red-700 dark:text-red-400 text-right">{error}</p>
                     </div>
                   )}
 
                   {/* Form Actions */}
-                  <div className="flex items-center gap-3 pt-4 border-t">
+                  <div className="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-slate-700">
                     <Button
                       type="submit"
                       disabled={!isValid || loading}
-                      className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+                      className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900 flex items-center justify-center gap-2"
                     >
                       {loading ? (
                         <>
@@ -267,7 +267,7 @@ export default function ReviewForm({
                       onClick={() => setIsOpen(false)}
                       disabled={loading}
                       variant="outline"
-                      className="px-4 py-3"
+                      className="px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700"
                     >
                       إلغاء
                     </Button>

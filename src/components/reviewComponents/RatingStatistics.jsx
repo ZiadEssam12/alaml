@@ -56,34 +56,36 @@ export default function RatingStatistics({
   };
 
   return (
-    <div className="bg-white rounded-lg border p-6 space-y-4">
+    <div className="bg-white dark:bg-slate-950 rounded-lg border border-border dark:border-slate-800 p-6 space-y-4">
       {/* Header */}
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">
         تقييمات العملاء
       </h3>
 
       {/* No reviews message */}
       {totalReviews === 0 ? (
-        <div className="text-center py-4 text-gray-500">
-          <Star className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+        <div className="text-center py-4 text-gray-500 dark:text-slate-400">
+          <Star className="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-slate-700" />
           <p className="text-sm">لا توجد تقييمات بعد</p>
         </div>
       ) : (
         <>
           {/* Overall Rating Display */}
-          <div className="flex items-center gap-4 pb-4 border-b">
+          <div className="flex items-center gap-4 pb-4 border-b border-gray-200 dark:border-slate-800">
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1">
                 {formattedAverage}
               </div>
-              <div className="text-sm text-gray-500">من 5</div>
+              <div className="text-sm text-gray-500 dark:text-slate-400">
+                من 5
+              </div>
             </div>
 
             <div className="flex-1">
               <div className="flex items-center gap-1 mb-2">
                 {renderStars(averageRating, "w-5 h-5")}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-slate-300">
                 {totalReviews} تقييم عالمي
               </div>
             </div>
@@ -97,16 +99,18 @@ export default function RatingStatistics({
 
               return (
                 <div key={rating} className="flex items-center gap-2 text-sm">
-                  <span className="w-8 text-gray-700">{rating} نجوم</span>
+                  <span className="w-8 text-gray-700 dark:text-slate-300">
+                    {rating} نجوم
+                  </span>
 
-                  <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                     <div
-                      className="h-full bg-yellow-400 transition-all duration-300"
+                      className="h-full bg-yellow-400 dark:bg-yellow-500 transition-all duration-300"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
 
-                  <span className="w-12 text-right text-gray-600">
+                  <span className="w-12 text-right text-gray-600 dark:text-slate-400">
                     {percentage}%
                   </span>
                 </div>
@@ -115,19 +119,23 @@ export default function RatingStatistics({
           </div>
 
           {/* Additional Stats */}
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t border-gray-200 dark:border-slate-800">
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
-                <div className="text-lg font-semibold text-green-600">
+                <div className="text-lg font-semibold text-green-600 dark:text-green-400">
                   {getPercentage(distribution[4] + distribution[3])}%
                 </div>
-                <div className="text-xs text-gray-500">تقييم إيجابي</div>
+                <div className="text-xs text-gray-500 dark:text-slate-400">
+                  تقييم إيجابي
+                </div>
               </div>
               <div>
-                <div className="text-lg font-semibold text-blue-600">
+                <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                   {totalReviews}
                 </div>
-                <div className="text-xs text-gray-500">إجمالي التقييمات</div>
+                <div className="text-xs text-gray-500 dark:text-slate-400">
+                  إجمالي التقييمات
+                </div>
               </div>
             </div>
           </div>

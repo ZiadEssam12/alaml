@@ -46,32 +46,32 @@ export default function ReviewsPreview({
 
   if (reviews.length === 0) {
     return (
-      <div className="bg-white rounded-lg border p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 p-6">
         <div className="text-center py-8">
-          <Star className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <Star className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-700" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
             لا توجد تقييمات بعد
           </h3>
-          <p className="text-gray-500">كن أول من يشارك رأيه في هذا المنتج</p>
+          <p className="text-gray-500 dark:text-slate-400">كن أول من يشارك رأيه في هذا المنتج</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border">
+    <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800">
       {/* Header */}
-      <div className="p-6 border-b">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
             أحدث التقييمات
           </h3>
-          <span className="text-sm text-gray-500">{totalReviews} تقييم</span>
+          <span className="text-sm text-gray-500 dark:text-slate-400">{totalReviews} تقييم</span>
         </div>
       </div>
 
       {/* Reviews List */}
-      <div className="divide-y">
+      <div className="divide-y divide-gray-200 dark:divide-slate-800">
         {reviews.map((review) => (
           <div key={review.id} className="p-6">
             {/* Review Header */}
@@ -85,14 +85,14 @@ export default function ReviewsPreview({
 
                 <div>
                   <div className="flex gap-2 items-center">
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-gray-900 dark:text-slate-100">
                       {review.userName || "مستخدم مجهول"}
                     </div>
                     {review.userId === userId && (
-                      <span className="text-xs text-gray-500">أنت</span>
+                      <span className="text-xs text-gray-500 dark:text-slate-400">أنت</span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-slate-400">
                     {formatDate(review.createdAt)}
                   </div>
                 </div>
@@ -106,18 +106,18 @@ export default function ReviewsPreview({
 
             {/* Review Content */}
             {review.comment && (
-              <div className="text-gray-700 leading-relaxed">
+              <div className="text-gray-700 dark:text-slate-300 leading-relaxed">
                 {truncateComment(review.comment)}
               </div>
             )}
 
             {/* Quality Label */}
             <div className="mt-3 flex items-center gap-2">
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                 ✓ عملية شراء موثقة
               </span>
               {review.rating >= 4 && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
                   ⭐ تقييم ممتاز
                 </span>
               )}
@@ -128,10 +128,10 @@ export default function ReviewsPreview({
 
       {/* Show More Button */}
       {totalReviews > reviews.length && (
-        <div className="p-6 border-t bg-gray-50">
+        <div className="p-6 border-t border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50">
           <button
             onClick={onShowMore}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           >
             عرض جميع التقييمات ({totalReviews})
           </button>
