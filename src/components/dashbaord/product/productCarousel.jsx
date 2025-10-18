@@ -74,7 +74,7 @@ export default function ProductCarousel({ displayProduct }) {
   if (!displayProduct || !displayProduct.imageUrls) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 selection:bg-transparent">
       {/* Main Image Display */}
       <div className="relative group">
         <Carousel
