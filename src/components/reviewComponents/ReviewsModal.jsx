@@ -142,7 +142,9 @@ export default function ReviewsModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-800">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">جميع التقييمات</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+              جميع التقييمات
+            </h2>
             <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
               {totalReviews} تقييم للمنتج
             </p>

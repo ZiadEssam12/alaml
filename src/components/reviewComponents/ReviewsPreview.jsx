@@ -11,7 +11,7 @@ export default function ReviewsPreview({
 }) {
   const { data: session } = useSession();
   const userId = session?.user?.id || null;
-  
+
   // Render individual star rating
   const renderStars = (rating) => {
     return Array(5)
@@ -52,7 +52,9 @@ export default function ReviewsPreview({
           <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
             لا توجد تقييمات بعد
           </h3>
-          <p className="text-gray-500 dark:text-slate-400">كن أول من يشارك رأيه في هذا المنتج</p>
+          <p className="text-gray-500 dark:text-slate-400">
+            كن أول من يشارك رأيه في هذا المنتج
+          </p>
         </div>
       </div>
     );
@@ -66,7 +68,9 @@ export default function ReviewsPreview({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
             أحدث التقييمات
           </h3>
-          <span className="text-sm text-gray-500 dark:text-slate-400">{totalReviews} تقييم</span>
+          <span className="text-sm text-gray-500 dark:text-slate-400">
+            {totalReviews} تقييم
+          </span>
         </div>
       </div>
 
@@ -89,7 +93,9 @@ export default function ReviewsPreview({
                       {review.userName || "مستخدم مجهول"}
                     </div>
                     {review.userId === userId && (
-                      <span className="text-xs text-gray-500 dark:text-slate-400">أنت</span>
+                      <span className="text-xs text-gray-500 dark:text-slate-400">
+                        أنت
+                      </span>
                     )}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-slate-400">

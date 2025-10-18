@@ -25,6 +25,8 @@ export default async function Page({ searchParams }) {
     sort,
   });
 
+  console.log("Products:", products);
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <main>

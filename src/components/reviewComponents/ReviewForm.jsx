@@ -129,7 +129,9 @@ export default function ReviewForm({
           <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">
             قيم المنتج بعد الشراء
           </h3>
-          <p className="text-gray-600 dark:text-slate-400">يمكنك إضافة تقييم بعد شراء هذا المنتج</p>
+          <p className="text-gray-600 dark:text-slate-400">
+            يمكنك إضافة تقييم بعد شراء هذا المنتج
+          </p>
         </div>
       </div>
     );
@@ -188,7 +190,9 @@ export default function ReviewForm({
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
                     تم إرسال تقييمك بنجاح!
                   </h3>
-                  <p className="text-gray-600 dark:text-slate-400">سيتم مراجعته ونشره قريباً</p>
+                  <p className="text-gray-600 dark:text-slate-400">
+                    سيتم مراجعته ونشره قريباً
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -241,7 +245,9 @@ export default function ReviewForm({
                   {/* Error Message */}
                   {error && (
                     <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-lg">
-                      <p className="text-sm text-red-700 dark:text-red-400 text-right">{error}</p>
+                      <p className="text-sm text-red-700 dark:text-red-400 text-right">
+                        {error}
+                      </p>
                     </div>
                   )}
 

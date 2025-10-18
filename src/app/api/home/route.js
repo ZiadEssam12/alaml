@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const [categories, products] = await prisma.$transaction([
+    const [categories, productsData] = await prisma.$transaction([
       prisma.category.findMany({
         take: 10,
       }),
@@ -16,6 +16,23 @@ export async function GET() {
         orderBy: { createdAt: "desc" },
       }),
     ]);
+
+    // Fetch review statistics for each product
+    const products = await Promise.all(
+      productsData.map(async (product) => {
+        const reviewStats = await prisma.review.aggregate({
+          where: { productId: product.id, status: "approved" },
+          _avg: { rating: true },
+          _count: { id: true },
+        });
+
+        return {
+          ...product,
+          averageRating: reviewStats._avg.rating || 0,
+          totalSales: reviewStats._count.id || 0,
+        };
+      })
+    );
 
     return NextResponse.json(
       {

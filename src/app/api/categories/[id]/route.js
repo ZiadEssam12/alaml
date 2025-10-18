@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
       );
     }
 
-    const [total, products] = await Promise.all([
+    const [total, productsData] = await Promise.all([
       prisma.product.count({
         where: { categoryID: category.id },
       }),
@@ -37,6 +37,23 @@ export async function GET(request, { params }) {
         },
       }),
     ]);
+
+    // Fetch review statistics for each product
+    const productsWithReviews = await Promise.all(
+      productsData.map(async (product) => {
+        const reviewStats = await prisma.review.aggregate({
+          where: { productId: product.id, status: "approved" },
+          _avg: { rating: true },
+          _count: { id: true },
+        });
+
+        return {
+          ...product,
+          averageRating: reviewStats._avg.rating || 0,
+          totalSales: reviewStats._count.id || 0,
+        };
+      })
+    );
 
     const sort = searchParams.get("sort") || "new-to-old";
     let orderBy = {};
@@ -61,7 +78,7 @@ export async function GET(request, { params }) {
       {
         data: {
           ...category,
-          products,
+          products: productsWithReviews,
         },
         pagination: {
           total,

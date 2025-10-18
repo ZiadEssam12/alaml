@@ -88,20 +88,14 @@ export default function ProductCard({ product }) {
 
         <div className="flex flex-col justify-start gap-1">
           {/* Rating */}
-          <div className="flex items-center gap-1 order-2">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < Math.floor(product.averageRating)
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 order-2">
+            <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+              {product.averageRating
+                ? Number(product.averageRating).toFixed(1)
+                : 0}
+            </span>
+            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm text-muted-foreground dark:text-slate-400">
               ({product.totalSales || 0})
             </span>
           </div>

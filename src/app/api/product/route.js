@@ -56,7 +56,7 @@ export async function GET(request) {
       ];
     }
 
-    const [totalProducts, products] = await Promise.all([
+    const [totalProducts, productsData] = await Promise.all([
       prisma.product.count({ where }),
       prisma.product.findMany({
         where,
@@ -65,6 +65,23 @@ export async function GET(request) {
         orderBy,
       }),
     ]);
+
+    // Fetch review statistics for each product
+    const products = await Promise.all(
+      productsData.map(async (product) => {
+        const reviewStats = await prisma.review.aggregate({
+          where: { productId: product.id, status: "approved" },
+          _avg: { rating: true },
+          _count: { id: true },
+        });
+
+        return {
+          ...product,
+          averageRating: reviewStats._avg.rating || 0,
+          totalSales: reviewStats._count.id || 0,
+        };
+      })
+    );
 
     const maxPage = Math.ceil(totalProducts / limit);
 
