@@ -87,6 +87,17 @@ export default function ProductCard({ product }) {
         </Link>
 
         <div className="flex flex-col justify-start gap-1">
+          {/* Price */}
+          <div className="flex items-center justify-between order-1">
+            <span className="text-xl font-bold text-primary">
+              {product.price} جنيه
+            </span>
+            {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+              <Badge variant="outline" className="text-orange-600">
+                {product.stockQuantity} متبقي
+              </Badge>
+            )}
+          </div>
           {/* Rating */}
           <div className="flex items-center gap-2 order-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
@@ -98,18 +109,6 @@ export default function ProductCard({ product }) {
             <span className="text-sm text-muted-foreground dark:text-slate-400">
               ({product.totalSales || 0})
             </span>
-          </div>
-
-          {/* Price */}
-          <div className="flex items-center justify-between order-1">
-            <span className="text-xl font-bold text-primary">
-              {product.price} جنيه
-            </span>
-            {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
-              <Badge variant="outline" className="text-orange-600">
-                {product.stockQuantity} متبقي
-              </Badge>
-            )}
           </div>
         </div>
       </div>
