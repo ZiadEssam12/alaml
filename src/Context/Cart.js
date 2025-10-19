@@ -1,7 +1,6 @@
 "use client";
 
-import { getCookie, setCookie } from "@/lib/getCookies";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, use, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { loadingContext } from "./LoadinContext";
 import { getUserTokenCSR } from "@/lib/auth-helpers-client";
@@ -11,44 +10,42 @@ export const cartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { loading, setLoading } = useContext(loadingContext);
-  const userToken = getUserTokenCSR();
-  useEffect(() => {
-    let userId = getCookie("userid");
+  const [userToken, setUserToken] = useState(null);
+  console.log("User Token in Cart Context:", userToken);
 
-    const createAnonymousUser = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "anonymous", role: "user", email: null }),
-      });
-      const data = await res.json();
-      return data.data?.id;
-    };
-    (async () => {
-      if (!userId) {
-        userId = await createAnonymousUser();
-        if (userId) setCookie("userid", userId);
+  useEffect(() => {
+    const getToken = () => {
+      try {
+        const token = getUserTokenCSR();
+        setUserToken(token);
+      } catch (error) {
+        console.error("Failed to get token:", error);
+        setUserToken(null);
       }
-      if (!userId) return;
-      // Fetch cart from API
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user/`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json", userid: userId },
+    };
+    getToken();
+  }, []);
+
+  // Fetch cart when token is available
+  useEffect(() => {
+    // Fetch cart from API using token
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user/`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCart(data.data?.items || []);
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.newUserId) {
-            setCookie("userid", data.newUserId);
-          }
-          setCart(data.data.items || []);
-        })
-        .catch(() => {
-          setCart([]);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    })();
+      .catch(() => {
+        setCart([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -62,15 +59,16 @@ export const CartProvider = ({ children }) => {
       setCart((prev) => [...prev, { ...product, quantity }]);
     }
 
-    const userId = getCookie("userid");
-    if (!userId) {
-      toast.error("لم يتم العثور على معرف المستخدم!");
+    if (!userToken) {
+      toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
+
     const item = {
       productId: product.id,
       quantity,
     };
+
     fetch("/api/cart", {
       method: "POST",
       headers: {
@@ -95,16 +93,16 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeCartItem = (id) => {
-    const userId = getCookie("userid");
-    if (!userId) {
-      toast.error("لم يتم العثور على معرف المستخدم!");
+    if (!userToken) {
+      toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
+
     fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        userid: userId,
+        Authorization: `Bearer ${userToken}`,
       },
     })
       .then(async (res) => {
@@ -122,16 +120,16 @@ export const CartProvider = ({ children }) => {
   };
 
   const emptyCart = () => {
-    const userId = getCookie("userid");
-    if (!userId) {
-      toast.error("لم يتم العثور على معرف المستخدم!");
+    if (!userToken) {
+      toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
+
     fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        userid: userId,
+        Authorization: `Bearer ${userToken}`,
       },
     })
       .then(async (res) => {
@@ -151,9 +149,8 @@ export const CartProvider = ({ children }) => {
   const totalItemInCart = cart.length;
 
   const updateCartItem = (id, newQuantity) => {
-    const userId = getCookie("userid");
-    if (!userId) {
-      toast.error("لم يتم العثور على معرف المستخدم!");
+    if (!userToken) {
+      toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
 
@@ -170,9 +167,9 @@ export const CartProvider = ({ children }) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        userid: userId,
+        Authorization: `Bearer ${userToken}`,
       },
-      body: JSON.stringify({ userId, quantity: newQuantity }),
+      body: JSON.stringify({ quantity: newQuantity }),
     })
       .then(async (res) => {
         const data = await res.json();

@@ -17,6 +17,7 @@ const cookieKey =
 export function getUserTokenCSR() {
   try {
     const sessionCookie = Cookies.get(cookieKey);
+    console.log("CSR token retrieved:", sessionCookie);
     return sessionCookie || null;
   } catch (error) {
     console.error("Error getting CSR token:", error);
