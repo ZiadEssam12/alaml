@@ -1,20 +1,16 @@
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // PUT: Update a cart by id
 export async function PUT(request, { params }) {
   try {
-    const userId = request.headers.get("userid");
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User id is required" },
-        { status: 400 }
-      );
-    }
+    const session = await getUserTokenSSR(request);
+    const userId = session?.id;
     const { itemId } = await params;
     if (!itemId) {
       return NextResponse.json(
-        { error: "Cart item id is required" },
+        { error: "معرف عنصر السلة مطلوب" },
         { status: 400 }
       );
     }
@@ -111,17 +107,13 @@ export async function PUT(request, { params }) {
 // DELETE: Delete a cart item by itemId
 export async function DELETE(request, { params }) {
   try {
-    const userId = request.headers.get("userid");
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User id is required" },
-        { status: 400 }
-      );
-    }
+    const session = await getUserTokenSSR(request);
+    const userId = session?.id;
     const { itemId } = await params;
+    
     if (!itemId) {
       return NextResponse.json(
-        { error: "Cart item id is required" },
+        { error: "معرف عنصر السلة مطلوب" },
         { status: 400 }
       );
     }
