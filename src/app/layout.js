@@ -44,7 +44,7 @@ export default async function RootLayout({ children }) {
           crossOrigin="anonymous"
         />
       </head>
-      <body className={`${cairo.variable} font-cairo no-scroll`}>
+      <body className={`no-scroll`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
