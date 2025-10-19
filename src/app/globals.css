@@ -105,6 +105,7 @@ html[dir="rtl"] * {
 
   body {
     @apply bg-background text-foreground;
+    font-family: "Cairo", sans-serif;
     overflow-x: hidden;
   }
 
@@ -140,38 +141,38 @@ body.no-scroll {
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
-/* Add Tajawal font family */
+/* Add Cairo font family */
 @font-face {
-  font-family: "Tajawal";
-  src: url("/fonts/tajawal/tajawal-v11-latin-300.woff2") format("woff2");
+  font-family: "Cairo";
+  src: url("/fonts/cairo-v31-latin-300.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Tajawal";
-  src: url("/fonts/tajawal/tajawal-v11-latin-500.woff2") format("woff2");
+  font-family: "Cairo";
+  src: url("/fonts/cairo-v31-latin-500.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Tajawal";
-  src: url("/fonts/tajawal/tajawal-v11-latin-700.woff2") format("woff2");
+  font-family: "Cairo";
+  src: url("/fonts/cairo-v31-latin-700.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "Tajawal";
-  src: url("/fonts/tajawal/tajawal-v11-latin-regular.woff2") format("woff2");
+  font-family: "Cairo";
+  src: url("/fonts/cairo-v31-latin-regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
 }
 
-/* Apply Tajawal font globally */
+/* Apply Cairo font globally */
 body {
-  font-family: "Tajawal", sans-serif;
+  font-family: "Cairo", sans-serif;
 }
 
 /* Custom scrollbar utilities */

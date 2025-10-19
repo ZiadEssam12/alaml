@@ -42,12 +42,12 @@ export default function ProductCard({ product }) {
     >
       {/* Product Image */}
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-48 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">
+        <div className="relative h-72 flex items-center justify-center bg-accent overflow-hidden rounded-lg group">
           <Image
             src={ImageThumbnail}
             alt={product.name}
-            width={150}
-            height={150}
+            width={250}
+            height={250}
             placeholder="blur"
             blurDataURL={ImagePlaceholder}
             className="group-hover:scale-105 transition-transform duration-200"
@@ -79,7 +79,7 @@ export default function ProductCard({ product }) {
       <div className="p-4">
         <Link href={`/products/${product.slug}`}>
           <h3
-            className="font-semibold text-base mb-2 hover:text-primary line-clamp-1"
+            className="font-semibold text-xl mb-2 hover:text-primary line-clamp-1"
             title={product.name}
           >
             {product.name}
@@ -89,7 +89,7 @@ export default function ProductCard({ product }) {
         <div className="flex flex-col justify-start gap-1">
           {/* Price */}
           <div className="flex items-center justify-between order-1">
-            <span className="text-xl font-bold text-primary">
+            <span className="text-2xl font-bold text-primary">
               {product.price} جنيه
             </span>
             {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
@@ -99,14 +99,14 @@ export default function ProductCard({ product }) {
             )}
           </div>
           {/* Rating */}
-          <div className="flex items-center gap-2 order-2">
-            <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+          <div className="flex items-center gap-1 order-2">
+            <span className="text-xl font-semibold text-gray-900 dark:text-slate-100">
               {product.averageRating
                 ? Number(product.averageRating).toFixed(1)
                 : 0}
             </span>
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm text-muted-foreground dark:text-slate-400">
+            <span className="text-sm font-bold text-muted-foreground dark:text-slate-400">
               ({product.totalSales || 0})
             </span>
           </div>
