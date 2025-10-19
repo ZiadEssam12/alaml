@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { Skeleton } from "../ui/skeleton";
 
-export default function AddtoCartSkeleton() {
+export default function ProductCartControlsSkeleton() {
   return (
     <div className="space-y-6">
       {/* Quantity Selector Skeleton */}
@@ -30,11 +30,11 @@ export default function AddtoCartSkeleton() {
   );
 }
 
-const AddtoCartDynamic = dynamic(() => import("./AddtoCart"), {
+const ProductCartControlsDynamic = dynamic(() => import("./AddtoCart"), {
   ssr: false,
-  loading: () => <AddtoCartSkeleton />,
+  loading: () => <ProductCartControlsSkeleton />,
 });
 
-export function ProductInfoWrapper({ product }) {
-  return <AddtoCartDynamic product={product} />;
+export function ProductCartControlsWrapper({ product }) {
+  return <ProductCartControlsDynamic product={product} />;
 }

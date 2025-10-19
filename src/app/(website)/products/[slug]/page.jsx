@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
-import { ProductInfoWrapper } from "@/components/ProductCard/AddtoCartWrapper";
+import { ProductCartControlsWrapper } from "@/components/ProductCard/AddtoCartWrapper";
 import Link from "next/link";
 import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
 
@@ -208,7 +208,7 @@ export default async function ProductPage({ params }) {
 
               {/* Add to Cart Section */}
               <div className="pt-6 border-t">
-                <ProductInfoWrapper product={displayProduct} />
+                <ProductCartControlsWrapper product={displayProduct} />
               </div>
             </div>
 

@@ -2,12 +2,11 @@
 
 import React, { useContext, useState } from "react";
 import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
 import { cartContext } from "@/Context/Cart";
 import { Minus, Plus, ShoppingCart, Check } from "lucide-react";
 import toast from "react-hot-toast";
 
-export default function ProductInfo({ product }) {
+export default function ProductCartControls({ product }) {
   const { addToCart, isInCart } = useContext(cartContext);
   const isIteminCart = isInCart(product.id);
   const [quantityNumber, setQuantityNumber] = useState(1);
