@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Badge } from "@/components/ui/badge";
-import { ProductCartControlsWrapper } from "@/components/ProductCard/AddtoCartWrapper";
+import { ProductCartControlsWrapper } from "@/components/ProductCard/ProductCartControlsWrapper";
 import Link from "next/link";
 import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
 

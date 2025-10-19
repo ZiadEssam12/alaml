@@ -8,17 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { useContext } from "react";
 import { cartContext } from "@/Context/Cart";
 import { imageService } from "@/lib/image-service";
+import AddToCartButton from "./AddToCartButton";
 
 export default function ProductCard({ product }) {
-  const { addToCart, isInCart } = useContext(cartContext);
+  const { isInCart } = useContext(cartContext);
 
   const isItemInCart = isInCart(product.id);
-
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart(product, 1);
-  };
 
   const isOutOfStock = product.stockQuantity <= 0;
 
@@ -52,19 +47,18 @@ export default function ProductCard({ product }) {
             blurDataURL={ImagePlaceholder}
             className="group-hover:scale-105 transition-transform duration-200"
           />
-          <Button
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || isItemInCart}
-            className="w-full bottom-0 translate-y-[103%] disabled:pointer-events-auto disabled:bg-primary disabled:opacity-90 disabled:text-accent disabled:cursor-not-allowed group-hover:translate-y-0 transition-transform absolute rounded-none"
-            variant={isItemInCart ? "secondary" : "default"}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute bottom-0 w-full translate-y-[103%] group-hover:translate-y-0 transition-transform"
           >
-            <ShoppingCart className="h-4 w-4 ml-2" />
-            {isOutOfStock
-              ? "نفد المخزون"
-              : isItemInCart
-              ? "في السلة"
-              : "أضف للسلة"}
-          </Button>
+            <AddToCartButton
+              product={product}
+              quantity={1}
+              disabled={isOutOfStock}
+              className="w-full h-10 text-sm font-medium rounded-none"
+              variant={isItemInCart ? "secondary" : "default"}
+            />
+          </div>
 
           {/* Stock Badge */}
           {isOutOfStock && (

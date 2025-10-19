@@ -119,16 +119,10 @@ export async function POST(request) {
 export async function DELETE(request) {
   try {
     // Getting user id from headers
-    const userId = request.headers.get("userid");
-    if (!userId) {
-      return NextResponse.json(
-        { error: "معرف المستخدم مطلوب" },
-        { status: 400 }
-      );
-    }
+    const session = await getUserTokenSSR(request);
 
     const cart = await prisma.cart.findFirst({
-      where: { userId },
+      where: { userId: session.id },
       include: { items: true },
     });
     if (!cart) {
