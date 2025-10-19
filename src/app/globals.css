@@ -105,7 +105,6 @@ html[dir="rtl"] * {
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Cairo", sans-serif;
     overflow-x: hidden;
   }
 
@@ -172,7 +171,7 @@ body.no-scroll {
 
 /* Apply Tajawal font globally */
 body {
-  font-family: "Tajawal", "Cairo", sans-serif;
+  font-family: "Tajawal", sans-serif;
 }
 
 /* Custom scrollbar utilities */

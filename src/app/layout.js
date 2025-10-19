@@ -1,19 +1,10 @@
 import "./globals.css";
-import { Cairo } from "next/font/google";
 import { ThemeProvider } from "../../Contexts/Theme";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "@/Context/Cart";
 import { LoadingProvider } from "@/Context/LoadinContext";
 import Loading from "@/components/Loading";
 import { SessionProvider } from "next-auth/react";
-
-// Configure Cairo font
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-cairo",
-  display: "swap",
-});
 
 export const metadata = {
   title: "مكتبة الأمل",
@@ -53,7 +44,7 @@ export default async function RootLayout({ children }) {
           crossOrigin="anonymous"
         />
       </head>
-      <body className={`${cairo.variable} font-cairo no-scroll`}>
+      <body className={`no-scroll`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
