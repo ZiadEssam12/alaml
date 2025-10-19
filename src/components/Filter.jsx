@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -226,22 +227,24 @@ function ProductFiltersCode() {
                 <Label className="text-sm font-medium mb-3 block">
                   التقييم
                 </Label>
-                <div className="space-y-2">
+                <RadioGroup
+                  value={filters.rating.toString()}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      rating: parseInt(value),
+                    }))
+                  }
+                >
                   {[4, 3, 2, 1].map((rating) => (
-                    <div key={rating} className="flex items-center space-x-2 ">
-                      <Checkbox
+                    <div key={rating} className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={rating.toString()}
                         id={`rating-${rating}`}
-                        checked={filters.rating === rating}
-                        onCheckedChange={(checked) =>
-                          setFilters((prev) => ({
-                            ...prev,
-                            rating: checked ? rating : 0,
-                          }))
-                        }
                       />
                       <Label
                         htmlFor={`rating-${rating}`}
-                        className="flex items-center space-x-1  cursor-pointer"
+                        className="flex items-center space-x-1 cursor-pointer"
                       >
                         <div className="flex">
                           {[...Array(5)].map((_, i) => (
@@ -259,7 +262,7 @@ function ProductFiltersCode() {
                       </Label>
                     </div>
                   ))}
-                </div>
+                </RadioGroup>
               </div>
 
               <Separator />
@@ -382,22 +385,24 @@ function ProductFiltersCode() {
         {/* Rating Filter */}
         <div>
           <Label className="text-sm font-medium mb-3 block">التقييم</Label>
-          <div className="space-y-2">
+          <RadioGroup
+            value={filters.rating.toString()}
+            onValueChange={(value) =>
+              setFilters((prev) => ({
+                ...prev,
+                rating: parseInt(value),
+              }))
+            }
+          >
             {[4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center space-x-2 ">
-                <Checkbox
+              <div key={rating} className="flex items-center space-x-2">
+                <RadioGroupItem
+                  value={rating.toString()}
                   id={`rating-${rating}`}
-                  checked={filters.rating === rating}
-                  onCheckedChange={(checked) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      rating: checked ? rating : 0,
-                    }))
-                  }
                 />
                 <Label
                   htmlFor={`rating-${rating}`}
-                  className="flex items-center space-x-1  cursor-pointer"
+                  className="flex items-center space-x-1 cursor-pointer"
                 >
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
@@ -415,7 +420,7 @@ function ProductFiltersCode() {
                 </Label>
               </div>
             ))}
-          </div>
+          </RadioGroup>
         </div>
 
         <Separator />

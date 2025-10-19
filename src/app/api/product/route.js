@@ -13,6 +13,7 @@ export async function GET(request) {
     const inStock = searchParams.get("inStock") === "true";
     const q = searchParams.get("q") || "";
     const sort = searchParams.get("sort") || "new-to-old";
+    const rating = searchParams.get("rating");
 
     // Build orderBy based on sort
     let orderBy = {};
@@ -67,7 +68,7 @@ export async function GET(request) {
     ]);
 
     // Fetch review statistics for each product
-    const products = await Promise.all(
+    let products = await Promise.all(
       productsData.map(async (product) => {
         const reviewStats = await prisma.review.aggregate({
           where: { productId: product.id, status: "approved" },
@@ -82,6 +83,13 @@ export async function GET(request) {
         };
       })
     );
+
+    // Filter by rating if provided
+    if (rating) {
+      products = products.filter(
+        (product) => product.averageRating >= Number(rating)
+      );
+    }
 
     const maxPage = Math.ceil(totalProducts / limit);
 

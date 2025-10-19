@@ -13,6 +13,7 @@ export default async function Page({ searchParams }) {
     page = "1",
     q = "",
     sort = "new-to-old",
+    rating = "",
   } = (await searchParams) || {};
 
   const { products, totalPages } = await getProducts({
@@ -23,9 +24,8 @@ export default async function Page({ searchParams }) {
     page,
     q,
     sort,
+    rating,
   });
-
-  console.log("Products:", products);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">

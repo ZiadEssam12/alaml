@@ -36,6 +36,7 @@ export async function getProducts({
   page = "1",
   q = "",
   sort = "new-to-old",
+  rating = "",
 } = {}) {
   const params = new URLSearchParams();
   if (categories) params.append("categories", categories);
@@ -45,6 +46,7 @@ export async function getProducts({
   if (page) params.append("page", page);
   if (q) params.append("q", q);
   if (sort) params.append("sort", sort);
+  if (rating) params.append("rating", rating);
 
   try {
     const res = await fetch(
