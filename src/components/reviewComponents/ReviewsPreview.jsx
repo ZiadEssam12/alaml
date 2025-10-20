@@ -8,6 +8,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ReviewDeleteButton, ReviewUpdateButton } from "./reviewActionButtons";
+import ReviewDialog from "./ReviewDialog";
+import { useReviewDialog } from "@/Context/ReviewDialogContext";
 
 // Server Component - Shows initial reviews for SEO and performance
 export default function ReviewsPreview({
@@ -20,6 +22,44 @@ export default function ReviewsPreview({
   const userId = session?.user?.id || null;
   const router = useRouter();
   const [deletingReviewId, setDeletingReviewId] = useState(null);
+  const { setProductInfo, openDialog } = useReviewDialog();
+  // Render individual star rating
+  const renderStars = (rating) => {
+    return Array(5)
+      .fill(0)
+      .map((_, index) => (
+        <Star
+          key={index}
+          className={`w-4 h-4 ${
+            index < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+          }`}
+        />
+      ));
+  };
+
+  // Format review date
+  const formatDate = (dateString) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), {
+        addSuffix: true,
+        locale: ar,
+      });
+    } catch {
+      return "منذ فترة";
+    }
+  };
+
+  // Truncate long comments
+  const truncateComment = (comment, maxLength = 150) => {
+    if (!comment || comment.length <= maxLength) return comment;
+    return comment.substring(0, maxLength) + "...";
+  };
+
+  // Handle edit review
+  const handleEditReview = (review) => {
+    setProductInfo(review.productId, review.productName);
+    openDialog(review);
+  };
 
   // Handle review deletion
   const handleDeleteReview = async (reviewId) => {
@@ -51,38 +91,6 @@ export default function ReviewsPreview({
     } finally {
       setDeletingReviewId(null);
     }
-  };
-
-  // Render individual star rating
-  const renderStars = (rating) => {
-    return Array(5)
-      .fill(0)
-      .map((_, index) => (
-        <Star
-          key={index}
-          className={`w-4 h-4 ${
-            index < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-          }`}
-        />
-      ));
-  };
-
-  // Format review date
-  const formatDate = (dateString) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), {
-        addSuffix: true,
-        locale: ar,
-      });
-    } catch {
-      return "منذ فترة";
-    }
-  };
-
-  // Truncate long comments
-  const truncateComment = (comment, maxLength = 150) => {
-    if (!comment || comment.length <= maxLength) return comment;
-    return comment.substring(0, maxLength) + "...";
   };
 
   if (reviews.length === 0) {
@@ -173,7 +181,7 @@ export default function ReviewsPreview({
               {review.userId === userId && (
                 <div className="mr-auto flex items-center gap-2">
                   <ReviewUpdateButton
-                    onClick={() => handleReviewUpdated(review)}
+                    onClick={() => handleEditReview(review)}
                   />
                   <ReviewDeleteButton
                     onClick={() => handleDeleteReview(review.id)}
@@ -197,6 +205,8 @@ export default function ReviewsPreview({
           </button>
         </div>
       )}
+
+      <ReviewDialog />
     </div>
   );
 }

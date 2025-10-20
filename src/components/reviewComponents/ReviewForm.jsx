@@ -2,7 +2,9 @@
 
 import { AlertCircle, X, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 import ReviewDialog from "./ReviewDialog";
+import { useReviewDialog } from "@/Context/ReviewDialogContext";
 
 export default function ReviewForm({
   productId,
@@ -13,6 +15,7 @@ export default function ReviewForm({
   userReview = null,
 }) {
   const { data: session, status } = useSession();
+  const { setProductInfo, openDialog } = useReviewDialog();
 
   // Show login prompt
   if (status === "loading") {
@@ -79,13 +82,17 @@ export default function ReviewForm({
             ساعد العملاء الآخرين باختيار المنتج المناسب
           </p>
 
-          <ReviewDialog
-            productId={productId}
-            productName={productName}
-            onReviewSubmitted={onReviewSubmitted}
-            triggerLabel="كتابة تقييم"
-            triggerClassName="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg"
-          />
+          <Button
+            onClick={() => {
+              setProductInfo(productId, productName);
+              openDialog();
+            }}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg"
+          >
+            كتابة تقييم
+          </Button>
+
+          <ReviewDialog />
         </div>
       </div>
     </div>

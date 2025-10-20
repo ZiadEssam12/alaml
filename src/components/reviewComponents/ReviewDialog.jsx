@@ -7,27 +7,21 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useReviewDialog } from "@/Context/ReviewDialogContext";
 
-export default function ReviewDialog({
-  productId,
-  productName,
-  onReviewSubmitted,
-  userReview = null,
-  updateMode = false,
-  triggerLabel = "كتابة تقييم",
-  triggerClassName = "px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg",
-}) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function ReviewDialog() {
+  const { isOpen, closeDialog, mode, review, productId, productName } =
+    useReviewDialog();
+
   const [rating, setRating] = useState(
-    updateMode && userReview ? userReview.rating : 0
+    mode === "update" && review ? review.rating : 0
   );
   const [comment, setComment] = useState(
-    updateMode && userReview ? userReview.comment : ""
+    mode === "update" && review ? review.comment : ""
   );
   const [hoveredRating, setHoveredRating] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -50,12 +44,13 @@ export default function ReviewDialog({
     setError("");
 
     const toastId = toast.loading(
-      updateMode ? "يتم تحديث التقييم" : "يتم مراجعة التقييم"
+      mode === "update" ? "يتم تحديث التقييم" : "يتم مراجعة التقييم"
     );
 
     try {
-      const url = updateMode ? `/api/reviews/${userReview.id}` : "/api/reviews";
-      const method = updateMode ? "PUT" : "POST";
+      const url =
+        mode === "update" ? `/api/reviews/${review.id}` : "/api/reviews";
+      const method = mode === "update" ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -68,23 +63,24 @@ export default function ReviewDialog({
       if (response.ok) {
         toast.success(
           data.message ||
-            (updateMode ? "تم تحديث التقييم بنجاح" : "تم إرسال التقييم بنجاح")
+            (mode === "update"
+              ? "تم تحديث التقييم بنجاح"
+              : "تم إرسال التقييم بنجاح")
         );
         setSuccess(true);
-        if (onReviewSubmitted) {
-          onReviewSubmitted(data.data);
-        }
         router.refresh();
 
         // Close dialog after 2 seconds
         setTimeout(() => {
-          setIsOpen(false);
+          closeDialog();
           setSuccess(false);
+          setRating(0);
+          setComment("");
         }, 2000);
       } else {
         toast.error(
           data.error ||
-            (updateMode
+            (mode === "update"
               ? "حدث خطأ أثناء تحديث التقييم"
               : "حدث خطأ أثناء مراجعة التقييم")
         );
@@ -92,7 +88,7 @@ export default function ReviewDialog({
     } catch (err) {
       toast.dismiss(toastId);
       toast.error(
-        updateMode
+        mode === "update"
           ? "حدث خطأ أثناء تحديث التقييم"
           : "حدث خطأ أثناء مراجعة التقييم"
       );
@@ -132,15 +128,11 @@ export default function ReviewDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className={triggerClassName}>{triggerLabel}</Button>
-      </DialogTrigger>
-
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 border border-gray-200 dark:border-slate-800">
         <DialogHeader>
           <DialogTitle className="text-right text-gray-900 dark:text-slate-100">
-            {updateMode ? "تحديث التقييم" : "قيم منتج"}: {productName}
+            {mode === "update" ? "تحديث التقييم" : "قيم منتج"}: {productName}
           </DialogTitle>
         </DialogHeader>
 
@@ -148,17 +140,21 @@ export default function ReviewDialog({
           <div className="text-center py-8">
             <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500" />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
-              {updateMode ? "تم تحديث تقييمك بنجاح!" : "تم إرسال تقييمك بنجاح!"}
+              {mode === "update"
+                ? "تم تحديث تقييمك بنجاح!"
+                : "تم إرسال تقييمك بنجاح!"}
             </h3>
             <p className="text-gray-600 dark:text-slate-400">
-              {updateMode ? "تم حفظ التغييرات" : "سيتم مراجعته ونشره قريباً"}
+              {mode === "update"
+                ? "تم حفظ التغييرات"
+                : "سيتم مراجعته ونشره قريباً"}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <p className="text-sm text-gray-600 dark:text-slate-400 text-right">
-                {updateMode
+                {mode === "update"
                   ? "قم بتحديث تقييمك للمنتج"
                   : "تقييمك يساعد العملاء الآخرين في اتخاذ قرار الشراء"}
               </p>
@@ -223,9 +219,9 @@ export default function ReviewDialog({
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {updateMode ? "جاري التحديث..." : "جاري الإرسال..."}
+                    {mode === "update" ? "جاري التحديث..." : "جاري الإرسال..."}
                   </>
-                ) : updateMode ? (
+                ) : mode === "update" ? (
                   "تحديث التقييم"
                 ) : (
                   "إرسال التقييم"
@@ -234,7 +230,7 @@ export default function ReviewDialog({
 
               <Button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={closeDialog}
                 disabled={loading}
                 variant="outline"
                 className="px-4 py-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700"

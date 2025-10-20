@@ -3,6 +3,7 @@ import { ThemeProvider } from "../../Contexts/Theme";
 import { Toaster } from "react-hot-toast";
 import { CartProvider } from "@/Context/Cart";
 import { LoadingProvider } from "@/Context/LoadinContext";
+import { ReviewDialogProvider } from "@/Context/ReviewDialogContext";
 import Loading from "@/components/Loading";
 import { SessionProvider } from "next-auth/react";
 
@@ -53,11 +54,13 @@ export default async function RootLayout({ children }) {
         >
           <LoadingProvider>
             <CartProvider>
-              <SessionProvider>
-                <div className="min-h-screen flex flex-col overflow-x-hidden">
-                  {children}
-                </div>
-              </SessionProvider>
+              <ReviewDialogProvider>
+                <SessionProvider>
+                  <div className="min-h-screen flex flex-col overflow-x-hidden">
+                    {children}
+                  </div>
+                </SessionProvider>
+              </ReviewDialogProvider>
               <Toaster position="bottom-right" />
               <Loading />
             </CartProvider>
