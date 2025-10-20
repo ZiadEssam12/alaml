@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, Loader2, CheckCircle } from "lucide-react";
 import {
   Dialog,
@@ -17,17 +17,24 @@ export default function ReviewDialog() {
   const { isOpen, closeDialog, mode, review, productId, productName } =
     useReviewDialog();
 
-  const [rating, setRating] = useState(
-    mode === "update" && review ? review.rating : 0
-  );
-  const [comment, setComment] = useState(
-    mode === "update" && review ? review.comment : ""
-  );
+  const [rating, setRating] = useState(review ? review?.rating : 0);
+  const [comment, setComment] = useState(review ? review?.comment : "");
   const [hoveredRating, setHoveredRating] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+
+  // Update state when review changes
+  useEffect(() => {
+    if (review) {
+      setRating(review.rating || 0);
+      setComment(review.comment || "");
+    } else {
+      setRating(0);
+      setComment("");
+    }
+  }, [review, isOpen]);
 
   // Form validation
   const isValid = rating > 0 && comment.trim().length >= 10;

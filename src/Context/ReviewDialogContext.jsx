@@ -13,6 +13,7 @@ export function ReviewDialogProvider({ children }) {
 
   const openDialog = (reviewData = null) => {
     if (reviewData) {
+      console.log("Opening dialog in update mode with review:", reviewData);
       setMode("update");
       setReview(reviewData);
     } else {
