@@ -18,6 +18,8 @@ export default function ReviewsPreviewClient({
         reviews={initialReviews}
         totalReviews={totalReviews}
         onShowMore={() => setIsModalOpen(true)}
+        setOpenModal={setIsModalOpen}
+        modalState={isModalOpen}
       />
 
       <ReviewsModal

@@ -1,13 +1,18 @@
+"use client";
+
 import { Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useSession } from "next-auth/react";
+import { ReviewDeleteButton, ReviewUpdateButton } from "./reviewActionButtons";
 
 // Server Component - Shows initial reviews for SEO and performance
 export default function ReviewsPreview({
   reviews = [],
   totalReviews = 0,
   onShowMore,
+  setOpenModal,
+  modalState,
 }) {
   const { data: session } = useSession();
   const userId = session?.user?.id || null;
@@ -59,6 +64,14 @@ export default function ReviewsPreview({
       </div>
     );
   }
+
+  const onUpdateButtonClick = () => {
+    setOpenModal(true);
+  };
+
+  const onDeleteButtonClick = () => {
+    // Implement delete functionality here
+  };
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800">
@@ -118,14 +131,22 @@ export default function ReviewsPreview({
             )}
 
             {/* Quality Label */}
-            <div className="mt-3 flex items-center gap-2">
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
-                ✓ عملية شراء موثقة
-              </span>
-              {review.rating >= 4 && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
-                  ⭐ تقييم ممتاز
+            <div className="flex justify-between">
+              <div className="mt-3 flex items-center gap-2">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                  ✓ عملية شراء موثقة
                 </span>
+                {review.rating >= 4 && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
+                    ⭐ تقييم ممتاز
+                  </span>
+                )}
+              </div>
+              {review.userId === userId && (
+                <div className="mr-auto flex items-center gap-2">
+                  <ReviewUpdateButton onClick={onUpdateButtonClick} />
+                  <ReviewDeleteButton onClick={onDeleteButtonClick} />
+                </div>
               )}
             </div>
           </div>

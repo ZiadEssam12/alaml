@@ -11,24 +11,26 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { loading, setLoading } = useContext(loadingContext);
   const [userToken, setUserToken] = useState(null);
-  console.log("User Token in Cart Context:", userToken);
 
+  // Initialize token on mount
   useEffect(() => {
-    const getToken = () => {
-      try {
-        const token = getUserTokenCSR();
-        setUserToken(token);
-      } catch (error) {
-        console.error("Failed to get token:", error);
-        setUserToken(null);
-      }
+    const initializeToken = async () => {
+      const token = await getUserTokenCSR();
+      setUserToken(token);
     };
-    getToken();
+    initializeToken();
   }, []);
 
   // Fetch cart when token is available
   useEffect(() => {
-    // Fetch cart from API using token
+    // If there's no token, clear cart and stop loading
+    if (!userToken) {
+      setCart([]);
+      setLoading(false);
+      return;
+    }
+
+    // Fetch cart from API using the token
     fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user/`, {
       method: "GET",
       headers: {
@@ -46,7 +48,7 @@ export const CartProvider = ({ children }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [userToken]);
+  }, [userToken, setLoading]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 

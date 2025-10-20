@@ -49,7 +49,7 @@ export default async function ProductReviewsContainer({
 
       {/* Reviews Display Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Rating Statistics - Left Side */}
+        {/* Rating Statistics - right Side */}
         <div className="lg:col-span-1">
           <RatingStatistics
             averageRating={reviews.stats.averageRating}
