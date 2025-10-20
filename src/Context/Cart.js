@@ -191,6 +191,10 @@ export const CartProvider = ({ children }) => {
       });
   };
 
+  const JWTToken = () => {
+    return userToken;
+  };
+
   return (
     <cartContext.Provider
       value={{
@@ -203,6 +207,7 @@ export const CartProvider = ({ children }) => {
         removeCartItem,
         totalItemInCart,
         emptyCart,
+        JWTToken,
       }}
     >
       {children}
