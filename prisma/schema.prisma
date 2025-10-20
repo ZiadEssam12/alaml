@@ -37,16 +37,21 @@ model Product {
   category           Category   @relation(fields: [categoryID], references: [id])
   categoryID         String
   cartItems          CartItem[]
-  reviews            Review[] // Added opposite relation field for Review
-  // Variants & Options relations
+  reviews            Review[]
   options            ProductOption[]
   variants           ProductVariant[]
   createdAt          DateTime   @default(now())
   updatedAt          DateTime?  @updatedAt
 
+  // Denormalized review stats
+  ratingCount        Int        @default(0)
+  ratingSum          Int        @default(0)
+  averageRating      Float      @default(0)
+
   @@index([isActive])
   @@index([price])
   @@index([createdAt])
+  @@index([averageRating]) // useful for rating filters
 }
 
 /// Product option dimensions per product (e.g., Size, Color)

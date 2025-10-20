@@ -42,6 +42,8 @@ export default function SortingForm({ currentSort, currentFilters }) {
           <option value="old-to-new">الأقدم أولاً</option>
           <option value="low-to-high">السعر من الأقل للأعلى</option>
           <option value="high-to-low">السعر من الأعلى للأقل</option>
+          <option value="rating-high-to-low">التقييم من الأعلى للأقل</option>
+          <option value="rating-low-to-high">التقييم من الأقل للأعلى</option>
         </select>
       </form>
     </div>
