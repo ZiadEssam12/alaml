@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import * as yup from "yup";
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 
 const updateReviewSchema = yup.object().shape({
   rating: yup
@@ -15,6 +16,8 @@ const updateReviewSchema = yup.object().shape({
 export async function PUT(req, { params }) {
   const { reviewId } = await params;
 
+  const session = await getUserTokenSSR(req);
+
   // Check if review exists and belongs to the user
   const existingReview = await prisma.review.findUnique({
     where: { id: reviewId },
@@ -25,8 +28,11 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ error: "التقييم غير موجود" }, { status: 404 });
   }
 
+  console.log("Session ID:", session?.id);
+  console.log("Existing Review User ID:", existingReview.userId);
+
   // Ensure only the review owner can update their review
-  if (existingReview.userId !== session.user.id) {
+  if (existingReview.userId !== session.id) {
     return NextResponse.json(
       { error: "غير مصرح لك بتعديل هذا التقييم" },
       { status: 403 }
@@ -58,8 +64,8 @@ export async function PUT(req, { params }) {
 
 // DELETE /api/reviews/[reviewId]
 export async function DELETE(req, { params }) {
-
   const { reviewId } = await params;
+  const session = await getUserTokenSSR(req);
 
   // Check if review exists and belongs to the user
   const existingReview = await prisma.review.findUnique({
@@ -72,7 +78,7 @@ export async function DELETE(req, { params }) {
   }
 
   // Ensure only the review owner can delete their review
-  if (existingReview.userId !== session.user.id) {
+  if (existingReview.userId !== session.id) {
     return NextResponse.json(
       { error: "غير مصرح لك بحذف هذا التقييم" },
       { status: 403 }
