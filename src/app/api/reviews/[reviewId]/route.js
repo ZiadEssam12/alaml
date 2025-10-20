@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import * as yup from "yup";
 import { getUserTokenSSR } from "@/lib/auth-helpers";
+import { updateProductReviewStats } from "@/lib/review-stats";
 
 const updateReviewSchema = yup.object().shape({
   rating: yup
@@ -21,15 +22,12 @@ export async function PUT(req, { params }) {
   // Check if review exists and belongs to the user
   const existingReview = await prisma.review.findUnique({
     where: { id: reviewId },
-    select: { id: true, userId: true, status: true },
+    select: { id: true, userId: true, status: true, productId: true },
   });
 
   if (!existingReview) {
     return NextResponse.json({ error: "التقييم غير موجود" }, { status: 404 });
   }
-
-  console.log("Session ID:", session?.id);
-  console.log("Existing Review User ID:", existingReview.userId);
 
   // Ensure only the review owner can update their review
   if (existingReview.userId !== session.id) {
@@ -55,9 +53,12 @@ export async function PUT(req, { params }) {
     data: {
       rating,
       comment,
-      status: "pending", // Reset to pending after update for re-moderation
+      status: "pending",
     },
   });
+
+  // Update denormalized review stats on product
+  await updateProductReviewStats(existingReview.productId);
 
   return NextResponse.json({ data: updatedReview }, { status: 200 });
 }
@@ -70,7 +71,7 @@ export async function DELETE(req, { params }) {
   // Check if review exists and belongs to the user
   const existingReview = await prisma.review.findUnique({
     where: { id: reviewId },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, productId: true },
   });
 
   if (!existingReview) {
@@ -89,6 +90,9 @@ export async function DELETE(req, { params }) {
   await prisma.review.delete({
     where: { id: reviewId },
   });
+
+  // Update denormalized review stats on product
+  await updateProductReviewStats(existingReview.productId);
 
   return NextResponse.json(
     { message: "تم حذف التقييم بنجاح" },

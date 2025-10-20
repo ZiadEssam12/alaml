@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { cookieKey } from "@/lib/auth-helpers";
 import { getToken } from "next-auth/jwt";
 import { classifyReview } from "@/lib/utils";
+import { updateProductReviewStats } from "@/lib/review-stats";
 
 const reviewSchema = yup.object().shape({
   productId: yup.string().required("معرف المنتج مطلوب"),
@@ -93,8 +94,6 @@ export async function POST(req) {
       status = "approved";
     }
 
-    console.log({ classification, reason });
-
     const review = await prisma.review.create({
       data: {
         productId,
@@ -107,6 +106,9 @@ export async function POST(req) {
         reason,
       },
     });
+
+    // Update denormalized review stats on product
+    await updateProductReviewStats(productId);
 
     if (classification === "spam") {
       return NextResponse.json(
