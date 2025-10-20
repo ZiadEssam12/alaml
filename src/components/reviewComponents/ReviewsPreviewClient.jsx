@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ReviewsPreview from "./ReviewsPreview";
 import ReviewsModal from "./ReviewsModal";
+import ReviewDialog from "./ReviewDialog";
 
 // Client Component wrapper for Reviews Preview with Modal functionality
 export default function ReviewsPreviewClient({
@@ -11,6 +12,13 @@ export default function ReviewsPreviewClient({
   productId,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [existingReview, setExistingReview] = useState(null);
+  const [updateMode, setUpdateMode] = useState(false);
+
+  const handleReviewUpdated = (updatedReview) => {
+    setUpdateMode(true);
+    setExistingReview(updatedReview);
+  };
 
   return (
     <>
@@ -18,8 +26,7 @@ export default function ReviewsPreviewClient({
         reviews={initialReviews}
         totalReviews={totalReviews}
         onShowMore={() => setIsModalOpen(true)}
-        setOpenModal={setIsModalOpen}
-        modalState={isModalOpen}
+        handleReviewUpdated={handleReviewUpdated}
       />
 
       <ReviewsModal
@@ -28,6 +35,13 @@ export default function ReviewsPreviewClient({
         productId={productId}
         initialReviews={initialReviews}
         totalReviews={totalReviews}
+      />
+
+      <ReviewDialog
+        productId={productId}
+        userReview={existingReview}
+        updateMode={true}
+        onReviewSubmitted={handleReviewUpdated}
       />
     </>
   );

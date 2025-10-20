@@ -4,6 +4,9 @@ import { Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { ReviewDeleteButton, ReviewUpdateButton } from "./reviewActionButtons";
 
 // Server Component - Shows initial reviews for SEO and performance
@@ -11,11 +14,44 @@ export default function ReviewsPreview({
   reviews = [],
   totalReviews = 0,
   onShowMore,
-  setOpenModal,
-  modalState,
+  handleReviewUpdated,
 }) {
   const { data: session } = useSession();
   const userId = session?.user?.id || null;
+  const router = useRouter();
+  const [deletingReviewId, setDeletingReviewId] = useState(null);
+
+  // Handle review deletion
+  const handleDeleteReview = async (reviewId) => {
+    if (!confirm("هل تريد فعلاً حذف التقييم؟")) {
+      return;
+    }
+
+    setDeletingReviewId(reviewId);
+    const toastId = toast.loading("جاري حذف التقييم...");
+
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+      toast.dismiss(toastId);
+
+      if (response.ok) {
+        toast.success("تم حذف التقييم بنجاح");
+        router.refresh();
+      } else {
+        toast.error(data.error || "حدث خطأ أثناء حذف التقييم");
+      }
+    } catch (error) {
+      toast.dismiss(toastId);
+      toast.error("حدث خطأ أثناء حذف التقييم");
+      console.error("Error deleting review:", error);
+    } finally {
+      setDeletingReviewId(null);
+    }
+  };
 
   // Render individual star rating
   const renderStars = (rating) => {
@@ -64,14 +100,6 @@ export default function ReviewsPreview({
       </div>
     );
   }
-
-  const onUpdateButtonClick = () => {
-    setOpenModal(true);
-  };
-
-  const onDeleteButtonClick = () => {
-    // Implement delete functionality here
-  };
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800">
@@ -144,8 +172,13 @@ export default function ReviewsPreview({
               </div>
               {review.userId === userId && (
                 <div className="mr-auto flex items-center gap-2">
-                  <ReviewUpdateButton onClick={onUpdateButtonClick} />
-                  <ReviewDeleteButton onClick={onDeleteButtonClick} />
+                  <ReviewUpdateButton
+                    onClick={() => handleReviewUpdated(review)}
+                  />
+                  <ReviewDeleteButton
+                    onClick={() => handleDeleteReview(review.id)}
+                    isLoading={deletingReviewId === review.id}
+                  />
                 </div>
               )}
             </div>

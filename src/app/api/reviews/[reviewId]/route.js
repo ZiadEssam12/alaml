@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 import prisma from "@/lib/prisma";
 import * as yup from "yup";
 
@@ -14,6 +15,14 @@ const updateReviewSchema = yup.object().shape({
 // PUT /api/reviews/[reviewId]
 export async function PUT(req, { params }) {
   const { reviewId } = await params;
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "يجب تسجيل الدخول أولاً" },
+      { status: 401 }
+    );
+  }
 
   // Check if review exists and belongs to the user
   const existingReview = await prisma.review.findUnique({
@@ -26,7 +35,7 @@ export async function PUT(req, { params }) {
   }
 
   // Ensure only the review owner can update their review
-  if (existingReview.userId !== session.user.id) {
+  if (existingReview.userId !== token.id) {
     return NextResponse.json(
       { error: "غير مصرح لك بتعديل هذا التقييم" },
       { status: 403 }
@@ -53,13 +62,26 @@ export async function PUT(req, { params }) {
     },
   });
 
-  return NextResponse.json({ data: updatedReview }, { status: 200 });
+  return NextResponse.json(
+    {
+      message: "تم تحديث التقييم بنجاح",
+      data: updatedReview,
+    },
+    { status: 200 }
+  );
 }
 
 // DELETE /api/reviews/[reviewId]
 export async function DELETE(req, { params }) {
-
   const { reviewId } = await params;
+  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "يجب تسجيل الدخول أولاً" },
+      { status: 401 }
+    );
+  }
 
   // Check if review exists and belongs to the user
   const existingReview = await prisma.review.findUnique({
@@ -72,7 +94,7 @@ export async function DELETE(req, { params }) {
   }
 
   // Ensure only the review owner can delete their review
-  if (existingReview.userId !== session.user.id) {
+  if (existingReview.userId !== token.id) {
     return NextResponse.json(
       { error: "غير مصرح لك بحذف هذا التقييم" },
       { status: 403 }
