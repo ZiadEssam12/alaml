@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import * as yup from "yup";
 import { getUserTokenSSR } from "@/lib/auth-helpers";
 import { updateProductReviewStats } from "@/lib/review-stats";
+import { classifyReview } from "@/lib/utils";
 
 const updateReviewSchema = yup.object().shape({
   rating: yup
@@ -47,13 +48,38 @@ export async function PUT(req, { params }) {
 
   const { rating, comment } = body;
 
-  // Update the review and reset status to pending for re-moderation
+  // Get product description for classification
+  const product = await prisma.product.findUnique({
+    where: { id: existingReview.productId },
+    select: { description: true, name: true },
+  });
+
+  if (!product) {
+    return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
+  }
+
+  // Classify the review using AI
+  let status = "pending";
+  const { classification, reason } = await classifyReview(
+    product.description,
+    comment
+  );
+
+  if (classification === "spam") {
+    status = "rejected";
+  }
+  if (classification === "natural") {
+    status = "approved";
+  }
+
+  // Update the review and set status based on classification
   const updatedReview = await prisma.review.update({
     where: { id: reviewId },
     data: {
       rating,
       comment,
-      status: "pending",
+      status,
+      reason,
     },
   });
 

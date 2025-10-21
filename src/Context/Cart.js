@@ -80,27 +80,33 @@ export const CartProvider = ({ children }) => {
       quantity,
     };
 
-    fetch("/api/cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: JSON.stringify({ item }),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) {
-          toast.error(data.error || "حدث خطأ أثناء إضافة المنتج للسلة!");
-          return;
-        }
-        // Update cart state with returned cart items
-        setCart(data.data.items || []);
-        toast.success("تم إضافة المنتج إلى السلة!");
+    toast.promise(
+      fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ item }),
       })
-      .catch(() => {
-        toast.error("حدث خطأ أثناء إضافة المنتج للسلة!");
-      });
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "حدث خطأ أثناء إضافة المنتج للسلة!");
+          }
+          // Update cart state with returned cart items
+          setCart(data.data.items || []);
+          return data;
+        })
+        .catch((error) => {
+          throw error;
+        }),
+      {
+        loading: "جاري إضافة المنتج...",
+        success: "تم إضافة المنتج إلى السلة!",
+        error: (err) => err.message || "حدث خطأ أثناء إضافة المنتج للسلة!",
+      }
+    );
   };
 
   const removeCartItem = (id) => {
@@ -109,25 +115,31 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) {
-          toast.error(data.error || "حدث خطأ أثناء إزالة المنتج!");
-          return;
-        }
-        setCart((prev) => prev.filter((item) => item.id !== id));
-        toast.success("تم إزالة المنتج من السلة!");
+    toast.promise(
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
       })
-      .catch(() => {
-        toast.error("حدث خطأ أثناء إزالة المنتج!");
-      });
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "حدث خطأ أثناء إزالة المنتج!");
+          }
+          setCart((prev) => prev.filter((item) => item.id !== id));
+          return data;
+        })
+        .catch((error) => {
+          throw error;
+        }),
+      {
+        loading: "جاري إزالة المنتج...",
+        success: "تم إزالة المنتج من السلة!",
+        error: (err) => err.message || "حدث خطأ أثناء إزالة المنتج!",
+      }
+    );
   };
 
   const emptyCart = () => {
@@ -136,25 +148,31 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) {
-          toast.error(data.error || "حدث خطأ أثناء إفراغ السلة!");
-          return;
-        }
-        setCart([]);
-        toast.success("تم إفراغ السلة بنجاح!");
+    toast.promise(
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
       })
-      .catch(() => {
-        toast.error("حدث خطأ أثناء إفراغ السلة!");
-      });
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "حدث خطأ أثناء إفراغ السلة!");
+          }
+          setCart([]);
+          return data;
+        })
+        .catch((error) => {
+          throw error;
+        }),
+      {
+        loading: "جاري إفراغ السلة...",
+        success: "تم إفراغ السلة بنجاح!",
+        error: (err) => err.message || "حدث خطأ أثناء إفراغ السلة!",
+      }
+    );
   };
 
   const totalItemInCart = cart.length;
@@ -165,6 +183,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
+    // Optimistically update UI
     setCart((prev) =>
       prev.map((item) =>
         item.id === id
@@ -172,32 +191,40 @@ export const CartProvider = ({ children }) => {
           : item
       )
     );
-    toast.success("تم تحديث المنتج في السلة!");
 
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: JSON.stringify({ quantity: newQuantity }),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "حدث خطأ أثناء تحديث المنتج!");
-        }
+    toast.promise(
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/item/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({ quantity: newQuantity }),
       })
-      .catch((error) => {
-        toast.error(error.message || "حدث خطأ أثناء تحديث المنتج!");
-        setCart((prev) =>
-          prev.map((item) =>
-            item.id === id
-              ? { ...item, quantity: item.quantity - newQuantity }
-              : item
-          )
-        );
-      });
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "حدث خطأ أثناء تحديث المنتج!");
+          }
+          return data;
+        })
+        .catch((error) => {
+          // Revert on error
+          setCart((prev) =>
+            prev.map((item) =>
+              item.id === id
+                ? { ...item, quantity: item.quantity - newQuantity }
+                : item
+            )
+          );
+          throw error;
+        }),
+      {
+        loading: "جاري تحديث المنتج...",
+        success: "تم تحديث المنتج في السلة!",
+        error: (err) => err.message || "حدث خطأ أثناء تحديث المنتج!",
+      }
+    );
   };
 
   return (

@@ -4,14 +4,20 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Star, Loader2, Filter } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import ReviewDialog from "./ReviewDialog";
+import { useReviewDialog } from "@/Context/ReviewDialogContext";
+import { useSession } from "next-auth/react";
 
 export default function ReviewsModal({
   isOpen,
   onClose,
   productId,
+  productName = "",
   initialReviews = [],
   totalReviews = 0,
 }) {
+  const { data: session } = useSession();
+  const { setProductInfo, openDialog } = useReviewDialog();
   const [reviews, setReviews] = useState(initialReviews);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -195,6 +201,34 @@ export default function ReviewsModal({
             </select>
           </div>
         </div>
+
+        {/* Add Review Section */}
+        {session && (
+          <div className="p-6 border-b border-gray-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-900/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-slate-100">
+                  شارك تجربتك مع المنتج
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
+                  ساعد العملاء الآخرين باختيارهم
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setProductInfo(productId, productName);
+                  openDialog();
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+              >
+                إضافة تقييم
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Review Dialog */}
+        <ReviewDialog />
 
         {/* Reviews List */}
         <div className="flex-1 overflow-y-auto">
