@@ -15,16 +15,8 @@ const cookieKey =
  * @returns {string|null} Raw session cookie value or null
  */
 export function getUserTokenCSR() {
-  console.log("Attempting to get CSR token...", Cookies.get());
-
-  try {
-    const sessionCookie = Cookies.get(cookieKey);
-    console.log("CSR token retrieved:", sessionCookie);
-    return sessionCookie || null;
-  } catch (error) {
-    console.error("Error getting CSR token:", error);
-    return null;
-  }
+  const sessionCookie = Cookies.get(cookieKey);
+  return sessionCookie;
 }
 
 /**

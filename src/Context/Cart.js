@@ -3,7 +3,6 @@
 import { createContext, use, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { loadingContext } from "./LoadinContext";
-import { getUserTokenCSR } from "@/lib/auth-helpers-client";
 
 export const cartContext = createContext();
 
@@ -14,10 +13,17 @@ export const CartProvider = ({ children }) => {
   console.log("User Token in Cart Context:", userToken);
 
   useEffect(() => {
-    const getToken = () => {
+    const getToken = async () => {
       try {
-        const token = getUserTokenCSR();
-        setUserToken(token);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/auth/token`
+        );
+        const data = await response.json();
+        if (data.token) {
+          setUserToken(data.token);
+        } else {
+          setUserToken(null);
+        }
       } catch (error) {
         console.error("Failed to get token:", error);
         setUserToken(null);
@@ -28,6 +34,11 @@ export const CartProvider = ({ children }) => {
 
   // Fetch cart when token is available
   useEffect(() => {
+    if (!userToken) {
+      setLoading(false);
+      return;
+    }
+
     // Fetch cart from API using token
     fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user/`, {
       method: "GET",
@@ -46,7 +57,7 @@ export const CartProvider = ({ children }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [userToken]);
+  }, [userToken, setLoading]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
