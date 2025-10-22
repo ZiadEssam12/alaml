@@ -119,6 +119,25 @@ function AddingProductForm({
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="maxQuantityPerUser">
+              الحد الأقصى للشراء لكل مستخدم
+            </Label>
+            <Input
+              id="maxQuantityPerUser"
+              type="number"
+              min="1"
+              value={formData.maxQuantityPerUser}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  maxQuantityPerUser: Number.parseInt(e.target.value) || 1,
+                })
+              }
+              required
+            />
+          </div>
+
           <ImageUpload
             currentImages={formData.imageUrls}
             onImageUploaded={(imageUrl) => {

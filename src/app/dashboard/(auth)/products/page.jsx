@@ -96,6 +96,7 @@ function ProductsManagementContent() {
     description: "",
     price: 0,
     stockQuantity: 0,
+    maxQuantityPerUser: 1,
     categoryID: "",
     imageUrls: [],
   });
@@ -154,6 +155,7 @@ function ProductsManagementContent() {
         description: formData.description,
         price: formData.price,
         stockQuantity: formData.stockQuantity,
+        maxQuantityPerUser: formData.maxQuantityPerUser,
         categoryID: formData.categoryID,
         imageUrls: formData.imageUrls,
         updatedAt: new Date(),
@@ -193,6 +195,7 @@ function ProductsManagementContent() {
       description: product.description,
       price: product.price,
       stockQuantity: product.stockQuantity,
+      maxQuantityPerUser: product.maxQuantityPerUser || 1,
       categoryID: product.categoryID,
       imageUrls: product.imageUrls,
     });
@@ -231,6 +234,7 @@ function ProductsManagementContent() {
       description: "",
       price: 0,
       stockQuantity: 0,
+      maxQuantityPerUser: 1,
       categoryID: "",
       imageUrls: [],
     });

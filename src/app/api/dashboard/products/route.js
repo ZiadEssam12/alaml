@@ -81,7 +81,7 @@ export async function POST(request) {
         price,
         imageUrls,
         stockQuantity,
-        maxQuantityPerUser: maxQuantityPerUser ?? 5,
+        maxQuantityPerUser: maxQuantityPerUser ?? 1,
         categoryID,
         slug: slugify(name, { lower: true }),
       },
