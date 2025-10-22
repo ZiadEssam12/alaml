@@ -7,7 +7,10 @@ export async function GET(request) {
   try {
     const session = await getUserTokenSSR(request);
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "المستخدم غير مصرح له" },
+        { status: 401 }
+      );
     }
 
     const userId = session.id;

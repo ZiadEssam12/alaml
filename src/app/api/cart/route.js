@@ -65,6 +65,7 @@ export async function POST(request) {
           price: true,
           imageUrls: true,
           stockQuantity: true,
+          maxQuantityPerUser: true,
         },
       }),
       prisma.cartItem.findFirst({
@@ -92,6 +93,21 @@ export async function POST(request) {
     if (product.stockQuantity < item.quantity) {
       return NextResponse.json(
         { error: "الكمية المطلوبة غير متوفرة في المخزون" },
+        { status: 409 }
+      );
+    }
+
+    // Check if total quantity (existing + new) exceeds maxQuantityPerUser
+    const totalQuantity = (existingItem?.quantity || 0) + item.quantity;
+    if (totalQuantity > product.maxQuantityPerUser) {
+      return NextResponse.json(
+        {
+          error: `الكمية الإجمالية (${totalQuantity}) تتجاوز الحد الأقصى المسموح به: ${
+            product.maxQuantityPerUser
+          }. لديك بالفعل ${
+            existingItem?.quantity || 0
+          } من هذا المنتج في السلة.`,
+        },
         { status: 409 }
       );
     }

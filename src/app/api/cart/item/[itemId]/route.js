@@ -48,12 +48,16 @@ export async function PUT(request, { params }) {
         throw new Error("تعذر العثور على المنتج");
       }
 
-      // Validate quantity
-      if (
-        itemData.quantity + quantity > product.stockQuantity ||
-        itemData.quantity + quantity > product.maxQuantityPerUser
-      ) {
-        throw new Error("عدد الكمية غير كافٍ");
+      // Validate stock quantity
+      if (itemData.quantity + quantity > product.stockQuantity) {
+        throw new Error("الكمية المطلوبة غير متوفرة في المخزون");
+      }
+
+      // Validate max quantity per user
+      if (itemData.quantity + quantity > product.maxQuantityPerUser) {
+        throw new Error(
+          "الكمية الإجمالية تتجاوز الحد الأقصى المسموح به لكل مستخدم"
+        );
       }
 
       // Update cart item
@@ -90,10 +94,19 @@ export async function PUT(request, { params }) {
     if (error.message === "تعذر العثور على المنتج") {
       return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
     }
-    if (error.message === "عدد الكمية غير كافٍ") {
+    if (error.message === "الكمية المطلوبة غير متوفرة في المخزون") {
       return NextResponse.json(
-        { error: "عدد الكمية غير كافٍ" },
-        { status: 403 }
+        { error: "الكمية المطلوبة غير متوفرة في المخزون" },
+        { status: 409 }
+      );
+    }
+    if (
+      error.message ===
+      "الكمية الإجمالية تتجاوز الحد الأقصى المسموح به لكل مستخدم"
+    ) {
+      return NextResponse.json(
+        { error: "الكمية الإجمالية تتجاوز الحد الأقصى المسموح به لكل مستخدم" },
+        { status: 409 }
       );
     }
 
@@ -110,7 +123,7 @@ export async function DELETE(request, { params }) {
     const session = await getUserTokenSSR(request);
     const userId = session?.id;
     const { itemId } = await params;
-    
+
     if (!itemId) {
       return NextResponse.json(
         { error: "معرف عنصر السلة مطلوب" },
