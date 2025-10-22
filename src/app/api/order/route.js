@@ -93,6 +93,18 @@ export async function POST(request) {
       );
     }
 
+    // Validate that all cart items respect maxQuantityPerUser
+    for (const item of cartItems) {
+      if (item.quantity > item.product.maxQuantityPerUser) {
+        return NextResponse.json(
+          {
+            error: `كمية المنتج "${item.product.name}" (${item.quantity}) تتجاوز الحد الأقصى المسموح به: ${item.product.maxQuantityPerUser}`,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     let subtotal = 0;
     const itemsWithTotal = cartItems.map((item) => {
       const price = item.product.price;
