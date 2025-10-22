@@ -2,39 +2,39 @@ import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// GET: Get all carts with pagination
-export async function GET(request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const page = Number(searchParams.get("page") || 1);
-    const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
+// // GET: Get all carts with pagination
+// export async function GET(request) {
+//   try {
+//     const { searchParams } = new URL(request.url);
+//     const page = Number(searchParams.get("page") || 1);
+//     const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
 
-    const totalCarts = await prisma.cart.count();
-    const maxPage = Math.ceil(totalCarts / limit);
+//     const totalCarts = await prisma.cart.count();
+//     const maxPage = Math.ceil(totalCarts / limit);
 
-    const carts = await prisma.cart.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      include: { items: true },
-    });
+//     const carts = await prisma.cart.findMany({
+//       skip: (page - 1) * limit,
+//       take: limit,
+//       orderBy: { createdAt: "desc" },
+//       include: { items: true },
+//     });
 
-    return NextResponse.json(
-      {
-        data: carts,
-        page,
-        maxPage,
-        message: "Carts fetched successfully",
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch carts" },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json(
+//       {
+//         data: carts,
+//         page,
+//         maxPage,
+//         message: "Carts fetched successfully",
+//       },
+//       { status: 200 }
+//     );
+//   } catch (error) {
+//     return NextResponse.json(
+//       { error: "Failed to fetch carts" },
+//       { status: 500 }
+//     );
+//   }
+// }
 
 export async function POST(request) {
   try {
@@ -42,42 +42,50 @@ export async function POST(request) {
 
     const body = await request.json();
     const { item } = body;
-    if (!session || !item) {
+    if (!session) {
       return NextResponse.json(
-        { error: "User id and item are required" },
+        { error: "المستخدم غير مصرح له" },
+        { status: 401 }
+      );
+    }
+
+    if (!item || !item.productId) {
+      return NextResponse.json(
+        { error: "بيانات العنصر غير صحيحة" },
         { status: 400 }
       );
     }
 
-    let cart = await prisma.cart.findFirst({
-      where: { userId: session.id },
-      include: { items: true },
-    });
-    if (!cart) {
-      cart = await prisma.cart.create({
-        data: { userId: session.id },
-        include: { items: true },
-      });
-    }
+    // Fetch product and check for existing cart item in parallel
+    const [product, existingItem] = await Promise.all([
+      prisma.product.findUnique({
+        where: { id: item.productId },
+        select: {
+          name: true,
+          price: true,
+          imageUrls: true,
+          stockQuantity: true,
+        },
+      }),
+      prisma.cartItem.findFirst({
+        where: {
+          cart: { userId: session.id },
+          productId: String(item.productId),
+        },
+      }),
+    ]);
 
-    const existingItem = await prisma.cartItem.findFirst({
-      where: { cartId: cart.id, productId: String(item.productId) },
-    });
-    if (existingItem) {
-      return NextResponse.json(
-        { error: "العنصر موجود بالفعل في السلة" },
-        { status: 409 }
-      );
-    }
-    // Add item to cart
-    const product = await prisma.product.findUnique({
-      where: { id: item.productId },
-      select: { name: true, price: true, imageUrls: true },
-    });
     if (!product) {
       return NextResponse.json(
         { error: "المنتج غير موجود في قاعدة البيانات" },
         { status: 404 }
+      );
+    }
+
+    if (existingItem) {
+      return NextResponse.json(
+        { error: "العنصر موجود بالفعل في السلة" },
+        { status: 409 }
       );
     }
 
@@ -88,22 +96,34 @@ export async function POST(request) {
       );
     }
 
-    const cartItem = await prisma.cartItem.create({
-      data: {
-        cart: { connect: { id: cart.id } },
-        product: { connect: { id: item.productId } },
-        name: product.name,
-        price: product.price,
-        quantity: item.quantity,
-        imageUrl: product.imageUrls?.[0] || null,
-      },
+    // Use transaction to upsert cart and create item atomically
+    const updatedCart = await prisma.$transaction(async (tx) => {
+      // Upsert cart
+      const cart = await tx.cart.upsert({
+        where: { userId: session.id },
+        update: {},
+        create: { userId: session.id },
+      });
+
+      // Create cart item
+      await tx.cartItem.create({
+        data: {
+          cartId: cart.id,
+          productId: item.productId,
+          name: product.name,
+          price: product.price,
+          quantity: item.quantity,
+          imageUrl: product.imageUrls?.[0] || null,
+        },
+      });
+
+      // Return updated cart with items
+      return tx.cart.findUnique({
+        where: { id: cart.id },
+        include: { items: true },
+      });
     });
 
-    // Fetch updated cart
-    const updatedCart = await prisma.cart.findUnique({
-      where: { id: cart.id },
-      include: { items: true },
-    });
     return NextResponse.json(
       { data: updatedCart, message: "تمت إضافة العنصر إلى السلة" },
       { status: 201 }
@@ -121,22 +141,27 @@ export async function DELETE(request) {
     // Getting user id from headers
     const session = await getUserTokenSSR(request);
 
-    const cart = await prisma.cart.findFirst({
-      where: { userId: session.id },
-      include: { items: true },
-    });
-    if (!cart) {
-      return NextResponse.json({ error: "السلة غير موجودة" }, { status: 404 });
-    }
+    // Use transaction to delete items and fetch updated cart atomically
+    const updatedCart = await prisma.$transaction(async (tx) => {
+      // Find cart by unique userId
+      const cart = await tx.cart.findUnique({
+        where: { userId: session.id },
+      });
 
-    // Remove all items from the cart
-    await prisma.cartItem.deleteMany({
-      where: { cartId: cart.id },
-    });
+      if (!cart) {
+        throw new Error("السلة غير موجودة");
+      }
 
-    const updatedCart = await prisma.cart.findUnique({
-      where: { id: cart.id },
-      include: { items: true },
+      // Remove all items from the cart
+      await tx.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
+
+      // Return updated cart with items (should be empty)
+      return tx.cart.findUnique({
+        where: { id: cart.id },
+        include: { items: true },
+      });
     });
 
     return NextResponse.json(
@@ -144,6 +169,9 @@ export async function DELETE(request) {
       { status: 200 }
     );
   } catch (error) {
+    if (error.message === "السلة غير موجودة") {
+      return NextResponse.json({ error: "السلة غير موجودة" }, { status: 404 });
+    }
     return NextResponse.json(
       { error: "فشل في حذف العنصر من السلة" },
       { status: 500 }
