@@ -30,6 +30,12 @@ export async function GET(request) {
       case "high-to-low":
         orderBy = { price: "desc" };
         break;
+      case "rating-high-to-low":
+        orderBy = { averageRating: "desc" };
+        break;
+      case "rating-low-to-high":
+        orderBy = { averageRating: "asc" };
+        break;
       default:
         orderBy = { createdAt: "desc" };
     }
@@ -64,31 +70,36 @@ export async function GET(request) {
         skip: (page - 1) * limit,
         take: limit,
         orderBy,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          price: true,
+          imageUrls: true,
+          stockQuantity: true,
+          maxQuantityPerUser: true,
+          isActive: true,
+          categoryID: true,
+          createdAt: true,
+          updatedAt: true,
+          // Include denormalized rating fields
+          ratingCount: true,
+          ratingSum: true,
+          averageRating: true,
+        },
       }),
     ]);
 
-    // Fetch review statistics for each product
-    let products = await Promise.all(
-      productsData.map(async (product) => {
-        const reviewStats = await prisma.review.aggregate({
-          where: { productId: product.id, status: "approved" },
-          _avg: { rating: true },
-          _count: { id: true },
-        });
+    // Products already have denormalized rating values, just add totalSales
+    let products = productsData.map((product) => ({
+      ...product,
+      totalSales: product.ratingCount,
+    }));
 
-        return {
-          ...product,
-          averageRating: reviewStats._avg.rating || 0,
-          totalSales: reviewStats._count.id || 0,
-        };
-      })
-    );
-
-    // Filter by rating if provided
+    // Filter by rating if provided (must be done before Prisma query for best performance)
     if (rating) {
-      products = products.filter(
-        (product) => product.averageRating >= Number(rating)
-      );
+      where.averageRating = { gte: Number(rating) };
     }
 
     const maxPage = Math.ceil(totalProducts / limit);
