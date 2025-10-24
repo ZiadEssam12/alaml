@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
     return cart.some((item) => item.productId === id);
   };
 
-  const addToCart = (product, quantity) => {
+  const addToCart = (product, quantity, variantId) => {
     if (!isInCart(product.id)) {
       setCart((prev) => [...prev, { ...product, quantity }]);
     }
@@ -78,6 +78,7 @@ export const CartProvider = ({ children }) => {
     const item = {
       productId: product.id,
       quantity,
+      ...(variantId && { variantId }),
     };
 
     toast.promise(

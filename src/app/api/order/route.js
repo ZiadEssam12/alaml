@@ -82,7 +82,10 @@ export async function POST(request) {
       }),
       prisma.cartItem.findMany({
         where: { cart: { userId } },
-        include: { product: true },
+        include: {
+          product: true,
+          variant: true,
+        },
       }),
     ]);
 
@@ -93,7 +96,7 @@ export async function POST(request) {
       );
     }
 
-    // Validate that all cart items respect maxQuantityPerUser
+    // Validate that all cart items respect maxQuantityPerUser and stock availability
     for (const item of cartItems) {
       if (item.quantity > item.product.maxQuantityPerUser) {
         return NextResponse.json(
@@ -102,6 +105,28 @@ export async function POST(request) {
           },
           { status: 409 }
         );
+      }
+
+      // If variant is selected, validate variant stock
+      if (item.variantId && item.variant) {
+        if (item.quantity > item.variant.stockQuantity) {
+          return NextResponse.json(
+            {
+              error: `كمية الخيار المختار من "${item.product.name}" (${item.quantity}) غير متوفرة. المتاح: ${item.variant.stockQuantity}`,
+            },
+            { status: 409 }
+          );
+        }
+      } else {
+        // Validate base product stock
+        if (item.quantity > item.product.stockQuantity) {
+          return NextResponse.json(
+            {
+              error: `كمية المنتج "${item.product.name}" (${item.quantity}) غير متوفرة. المتاح: ${item.product.stockQuantity}`,
+            },
+            { status: 409 }
+          );
+        }
       }
     }
 
@@ -159,6 +184,37 @@ export async function POST(request) {
 
     const finalAmount = subtotal + shippingCost - discount;
 
+    // Build transaction operations for updating stock
+    const stockUpdateOps = [];
+
+    for (const item of cartItems) {
+      if (item.variantId) {
+        // Update variant stock
+        stockUpdateOps.push(
+          prisma.productVariant.update({
+            where: { id: item.variantId },
+            data: {
+              stockQuantity: {
+                decrement: item.quantity,
+              },
+            },
+          })
+        );
+      } else {
+        // Update product stock
+        stockUpdateOps.push(
+          prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stockQuantity: {
+                decrement: item.quantity,
+              },
+            },
+          })
+        );
+      }
+    }
+
     // Create order and update stock in a transaction
     const [order] = await prisma.$transaction([
       prisma.order.create({
@@ -184,16 +240,7 @@ export async function POST(request) {
         },
         include: { items: true },
       }),
-      ...cartItems.map((item) =>
-        prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            stockQuantity: {
-              decrement: item.quantity,
-            },
-          },
-        })
-      ),
+      ...stockUpdateOps,
       prisma.cartItem.deleteMany({ where: { cartId: cart.id } }),
     ]);
 

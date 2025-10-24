@@ -56,7 +56,129 @@ export async function POST(request) {
       );
     }
 
-    // Fetch product and check for existing cart item in parallel
+    // If variant is specified, validate variant instead of product
+    if (item.variantId) {
+      const [product, variant, existingItem] = await Promise.all([
+        prisma.product.findUnique({
+          where: { id: item.productId },
+          select: {
+            name: true,
+            maxQuantityPerUser: true,
+          },
+        }),
+        prisma.productVariant.findUnique({
+          where: { id: item.variantId },
+          select: {
+            id: true,
+            sku: true,
+            price: true,
+            stockQuantity: true,
+            isActive: true,
+            imageUrls: true,
+            options: {
+              select: {
+                optionId: true,
+                valueId: true,
+                option: { select: { name: true } },
+                value: { select: { value: true } },
+              },
+            },
+          },
+        }),
+        prisma.cartItem.findFirst({
+          where: {
+            cart: { userId: session.id },
+            productId: String(item.productId),
+            variantId: String(item.variantId),
+          },
+        }),
+      ]);
+
+      if (!product) {
+        return NextResponse.json(
+          { error: "المنتج غير موجود في قاعدة البيانات" },
+          { status: 404 }
+        );
+      }
+
+      if (!variant) {
+        return NextResponse.json(
+          { error: "هذا الخيار غير موجود" },
+          { status: 404 }
+        );
+      }
+
+      if (!variant.isActive) {
+        return NextResponse.json(
+          { error: "هذا الخيار غير متاح للشراء" },
+          { status: 409 }
+        );
+      }
+
+      if (existingItem) {
+        return NextResponse.json(
+          { error: "هذا الخيار موجود بالفعل في السلة" },
+          { status: 409 }
+        );
+      }
+
+      if (variant.stockQuantity < item.quantity) {
+        return NextResponse.json(
+          { error: "الكمية المطلوبة من هذا الخيار غير متوفرة" },
+          { status: 409 }
+        );
+      }
+
+      // Check maxQuantityPerUser
+      const totalQuantity = (existingItem?.quantity || 0) + item.quantity;
+      if (totalQuantity > product.maxQuantityPerUser) {
+        return NextResponse.json(
+          {
+            error: `الكمية الإجمالية (${totalQuantity}) تتجاوز الحد الأقصى المسموح به: ${product.maxQuantityPerUser}.`,
+          },
+          { status: 409 }
+        );
+      }
+
+      // Use transaction to upsert cart and create item with variant
+      const updatedCart = await prisma.$transaction(async (tx) => {
+        const cart = await tx.cart.upsert({
+          where: { userId: session.id },
+          update: {},
+          create: { userId: session.id },
+        });
+
+        // Build variant option display string
+        const optionDisplay = variant.options
+          .map((opt) => `${opt.option.name}: ${opt.value.value}`)
+          .join(", ");
+
+        await tx.cartItem.create({
+          data: {
+            cartId: cart.id,
+            productId: item.productId,
+            variantId: item.variantId,
+            name: product.name,
+            price: variant.price,
+            quantity: item.quantity,
+            imageUrl: variant.imageUrls?.[0] || null,
+            variantOptions: optionDisplay,
+          },
+        });
+
+        return tx.cart.findUnique({
+          where: { id: cart.id },
+          include: { items: true },
+        });
+      });
+
+      return NextResponse.json(
+        { data: updatedCart, message: "تمت إضافة العنصر إلى السلة" },
+        { status: 201 }
+      );
+    }
+
+    // Original product-only flow
     const [product, existingItem] = await Promise.all([
       prisma.product.findUnique({
         where: { id: item.productId },
@@ -72,6 +194,7 @@ export async function POST(request) {
         where: {
           cart: { userId: session.id },
           productId: String(item.productId),
+          variantId: null,
         },
       }),
     ]);

@@ -208,7 +208,11 @@ export default async function ProductPage({ params }) {
 
               {/* Add to Cart Section */}
               <div className="pt-6 border-t">
-                <ProductCartControlsWrapper product={displayProduct} />
+                <ProductCartControlsWrapper
+                  product={displayProduct}
+                  options={options}
+                  variants={variants}
+                />
               </div>
             </div>
 

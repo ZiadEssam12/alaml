@@ -17,6 +17,7 @@ import { cartContext } from "@/Context/Cart";
  * - quantity: Initial quantity (default: 1)
  * - disabled: Disable button (default: false)
  * - showQuantityControls: Show +/- quantity controls (default: false)
+ * - variantId: Optional variant ID when product has variants
  * - className: Custom styling
  * - size: Button size (default: "lg")
  * - variant: Button variant (default: "default")
@@ -27,6 +28,7 @@ export default function AddToCartButton({
   quantity = 1,
   disabled = false,
   showQuantityControls = false,
+  variantId = null,
   className = "w-full h-12 text-base font-medium relative overflow-hidden group",
   size = "lg",
   variant = "default",
@@ -78,7 +80,7 @@ export default function AddToCartButton({
     setIsAdding(true);
 
     try {
-      await addToCart(product, quantityNumber);
+      await addToCart(product, quantityNumber, variantId);
       setQuantityNumber(1);
       if (onAddSuccess) {
         onAddSuccess();

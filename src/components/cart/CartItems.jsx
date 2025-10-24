@@ -73,6 +73,11 @@ export function CartItems() {
 
           <div className="flex-1 text-center lg:text-left">
             <h3 className="font-semibold">{item.name}</h3>
+            {item.variantOptions && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {item.variantOptions}
+              </p>
+            )}
             <p className="text-primary font-bold">{item.price} جنيه</p>
           </div>
 

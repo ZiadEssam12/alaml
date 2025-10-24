@@ -98,6 +98,7 @@ model ProductVariant {
   imageUrls      String[]
   combinationHash String                 @unique
   options        ProductVariantOption[]
+  cartItems      CartItem[]
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @updatedAt
 
@@ -209,18 +210,22 @@ model Cart {
 }
 
 model CartItem {
-  id        String  @id @default(uuid())
-  cart      Cart    @relation(fields: [cartId], references: [id])
-  cartId    String
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
-  name      String
-  price     Float
-  imageUrl  String
-  quantity  Int
+  id              String  @id @default(uuid())
+  cart            Cart    @relation(fields: [cartId], references: [id])
+  cartId          String
+  product         Product @relation(fields: [productId], references: [id])
+  productId       String
+  variant         ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variantId       String?
+  name            String
+  price           Float
+  imageUrl        String
+  quantity        Int
+  variantOptions  String? // Display string like "Size: M, Color: Red"
 
   @@index([cartId])
   @@index([productId])
+  @@index([variantId])
 }
 
 model Coupon {

@@ -30,11 +30,24 @@ export default function ProductCartControlsSkeleton() {
   );
 }
 
-const ProductCartControlsDynamic = dynamic(() => import("./ProductCartControls"), {
-  ssr: false,
-  loading: () => <ProductCartControlsSkeleton />,
-});
+const ProductCartControlsDynamic = dynamic(
+  () => import("./ProductCartControls"),
+  {
+    ssr: false,
+    loading: () => <ProductCartControlsSkeleton />,
+  }
+);
 
-export function ProductCartControlsWrapper({ product }) {
-  return <ProductCartControlsDynamic product={product} />;
+export function ProductCartControlsWrapper({
+  product,
+  options = [],
+  variants = [],
+}) {
+  return (
+    <ProductCartControlsDynamic
+      product={product}
+      options={options}
+      variants={variants}
+    />
+  );
 }
