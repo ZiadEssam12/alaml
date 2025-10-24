@@ -1,103 +1,169 @@
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 
-// Update endpoint for product variants
-// endpoint : base/products/[id]/variants/[variantid]
-// Method : PUT
+/**
+ * PUT: Update a variant
+ * DELETE: Delete a variant
+ */
+
 export async function PUT(request, { params }) {
   try {
-    // 1- getting product and variant IDs from params
-    const { id: productId, variantId } = await params;
+    const { variantId } = await params;
+    const session = await getUserTokenSSR(request);
 
-    // 2- checking for required params
-    if (!productId) {
-      return NextResponse.json({ error: "معرف المنتج مطلوب" }, { status: 400 });
+    if (session?.role !== "admin") {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
+
     if (!variantId) {
       return NextResponse.json(
-        { error: "معرف المتغير مطلوب" },
+        { error: "Variant ID is required" },
         { status: 400 }
       );
     }
 
-    // 3- checking for product existence
+    const body = await request.json();
+    const { sku, price, stockQuantity, imageUrls, options, isActive } = body;
 
-    const variant = await prisma.variant.findFirst({
-      where: {
-        id: variantId,
-        productID: productId,
-      },
-      select: { id: true },
+    // Fetch existing variant
+    const existingVariant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
+      include: { options: true },
     });
 
-    if (!variant) {
-      return NextResponse.json({ error: "المتغير غير موجود" }, { status: 404 });
+    if (!existingVariant) {
+      return NextResponse.json({ error: "Variant not found" }, { status: 404 });
     }
 
-    // 4- getting update data from request body
-    const data = await request.json();
+    // If options changed, regenerate hash and check for duplicates
+    let newCombinationHash = existingVariant.combinationHash;
+    if (options && Array.isArray(options) && options.length > 0) {
+      const sortedOptions = options
+        .sort((a, b) => a.optionId.localeCompare(b.optionId))
+        .map((o) => `${o.optionId}:${o.valueId}`)
+        .join("|");
 
-    // 5- updating the variant
-    const updatedVariant = await prisma.variant.update({
-      where: { id: variantId },
-      data: {
-        ...data,
-      },
+      newCombinationHash = crypto
+        .createHash("sha256")
+        .update(sortedOptions)
+        .digest("hex");
+
+      // Check if another variant has this combination
+      if (newCombinationHash !== existingVariant.combinationHash) {
+        const duplicate = await prisma.productVariant.findUnique({
+          where: { combinationHash: newCombinationHash },
+        });
+
+        if (duplicate) {
+          return NextResponse.json(
+            { error: "This variant combination already exists" },
+            { status: 409 }
+          );
+        }
+      }
+    }
+
+    // Update variant with options in transaction
+    const updatedVariant = await prisma.$transaction(async (tx) => {
+      const variant = await tx.productVariant.update({
+        where: { id: variantId },
+        data: {
+          ...(sku !== undefined && { sku: sku || null }),
+          ...(price !== undefined && { price: parseFloat(price) }),
+          ...(stockQuantity !== undefined && {
+            stockQuantity: parseInt(stockQuantity),
+          }),
+          ...(imageUrls && { imageUrls }),
+          ...(isActive !== undefined && { isActive }),
+          combinationHash: newCombinationHash,
+        },
+      });
+
+      // Update options if provided
+      if (options && Array.isArray(options) && options.length > 0) {
+        // Delete existing options
+        await tx.productVariantOption.deleteMany({
+          where: { variantId },
+        });
+
+        // Create new options
+        for (const opt of options) {
+          await tx.productVariantOption.create({
+            data: {
+              variantId,
+              optionId: opt.optionId,
+              valueId: opt.valueId,
+            },
+          });
+        }
+      }
+
+      return tx.productVariant.findUnique({
+        where: { id: variantId },
+        include: {
+          options: {
+            include: {
+              option: { select: { name: true } },
+              value: { select: { value: true, hex: true, imageUrl: true } },
+            },
+          },
+        },
+      });
     });
 
-    return NextResponse.json({ variant: updatedVariant }, { status: 200 });
-  } catch (error) {
-    console.error("error:", error.message);
     return NextResponse.json(
-      { error: "حدث خطأ اثناء تعديل المتغير" },
+      { data: updatedVariant, message: "Variant updated successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating variant:", error);
+    return NextResponse.json(
+      { error: "Failed to update variant" },
       { status: 500 }
     );
   }
 }
 
-// Delete endpoint for variant options
-// endpoint : base/products/[id]/variants/[variantid]
-// Method : Delete
 export async function DELETE(request, { params }) {
   try {
-    const { id: productId, variantId } = await params;
-    if (!productId) {
-      return NextResponse.json({ error: "معرف المنتج مطلوب" }, { status: 400 });
+    const { variantId } = await params;
+    const session = await getUserTokenSSR(request);
+
+    if (session?.role !== "admin") {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
+
     if (!variantId) {
       return NextResponse.json(
-        { error: "معرف المتغير مطلوب" },
+        { error: "Variant ID is required" },
         { status: 400 }
       );
     }
 
-    // Check if variant exists and belongs to this product
-    const variant = await prisma.variant.findFirst({
-      where: {
-        id: variantId,
-        productID: productId,
-      },
-      select: { id: true },
+    // Check if variant exists
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: variantId },
     });
 
     if (!variant) {
-      return NextResponse.json({ error: "المتغير غير موجود" }, { status: 404 });
+      return NextResponse.json({ error: "Variant not found" }, { status: 404 });
     }
 
-    // if it exists, set isActive= falase the variant
-    await prisma.variant.update({
+    // Delete variant (cascade will delete options and cart items)
+    await prisma.productVariant.delete({
       where: { id: variantId },
-      data: { isActive: false },
     });
 
     return NextResponse.json(
-      { message: "تم تعطيل المتغير بنجاح" },
+      { message: "Variant deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("error:", error.message);
+    console.error("Error deleting variant:", error);
     return NextResponse.json(
-      { error: "حدث خطأ اثناء حذف المتغير" },
+      { error: "Failed to delete variant" },
       { status: 500 }
     );
   }

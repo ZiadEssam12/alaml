@@ -76,7 +76,7 @@ export default function VariantsPage() {
       );
       const data = await response.json();
       if (response.ok) {
-        setOptions(data.data || []);
+        setOptions(data.options || data || []);
       }
     } catch (error) {
       console.error("Error loading options:", error);
@@ -111,7 +111,7 @@ export default function VariantsPage() {
   const handleUpdateVariant = async (variantData) => {
     try {
       const response = await fetch(
-        `/api/dashboard/variants/${editingVariant.id}`,
+        `/api/dashboard/products/${productId}/variants/${editingVariant.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -137,7 +137,7 @@ export default function VariantsPage() {
     try {
       setIsDeleting(true);
       const response = await fetch(
-        `/api/dashboard/variants/${variantToDelete.id}`,
+        `/api/dashboard/products/${productId}/variants/${variantToDelete.id}`,
         { method: "DELETE" }
       );
 
