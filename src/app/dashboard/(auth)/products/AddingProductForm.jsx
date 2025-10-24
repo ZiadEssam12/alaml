@@ -141,10 +141,16 @@ function AddingProductForm({
           <ImageUpload
             currentImages={formData.imageUrls}
             onImageUploaded={(imageUrl) => {
-              setFormData({
-                ...formData,
-                imageUrls: [...formData.imageUrls, imageUrl],
-              });
+              setFormData((prev) => ({
+                ...prev,
+                imageUrls: [...prev.imageUrls, imageUrl],
+              }));
+            }}
+            onImageRemoved={(index) => {
+              setFormData((prev) => ({
+                ...prev,
+                imageUrls: prev.imageUrls.filter((_, i) => i !== index),
+              }));
             }}
             folder="products"
           />

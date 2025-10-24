@@ -11,6 +11,7 @@ import { imageService } from "@/lib/image-service";
 
 export function ImageUpload({
   onImageUploaded,
+  onImageRemoved,
   currentImages = [],
   maxImages = 5,
   folder = "products",
@@ -29,6 +30,8 @@ export function ImageUpload({
     setUploading(true);
 
     try {
+      // Collect all valid files first
+      const validFiles = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
@@ -44,9 +47,35 @@ export function ImageUpload({
           continue;
         }
 
-        const imageUrl = await imageService.uploadImage(file, folder);
-        onImageUploaded(imageUrl);
-        toast.success(`تم رفع ${file.name} بنجاح`);
+        validFiles.push(file);
+      }
+
+      // Upload all files in parallel and collect URLs
+      const uploadPromises = validFiles.map((file) =>
+        imageService
+          .uploadImage(file, folder)
+          .then((url) => ({
+            url,
+            name: file.name,
+            success: true,
+          }))
+          .catch((error) => ({
+            name: file.name,
+            success: false,
+            error,
+          }))
+      );
+
+      const results = await Promise.all(uploadPromises);
+
+      // Process results and call onImageUploaded for each successful upload
+      for (const result of results) {
+        if (result.success) {
+          onImageUploaded(result.url);
+          toast.success(`تم رفع ${result.name} بنجاح`);
+        } else {
+          toast.error(`فشل رفع ${result.name}`);
+        }
       }
     } catch (error) {
       console.error("Error uploading images:", error);
@@ -142,8 +171,9 @@ export function ImageUpload({
                 size="icon"
                 className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => {
-                  const newImages = currentImages.filter((_, i) => i !== index);
-                  // يجب تمرير callback لحذف الصورة من القائمة
+                  if (onImageRemoved) {
+                    onImageRemoved(index);
+                  }
                 }}
               >
                 <X className="h-3 w-3" />
