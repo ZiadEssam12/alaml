@@ -195,7 +195,7 @@ export default function VariantsManager({ productId }) {
   };
 
   const renderOptions = (variant) => {
-    return variant.productVariantOptions
+    return variant.options
       ?.map((opt) => `${opt.option.name}: ${opt.value.value}`)
       .join(" | ");
   };
@@ -350,7 +350,10 @@ export default function VariantsManager({ productId }) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setEditingVariant(variant)}
+                            onClick={() => {
+                              setEditingVariant(variant);
+                              setShowForm(true);
+                            }}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
