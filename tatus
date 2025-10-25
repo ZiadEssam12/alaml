@@ -1,5 +1,0 @@
-[33m3d8b797[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m enhance(order items): maxQuantityPerUser before making a new order
-[33m847f22a[m enhance(cart items): maxQuantityPerUser checks for cart
-[33m330ec16[m enhance(cart): POST and DELETE endpoints performance by using prisma transactions and promise all to reduce DB round trips
-[33mba0c036[m feat(products dashboard): added input field for maxQuantityPerUser
-[33m6209226[m feat(api/product):used denormalized rating values instead of calulating values and supports sort by rating

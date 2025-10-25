@@ -103,14 +103,10 @@ export default function VariantsManager({ productId }) {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success(
-          `Generated ${data.generated.new} new variant${
-            data.generated.new !== 1 ? "s" : ""
-          }`
-        );
+        toast.success(`تم إنشاء ${data.generated.new} متغير جديد`);
         loadVariants();
       } else {
-        toast.error(data.error || "Failed to generate variants");
+        toast.error(data.error || "فشل في إنشاء المتغيرات");
       }
     } catch (error) {
       console.error("Error generating variants:", error);
@@ -133,15 +129,15 @@ export default function VariantsManager({ productId }) {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success("Variant created successfully");
+        toast.success("تم إنشاء المتغير بنجاح");
         setShowForm(false);
         loadVariants();
       } else {
-        toast.error(data.error || "Failed to create variant");
+        toast.error(data.error || "فشل في إنشاء المتغير");
       }
     } catch (error) {
       console.error("Error creating variant:", error);
-      toast.error("Failed to create variant");
+      toast.error("فشل في إنشاء المتغير");
     }
   };
 
@@ -158,15 +154,15 @@ export default function VariantsManager({ productId }) {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success("Variant updated successfully");
+        toast.success("تم تحديث المتغير بنجاح");
         setEditingVariant(null);
         loadVariants();
       } else {
-        toast.error(data.error || "Failed to update variant");
+        toast.error(data.error || "فشل في تحديث المتغير");
       }
     } catch (error) {
       console.error("Error updating variant:", error);
-      toast.error("Failed to update variant");
+      toast.error("فشل في تحديث المتغير");
     }
   };
 
@@ -180,15 +176,15 @@ export default function VariantsManager({ productId }) {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success("Variant deleted successfully");
+        toast.success("تم حذف المتغير بنجاح");
         setVariantToDelete(null);
         loadVariants();
       } else {
-        toast.error(data.error || "Failed to delete variant");
+        toast.error(data.error || "فشل في حذف المتغير");
       }
     } catch (error) {
       console.error("Error deleting variant:", error);
-      toast.error("Failed to delete variant");
+      toast.error("فشل في حذف المتغير");
     } finally {
       setIsDeleting(false);
     }
@@ -203,7 +199,7 @@ export default function VariantsManager({ productId }) {
   if (!productId) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Product ID not found</p>
+        <p className="text-red-600">معرّف المنتج غير موجود</p>
       </div>
     );
   }
@@ -223,20 +219,20 @@ export default function VariantsManager({ productId }) {
           ) : (
             <Zap className="h-4 w-4" />
           )}
-          Generate from Options
+          إنشاء من الخيارات
         </Button>
 
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Variant
+              إضافة متغير
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                {editingVariant ? "Edit Variant" : "Add New Variant"}
+                {editingVariant ? "تعديل المتغير" : "إضافة متغير جديد"}
               </DialogTitle>
             </DialogHeader>
             <VariantForm
@@ -259,9 +255,9 @@ export default function VariantsManager({ productId }) {
       <Card>
         <CardHeader>
           <div>
-            <CardTitle>Variants</CardTitle>
+            <CardTitle>المتغيرات</CardTitle>
             <CardDescription>
-              {variants.length} variant{variants.length !== 1 ? "s" : ""} found
+              {variants.length} متغير تم العثور عليه
             </CardDescription>
           </div>
         </CardHeader>
@@ -269,13 +265,13 @@ export default function VariantsManager({ productId }) {
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">Loading variants...</p>
+              <p className="text-muted-foreground">جاري تحميل المتغيرات...</p>
             </div>
           ) : variants.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground mb-4">
-                No variants created yet. Start by adding one or generate from
-                options!
+                لم يتم إنشاء أي متغيرات حتى الآن. ابدأ بإضافة واحدة أو أنشئها من
+                الخيارات!
               </p>
               {options.length > 0 && (
                 <Button
@@ -289,7 +285,7 @@ export default function VariantsManager({ productId }) {
                   ) : (
                     <Zap className="h-4 w-4" />
                   )}
-                  Generate from Options
+                  إنشاء من الخيارات
                 </Button>
               )}
             </div>
@@ -298,12 +294,12 @@ export default function VariantsManager({ productId }) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Options</TableHead>
+                    <TableHead>الخيارات</TableHead>
                     <TableHead>SKU</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>السعر</TableHead>
+                    <TableHead>المخزون</TableHead>
+                    <TableHead>الحالة</TableHead>
+                    <TableHead className="text-right">الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -311,7 +307,7 @@ export default function VariantsManager({ productId }) {
                     <TableRow key={variant.id}>
                       <TableCell className="max-w-xs">
                         <div className="text-sm">
-                          {renderOptions(variant) || "No options"}
+                          {renderOptions(variant) || "بدون خيارات"}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -330,19 +326,19 @@ export default function VariantsManager({ productId }) {
                         <div className="flex items-center gap-2">
                           <span>{variant.stockQuantity}</span>
                           {variant.stockQuantity === 0 && (
-                            <Badge variant="destructive">Out of Stock</Badge>
+                            <Badge variant="destructive">نفد المخزون</Badge>
                           )}
                           {variant.stockQuantity > 0 &&
                             variant.stockQuantity <= 5 && (
-                              <Badge variant="outline">Low Stock</Badge>
+                              <Badge variant="outline">مخزون منخفض</Badge>
                             )}
                         </div>
                       </TableCell>
                       <TableCell>
                         {variant.isActive ? (
-                          <Badge variant="default">Active</Badge>
+                          <Badge variant="default">مفعل</Badge>
                         ) : (
-                          <Badge variant="secondary">Inactive</Badge>
+                          <Badge variant="secondary">معطل</Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -382,19 +378,19 @@ export default function VariantsManager({ productId }) {
         onOpenChange={(open) => !open && setVariantToDelete(null)}
       >
         <AlertDialogContent>
-          <AlertDialogTitle>Delete Variant</AlertDialogTitle>
+          <AlertDialogTitle>حذف المتغير</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this variant? This action cannot be
-            undone.
+            هل أنت متأكد من أنك تريد حذف هذا المتغير؟ لا يمكن التراجع عن هذا
+            الإجراء.
           </AlertDialogDescription>
           <div className="flex justify-end gap-3">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteVariant}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "جاري الحذف..." : "حذف"}
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

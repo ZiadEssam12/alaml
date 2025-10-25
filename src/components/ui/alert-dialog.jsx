@@ -43,14 +43,20 @@ AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
 
 const AlertDialogHeader = ({ className, ...props }) =>
   React.createElement("div", {
-    className: cn("flex flex-col space-y-2 text-center sm:text-left", className),
+    className: cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className
+    ),
     ...props,
   });
 AlertDialogHeader.displayName = "AlertDialogHeader";
 
 const AlertDialogFooter = ({ className, ...props }) =>
   React.createElement("div", {
-    className: cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className),
+    className: cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    ),
     ...props,
   });
 AlertDialogFooter.displayName = "AlertDialogFooter";
@@ -64,12 +70,13 @@ const AlertDialogTitle = React.forwardRef(({ className, ...props }, ref) =>
 );
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
 
-const AlertDialogDescription = React.forwardRef(({ className, ...props }, ref) =>
-  React.createElement(AlertDialogPrimitive.Description, {
-    ref,
-    className: cn("text-sm text-muted-foreground", className),
-    ...props,
-  })
+const AlertDialogDescription = React.forwardRef(
+  ({ className, ...props }, ref) =>
+    React.createElement(AlertDialogPrimitive.Description, {
+      ref,
+      className: cn("text-sm text-muted-foreground", className),
+      ...props,
+    })
 );
 AlertDialogDescription.displayName =
   AlertDialogPrimitive.Description.displayName;
@@ -86,7 +93,11 @@ AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
 const AlertDialogCancel = React.forwardRef(({ className, ...props }, ref) =>
   React.createElement(AlertDialogPrimitive.Cancel, {
     ref,
-    className: cn(buttonVariants({ variant: "outline" }), "mt-2 sm:mt-0", className),
+    className: cn(
+      buttonVariants({ variant: "outline" }),
+      "mt-2 sm:mt-0",
+      className
+    ),
     ...props,
   })
 );

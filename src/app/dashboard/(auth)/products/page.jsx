@@ -360,11 +360,14 @@ function ProductsManagementContent() {
                       </td>
                       <td className="px-4 py-2 text-center">
                         <div className="flex justify-center items-center gap-2">
-                          <Link href={`/dashboard/products/${product.id}`}>
-                            <Button variant="outline" size="sm" title="تعديل">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(product)}
+                            title="تعديل"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

@@ -15,10 +15,7 @@ import {
 import { ImageUpload } from "@/components/dashbaord/imageUpload";
 import toast from "react-hot-toast";
 
-export default function ProductDetailsForm({
-  product,
-  onSuccess,
-}) {
+export default function ProductDetailsForm({ product, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -101,16 +98,13 @@ export default function ProductDetailsForm({
 
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `/api/dashboard/products/${product.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`/api/dashboard/products/${product.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 
@@ -131,7 +125,11 @@ export default function ProductDetailsForm({
   };
 
   if (isFetching) {
-    return <div className="text-center py-4 text-muted-foreground">Loading form...</div>;
+    return (
+      <div className="text-center py-4 text-muted-foreground">
+        Loading form...
+      </div>
+    );
   }
 
   return (
@@ -142,9 +140,7 @@ export default function ProductDetailsForm({
           <Input
             id="name"
             value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
             disabled={isLoading}
           />
@@ -262,10 +258,7 @@ export default function ProductDetailsForm({
       />
 
       <div className="flex justify-end gap-3">
-        <Button
-          type="submit"
-          disabled={isLoading}
-        >
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? "جاري التحديث..." : "تحديث المنتج"}
         </Button>
       </div>
