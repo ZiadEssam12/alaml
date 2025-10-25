@@ -36,6 +36,14 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Zap, Edit, Trash2, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import VariantForm from "@/components/dashbaord/VariantForm";
+import {
+  loadVariants as fetchVariants,
+  loadOptions as fetchOptions,
+  generateVariants,
+  createVariant,
+  updateVariant,
+  deleteVariant,
+} from "@/lib/api/dashboard/variantsAPI";
 
 export default function VariantsManager({ productId }) {
   const [variants, setVariants] = useState([]);
@@ -48,69 +56,42 @@ export default function VariantsManager({ productId }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    loadVariants();
-    loadOptions();
+    handleLoadVariants();
+    handleLoadOptions();
   }, [productId]);
 
-  const loadVariants = async () => {
+  const handleLoadVariants = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/variants`
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setVariants(data.data || []);
-      } else {
-        toast.error(data.error || "Failed to load variants");
-      }
+      const data = await fetchVariants(productId);
+      setVariants(data);
     } catch (error) {
       console.error("Error loading variants:", error);
-      toast.error("Failed to load variants");
+      toast.error(error.message || "فشل في تحميل المتغيرات");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loadOptions = async () => {
+  const handleLoadOptions = async () => {
     try {
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/options`
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setOptions(data.options || []);
-      }
+      const data = await fetchOptions(productId);
+      setOptions(data);
     } catch (error) {
       console.error("Error loading options:", error);
+      toast.error(error.message || "فشل في تحميل الخيارات");
     }
   };
 
   const handleGenerateVariants = async () => {
     try {
       setIsGenerating(true);
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/variants/generate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            strategy: "cartesian",
-            includeInactive: false,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success(`تم إنشاء ${data.generated.new} متغير جديد`);
-        loadVariants();
-      } else {
-        toast.error(data.error || "فشل في إنشاء المتغيرات");
-      }
+      const generated = await generateVariants(productId);
+      toast.success(`تم إنشاء ${generated.new} متغير جديد`);
+      handleLoadVariants();
     } catch (error) {
       console.error("Error generating variants:", error);
-      toast.error("Failed to generate variants");
+      toast.error(error.message || "فشل في إنشاء المتغيرات");
     } finally {
       setIsGenerating(false);
     }
@@ -118,73 +99,38 @@ export default function VariantsManager({ productId }) {
 
   const handleCreateVariant = async (variantData) => {
     try {
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/variants`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(variantData),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("تم إنشاء المتغير بنجاح");
-        setShowForm(false);
-        loadVariants();
-      } else {
-        toast.error(data.error || "فشل في إنشاء المتغير");
-      }
+      await createVariant(productId, variantData);
+      toast.success("تم إنشاء المتغير بنجاح");
+      setShowForm(false);
+      handleLoadVariants();
     } catch (error) {
       console.error("Error creating variant:", error);
-      toast.error("فشل في إنشاء المتغير");
+      toast.error(error.message || "فشل في إنشاء المتغير");
     }
   };
 
   const handleUpdateVariant = async (variantData) => {
     try {
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/variants/${editingVariant.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(variantData),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("تم تحديث المتغير بنجاح");
-        setEditingVariant(null);
-        loadVariants();
-      } else {
-        toast.error(data.error || "فشل في تحديث المتغير");
-      }
+      await updateVariant(productId, editingVariant.id, variantData);
+      toast.success("تم تحديث المتغير بنجاح");
+      setEditingVariant(null);
+      handleLoadVariants();
     } catch (error) {
       console.error("Error updating variant:", error);
-      toast.error("فشل في تحديث المتغير");
+      toast.error(error.message || "فشل في تحديث المتغير");
     }
   };
 
   const handleDeleteVariant = async () => {
     try {
       setIsDeleting(true);
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/variants/${variantToDelete.id}`,
-        { method: "DELETE" }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("تم حذف المتغير بنجاح");
-        setVariantToDelete(null);
-        loadVariants();
-      } else {
-        toast.error(data.error || "فشل في حذف المتغير");
-      }
+      await deleteVariant(productId, variantToDelete.id);
+      toast.success("تم حذف المتغير بنجاح");
+      setVariantToDelete(null);
+      handleLoadVariants();
     } catch (error) {
       console.error("Error deleting variant:", error);
-      toast.error("فشل في حذف المتغير");
+      toast.error(error.message || "فشل في حذف المتغير");
     } finally {
       setIsDeleting(false);
     }
