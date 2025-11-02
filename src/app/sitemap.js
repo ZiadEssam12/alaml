@@ -2,7 +2,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 async function getProducts() {
   try {
-    const response = await fetch(`${API_BASE_URL}/products`, {
+    const response = await fetch(`${API_BASE_URL}/product`, {
       next: { revalidate: 86400 }, // Cache for 1 day
     });
     if (!response.ok) return [];
