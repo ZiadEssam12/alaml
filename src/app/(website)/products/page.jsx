@@ -4,6 +4,25 @@ import ProductCard from "@/components/ProductCard/ProductCard";
 import SortingForm from "@/components/SortingForm";
 import { getProducts } from "@/lib/api/shop/productAPI";
 
+export const metadata = {
+  title: "جميع المنتجات | مكتبة الأمل",
+  description:
+    "تصفح جميع منتجاتنا من الأدوات المكتبية والقرطاسية الإلكترونية. اختر من آلاف المنتجات الأصلية بأفضل الأسعار.",
+  keywords: "منتجات، قرطاسية، أدوات مكتبية، متجر إلكتروني، مكتبة الأمل",
+  openGraph: {
+    title: "جميع المنتجات | مكتبة الأمل",
+    description:
+      "تصفح جميع منتجاتنا من الأدوات المكتبية والقرطاسية الإلكترونية.",
+    type: "website",
+    url: "https://alaml-theta.vercel.app/products",
+    siteName: "مكتبة الأمل",
+    locale: "ar_EG",
+  },
+};
+
+
+
+
 export default async function Page({ searchParams }) {
   const {
     categories = [],

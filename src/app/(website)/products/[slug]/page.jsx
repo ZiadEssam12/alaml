@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductCartControlsWrapper } from "@/components/ProductCard/ProductCartControlsWrapper";
 import Link from "next/link";
 import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
+import { cache } from "react/server";
 
 import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 import { imageService } from "@/lib/image-service";
@@ -17,8 +18,79 @@ import ProductsList from "@/components/Home/productsList";
 import ProductReviewsContainer from "@/components/reviewComponents/ProductReviewsContainer";
 import { getProduct } from "@/lib/api/shop/productAPI";
 
+// Cache the product fetch to prevent duplicate calls in the same request
+const getCachedProduct = cache(async (slug) => {
+  return await getProduct(slug);
+});
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+
+  try {
+    const { product: displayProduct } = await getCachedProduct(slug);
+
+    if (!displayProduct) {
+      return {
+        title: "المنتج غير موجود | مكتبة الأمل",
+        description: "المنتج الذي تبحث عنه غير موجود",
+      };
+    }
+
+    return {
+      title: `${displayProduct.name} | مكتبة الأمل`,
+      description: displayProduct.description,
+      keywords: [
+        displayProduct.name,
+        displayProduct.category?.name,
+        "أدوات مكتبية",
+        ...(displayProduct?.keywords || []),
+      ].join(", "),
+      openGraph: {
+        title: `${displayProduct.name} | مكتبة الأمل`,
+        description: displayProduct.description,
+        type: "website",
+        url: `https://alaml-theta.vercel.app/products/${displayProduct.slug}`,
+        siteName: "مكتبة الأمل",
+        locale: "ar_EG",
+        images: [
+          {
+            url: displayProduct.imageUrls[0],
+            width: 1200,
+            height: 630,
+            alt: displayProduct.name,
+            type: "image/jpeg",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${displayProduct.name} | مكتبة الأمل`,
+        description: displayProduct.description,
+        images: [displayProduct.imageUrls[0]],
+        creator: "@alaml_store",
+        site: "@alaml_store",
+      },
+      linkedIn: {
+        title: `${displayProduct.name} | مكتبة الأمل`,
+        description: displayProduct.description,
+        image: displayProduct.imageUrls[0],
+      },
+      alternates: {
+        canonical: `https://alaml-theta.vercel.app/products/${displayProduct.slug}`,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "مكتبة الأمل",
+      description: "متجر القرطاسية الإلكتروني",
+    };
+  }
+}
+
 export default async function ProductPage({ params }) {
   const { slug } = await params;
+
   const {
     product: displayProduct,
     similarProducts,
@@ -26,7 +98,7 @@ export default async function ProductPage({ params }) {
     reviews: reviewsData,
     options,
     variants,
-  } = await getProduct(slug);
+  } = await getCachedProduct(slug);
 
   // if the product is not found, show a friendly message
   // or if the product is only shown for admin and the user is not an admin
