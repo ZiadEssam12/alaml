@@ -3,12 +3,114 @@ import Hero from "../../components/Home/Hero";
 import Categories from "@/components/Home/Categories";
 import { HeadphonesIcon } from "lucide-react";
 import { getHomeData } from "@/lib/api/shop/homeAPI";
+import { cache } from "react/server";
+import {
+  generateLocalBusinessSchema,
+  generateWebSiteSchema,
+  generateFAQSchema,
+  generateHomePageBreadcrumbSchema,
+} from "@/lib/schemas/productSchemas";
+
+// Cache home data fetch to prevent duplicate calls
+const getCachedHomeData = cache(async () => {
+  return await getHomeData();
+});
+
+export const metadata = {
+  title: "مكتبة الأمل - متجر الأدوات المكتبية والقرطاسية الإلكتروني",
+  description:
+    "اكتشف مكتبة الأمل، متجرك الإلكتروني الأول للأدوات المكتبية والقرطاسية. توفر آلاف المنتجات الأصلية بأفضل الأسعار مع شحن مجاني وخدمة عملاء 24/7.",
+  keywords:
+    "أدوات مكتبية، قرطاسية، أقلام، دفاتر، ملفات، متجر إلكتروني، شراء أونلاين، مكتبة الأمل، أدوات مكتب، منتجات قرطاسية",
+  authors: [{ name: "مكتبة الأمل" }],
+  creator: "مكتبة الأمل",
+  publisher: "مكتبة الأمل",
+  robots: {
+    index: true,
+    follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
+  },
+  openGraph: {
+    title: "مكتبة الأمل - متجر الأدوات المكتبية والقرطاسية",
+    description:
+      "متجر إلكتروني متخصص في بيع الأدوات المكتبية والقرطاسية بأفضل الأسعار",
+    type: "website",
+    url: "https://alaml-theta.vercel.app",
+    siteName: "مكتبة الأمل",
+    locale: "ar_EG",
+    images: [
+      {
+        url: "https://alaml-theta.vercel.app/og-home.jpg",
+        width: 1200,
+        height: 630,
+        alt: "مكتبة الأمل - متجر الأدوات المكتبية",
+        type: "image/jpeg",
+      },
+      {
+        url: "https://alaml-theta.vercel.app/og-home-small.jpg",
+        width: 800,
+        height: 600,
+        alt: "مكتبة الأمل",
+        type: "image/jpeg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "مكتبة الأمل - متجر الأدوات المكتبية والقرطاسية",
+    description: "اكتشف أفضل الأدوات المكتبية والقرطاسية بأسعار مميزة",
+    images: ["https://alaml-theta.vercel.app/og-home.jpg"],
+    creator: "@alaml_store",
+    site: "@alaml_store",
+  },
+  alternates: {
+    canonical: "https://alaml-theta.vercel.app",
+    languages: {
+      "ar-EG": "https://alaml-theta.vercel.app",
+    },
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  themeColor: "#ffffff",
+};
 
 export default async function Home() {
-  const { categories, products } = await getHomeData();
+  const { categories, products } = await getCachedHomeData();
+
+  // Generate JSON-LD schemas
+  const localBusinessSchema = generateLocalBusinessSchema();
+  const webSiteSchema = generateWebSiteSchema();
+  const faqSchema = generateFAQSchema();
+  const breadcrumbSchema = generateHomePageBreadcrumbSchema();
 
   return (
     <>
+      {/* JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(localBusinessSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
       <main>
         <Hero />
         <Categories data={categories} />

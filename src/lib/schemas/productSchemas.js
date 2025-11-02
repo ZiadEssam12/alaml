@@ -148,7 +148,7 @@ export function generateCollectionPageSchema(products, totalProducts) {
 }
 
 /**
- * Generate BreadcrumbList Schema for Products Page
+ * Generate ProductsPageBreadcrumbList Schema for Products Page
  * @returns {Object} BreadcrumbList schema for JSON-LD
  */
 export function generateProductsPageBreadcrumbSchema() {
@@ -167,6 +167,113 @@ export function generateProductsPageBreadcrumbSchema() {
         position: 2,
         name: "المنتجات",
         item: "https://alaml-theta.vercel.app/products",
+      },
+    ],
+  };
+}
+
+/**
+ * Generate LocalBusiness JSON-LD Schema (for Home page)
+ * @returns {Object} LocalBusiness schema for JSON-LD
+ */
+export function generateLocalBusinessSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "مكتبة الأمل",
+    image: "https://alaml-theta.vercel.app/logo.png",
+    description: "متجر إلكتروني متخصص في الأدوات المكتبية والقرطاسية",
+    url: "https://alaml-theta.vercel.app",
+    telephone: "+20-XXX-XXX-XXXX",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "EG",
+      addressLocality: "مصر",
+    },
+    sameAs: [
+      "https://www.facebook.com/alaml-store",
+      "https://www.instagram.com/alaml_store",
+      "https://twitter.com/alaml_store",
+    ],
+    priceRange: "EGP",
+  };
+}
+
+/**
+ * Generate WebSite JSON-LD Schema with SearchAction (for Home page)
+ * @returns {Object} WebSite schema for JSON-LD
+ */
+export function generateWebSiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "مكتبة الأمل",
+    url: "https://alaml-theta.vercel.app",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate:
+          "https://alaml-theta.vercel.app/products?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+    image: "https://alaml-theta.vercel.app/logo.png",
+    description: "متجر إلكتروني متخصص في الأدوات المكتبية والقرطاسية",
+  };
+}
+
+/**
+ * Generate FAQPage JSON-LD Schema (for Home page)
+ * @returns {Object} FAQPage schema for JSON-LD
+ */
+export function generateFAQSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "هل الشحن مجاني؟",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "نعم، نوفر شحن مجاني للطلبات التي تزيد عن 200 جنيه مصري.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "هل هناك خدمة عملاء 24/7؟",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "نعم، فريق خدمة العملاء متاح لمساعدتك 24 ساعة يومياً، 7 أيام في الأسبوع.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "هل تضمنون جودة المنتجات؟",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "نعم، نضمن 100% أصلية جودة أعلى لجميع منتجاتنا.",
+        },
+      },
+    ],
+  };
+}
+
+/**
+ * Generate HomePageBreadcrumbList Schema
+ * @returns {Object} BreadcrumbList schema for JSON-LD
+ */
+export function generateHomePageBreadcrumbSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "الرئيسية",
+        item: "https://alaml-theta.vercel.app",
       },
     ],
   };
