@@ -17,6 +17,11 @@ import { imageService } from "@/lib/image-service";
 import ProductsList from "@/components/Home/productsList";
 import ProductReviewsContainer from "@/components/reviewComponents/ProductReviewsContainer";
 import { getProduct } from "@/lib/api/shop/productAPI";
+import {
+  generateProductSchema,
+  generateOrganizationSchema,
+  generateBreadcrumbSchema,
+} from "@/lib/schemas/productSchemas";
 
 // Cache the product fetch to prevent duplicate calls in the same request
 const getCachedProduct = cache(async (slug) => {
@@ -148,8 +153,25 @@ export default async function ProductPage({ params }) {
 
   const userReview = userPermissions?.userReview;
 
+  // Generate JSON-LD schemas
+  const productSchema = generateProductSchema(displayProduct);
+  const organizationSchema = generateOrganizationSchema();
+  const breadcrumbSchema = generateBreadcrumbSchema(displayProduct);
+
   return (
     <div className="min-h-screen pb-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Breadcrumb */}
         <div className="mb-6">
