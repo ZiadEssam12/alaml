@@ -3,25 +3,61 @@ import { PaginationClient } from "@/components/Pagination";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import SortingForm from "@/components/SortingForm";
 import { getProducts } from "@/lib/api/shop/productAPI";
+import { cache } from "react/server";
+import {
+  generateOrganizationSchema,
+  generateProductsPageBreadcrumbSchema,
+  generateCollectionPageSchema,
+} from "@/lib/schemas/productSchemas";
+
+// Cache products fetch to prevent duplicate calls
+const getCachedProducts = cache(async (filters) => {
+  return await getProducts(filters);
+});
 
 export const metadata = {
-  title: "جميع المنتجات | مكتبة الأمل",
+  title: "جميع المنتجات | مكتبة الأمل - أدوات مكتبية وقرطاسية",
   description:
-    "تصفح جميع منتجاتنا من الأدوات المكتبية والقرطاسية الإلكترونية. اختر من آلاف المنتجات الأصلية بأفضل الأسعار.",
-  keywords: "منتجات، قرطاسية، أدوات مكتبية، متجر إلكتروني، مكتبة الأمل",
+    "تصفح آلاف المنتجات من الأدوات المكتبية والقرطاسية الإلكترونية بأفضل الأسعار. اكتشف مجموعة واسعة من أقلام، دفاتر، ملفات وأكثر. توصيل سريع وآمن.",
+  keywords:
+    "منتجات قرطاسية، أدوات مكتبية، متجر إلكتروني، أقلام، دفاتر، ملفات، مكتبة الأمل، شراء أدوات مكتبية أونلاين",
+  robots: {
+    index: true,
+    follow: true,
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
+  },
   openGraph: {
     title: "جميع المنتجات | مكتبة الأمل",
     description:
-      "تصفح جميع منتجاتنا من الأدوات المكتبية والقرطاسية الإلكترونية.",
+      "اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية بأفضل الأسعار",
     type: "website",
     url: "https://alaml-theta.vercel.app/products",
     siteName: "مكتبة الأمل",
     locale: "ar_EG",
+    images: [
+      {
+        url: "https://alaml-theta.vercel.app/og-products.jpg",
+        width: 1200,
+        height: 630,
+        alt: "جميع المنتجات - مكتبة الأمل",
+        type: "image/jpeg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "جميع المنتجات | مكتبة الأمل",
+    description: "اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية",
+    images: ["https://alaml-theta.vercel.app/og-products.jpg"],
+    creator: "@alaml_store",
+    site: "@alaml_store",
+  },
+  alternates: {
+    canonical: "https://alaml-theta.vercel.app/products",
   },
 };
-
-
-
 
 export default async function Page({ searchParams }) {
   const {
@@ -35,7 +71,7 @@ export default async function Page({ searchParams }) {
     rating = "",
   } = (await searchParams) || {};
 
-  const { products, totalPages } = await getProducts({
+  const { products, totalPages } = await getCachedProducts({
     categories,
     minPrice,
     maxPrice,
@@ -46,8 +82,31 @@ export default async function Page({ searchParams }) {
     rating,
   });
 
+  // Generate JSON-LD schemas
+  const organizationSchema = generateOrganizationSchema();
+  const breadcrumbSchema = generateProductsPageBreadcrumbSchema();
+  const collectionPageSchema = generateCollectionPageSchema(
+    products,
+    products.length * totalPages
+  );
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
+      {/* JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionPageSchema),
+        }}
+      />
       <main>
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-1/4">
