@@ -9,7 +9,36 @@ import { SessionProvider } from "next-auth/react";
 
 export const metadata = {
   title: "مكتبة الأمل",
-  description: "متجر القرطاسية الإلكتروني",
+  description: "متجر الأدوات المكتبية الإلكتروني",
+  metadataBase: new URL("https://alaml-theta.vercel.app"),
+  openGraph: {
+    siteName: "مكتبة الأمل",
+    type: "website",
+    locale: "ar_EG",
+  },
+  verification: {
+    google: "ei3UX4cKwo_F9uckJtUy0D44rV6VVIuzKlcvgfopyWM",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
+    googleBot: "index, follow",
+  },
+  applicationName: "مكتبة الأمل",
+  appleWebApp: {
+    title: "مكتبة الأمل",
+    statusBarStyle: "default",
+    capable: true,
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#ffffff",
 };
 
 export default async function RootLayout({ children }) {
