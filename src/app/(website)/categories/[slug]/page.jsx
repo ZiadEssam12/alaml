@@ -4,17 +4,130 @@ import Link from "next/link";
 import React from "react";
 import SortingForm from "@/components/SortingForm";
 import { getCategoryDetails } from "@/lib/api/shop/categoryAPI";
+import { cache } from "react";
+import {
+  generateOrganizationSchema,
+  generateCategoryPageSchema,
+  generateCategoryPageBreadcrumbSchema,
+} from "@/lib/schemas/productSchemas";
+
+// Cache category data fetch to prevent duplicate calls
+const getCachedCategoryDetails = cache(async (slug) => {
+  return await getCategoryDetails(slug);
+});
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+
+  try {
+    const { category } = await getCachedCategoryDetails(slug);
+
+    if (!category) {
+      return {
+        title: "القسم غير موجود | مكتبة الأمل",
+        description: "القسم الذي تبحث عنه غير موجود",
+      };
+    }
+
+    return {
+      title: `${category.name} | مكتبة الأمل`,
+      description:
+        category.description ||
+        `تصفح جميع منتجات قسم ${category.name} من الأدوات المكتبية والقرطاسية`,
+      keywords: [
+        category.name,
+        "منتجات",
+        "قرطاسية",
+        "أدوات مكتبية",
+        "متجر إلكتروني",
+        "مكتبة الأمل",
+      ].join(", "),
+      robots: {
+        index: true,
+        follow: true,
+        "max-snippet": -1,
+        "max-image-preview": "large",
+        "max-video-preview": -1,
+      },
+      openGraph: {
+        title: `${category.name} | مكتبة الأمل`,
+        description:
+          category.description || `اكتشف جميع منتجات قسم ${category.name}`,
+        type: "website",
+        url: `https://alaml-theta.vercel.app/categories/${category.seoTitle}`,
+        siteName: "مكتبة الأمل",
+        locale: "ar_EG",
+        images: [
+          {
+            url:
+              category.imageUrl ||
+              "https://alaml-theta.vercel.app/og-category.jpg",
+            width: 1200,
+            height: 630,
+            alt: category.name,
+            type: "image/jpeg",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${category.name} | مكتبة الأمل`,
+        description: category.description || `منتجات قسم ${category.name}`,
+        images: [
+          category.imageUrl || "https://alaml-theta.vercel.app/og-category.jpg",
+        ],
+        creator: "@alaml_store",
+        site: "@alaml_store",
+      },
+      alternates: {
+        canonical: `https://alaml-theta.vercel.app/categories/${category.seoTitle}`,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "مكتبة الأمل",
+      description: "متجر القرطاسية الإلكتروني",
+    };
+  }
+}
 
 export default async function page({ params }) {
   const { slug } = await params;
 
-  const { category, pagination, products } = await getCategoryDetails(slug);
+  const { category, pagination, products } = await getCachedCategoryDetails(
+    slug
+  );
+
+  // Generate JSON-LD schemas
+  const organizationSchema = generateOrganizationSchema();
+  const categoryPageSchema = generateCategoryPageSchema(category, products);
+  const breadcrumbSchema = generateCategoryPageBreadcrumbSchema(category);
 
   const currentSort = null; // No sort by default
   const currentFilters = null; // No filters by default
 
   return (
     <>
+      {/* JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(categoryPageSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
       <div className="min-h-screen bg-background" dir="rtl">
         <main>
           <div className="">

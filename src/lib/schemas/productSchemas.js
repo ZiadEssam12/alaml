@@ -278,3 +278,72 @@ export function generateHomePageBreadcrumbSchema() {
     ],
   };
 }
+
+/**
+ * Generate CategoryPage JSON-LD Schema
+ * @param {Object} category - Category object with name, description
+ * @param {Array} products - Array of products in the category
+ * @returns {Object} CollectionPage schema for JSON-LD
+ */
+export function generateCategoryPageSchema(category, products) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${category.name} | مكتبة الأمل`,
+    description:
+      category.description || `تصفح جميع منتجات قسم ${category.name}`,
+    url: `https://alaml-theta.vercel.app/categories/${category.seoTitle}`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: products.length,
+      itemListElement: products.slice(0, 12).map((product, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `https://alaml-theta.vercel.app/products/${product.slug}`,
+        name: product.name,
+        image: product.imageUrls[0],
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "EGP",
+          price: product.price.toString(),
+          availability:
+            product.stockQuantity > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+        },
+      })),
+    },
+  };
+}
+
+/**
+ * Generate CategoryPage BreadcrumbList Schema
+ * @param {Object} category - Category object with name and seoTitle
+ * @returns {Object} BreadcrumbList schema for JSON-LD
+ */
+export function generateCategoryPageBreadcrumbSchema(category) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "الرئيسية",
+        item: "https://alaml-theta.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "المنتجات",
+        item: "https://alaml-theta.vercel.app/products",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: category.name,
+        item: `https://alaml-theta.vercel.app/categories/${category.seoTitle}`,
+      },
+    ],
+  };
+}
