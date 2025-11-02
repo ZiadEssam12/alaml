@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductCartControlsWrapper } from "@/components/ProductCard/ProductCartControlsWrapper";
 import Link from "next/link";
 import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
-import { cache } from "react/server";
+import { cache } from "react";
 
 import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 import { imageService } from "@/lib/image-service";

@@ -3,7 +3,7 @@ import Hero from "../../components/Home/Hero";
 import Categories from "@/components/Home/Categories";
 import { HeadphonesIcon } from "lucide-react";
 import { getHomeData } from "@/lib/api/shop/homeAPI";
-import { cache } from "react/server";
+import { cache } from "react";
 import {
   generateLocalBusinessSchema,
   generateWebSiteSchema,

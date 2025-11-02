@@ -3,12 +3,12 @@ import { PaginationClient } from "@/components/Pagination";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import SortingForm from "@/components/SortingForm";
 import { getProducts } from "@/lib/api/shop/productAPI";
-import { cache } from "react/server";
 import {
   generateOrganizationSchema,
   generateProductsPageBreadcrumbSchema,
   generateCollectionPageSchema,
 } from "@/lib/schemas/productSchemas";
+import { cache } from "react";
 
 // Cache products fetch to prevent duplicate calls
 const getCachedProducts = cache(async (filters) => {
