@@ -18,8 +18,9 @@ export async function getHomeData() {
       throw new Error("Failed to fetch home data");
     }
 
-    const { categories, products } = await res.json();
-    return { categories, products };
+    const response = await res.json();
+    const { categories, products } = response.data || response;
+    return { categories: categories || [], products: products || [] };
   } catch (error) {
     console.error("Error fetching home data:", error);
     return { categories: [], products: [] };
