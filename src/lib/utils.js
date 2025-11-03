@@ -101,3 +101,42 @@ export function enReasonToArabic(reason) {
       return reason;
   }
 }
+
+export async function productKeywordsCreator({
+  productTitle,
+  productDescription,
+}) {
+  const prompt = `You are a **Senior SEO Consultant specializing exclusively in Egyptian E-commerce and Conversion Rate Optimization (CRO)**, with deep knowledge of search behavior, local terminology, and common pricing queries in the Arab Republic of Egypt.
+
+    Your task is to perform an in-depth competitive analysis on the provided product content to maximize its organic visibility and sales conversions **specifically within the Egyptian market**.
+
+    **Core Product Data:**
+    **Product Title:** "${productTitle}"
+    **Product Description:** "${productDescription}"
+
+    **Analysis & Strategy (Internal Steps):**
+    1. **Deep Semantic Analysis & Local Terminology:** Scrutinize the content to extract all core entities (Product Type, Brand, Attributes, Benefits). Translate these core concepts into common **Egyptian Arabic (Masri)** search terms and synonyms.
+    2. **Search Intent Mapping:** Determine the likely intent, aiming for a mix of Commercial/Transactional (e.g., "اشتري", "سعر كام", "شحن مجاني", "الدفع عند الاستلام"), Informational (e.g., "مراجعة", "عيوب ومميزات"), and Geo-Specific (e.g., incorporating "في مصر" or "في القاهرة").
+    3. **Keyword Generation & Prioritization:** Generate keywords that align with high commercial intent and simulated high search volume among Egyptian users.
+
+    **Output Generation Requirements:**
+    * Generate a list of **15–25 highly relevant SEO keywords/key phrases** heavily skewed toward common Egyptian Arabic (Masri) search terms.
+    * **The list must include:** A minimum of 5 short-tail and a minimum of 10 long-tail keywords (incorporating Egyptian intent modifiers like 'اشتري اون لاين', 'أرخص سعر في مصر', 'تقسيط').
+    * Incorporate synonyms, LSI terms, and common misspellings/variations used by Egyptian searchers.
+    * **Strictly Avoid:** Competitor brand names, keywords describing other products, and duplicate phrases.
+    * Do not include any preambles, explanations, or translations.
+    * **Return the result strictly in valid JSON format as follows:**
+    \`\`\`json
+    {
+      "keywords": ["keyword1", "keyword2", "keyword3", "...", "keyword25"]
+    }
+    \`\`\``;
+
+  return await callGeminiAPI(prompt, {
+    temperature: 0.3,
+    topK: 1,
+    topP: 1,
+    maxOutputTokens: 400,
+    parseJson: true,
+  });
+}
