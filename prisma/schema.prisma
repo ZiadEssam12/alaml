@@ -33,6 +33,7 @@ model Product {
   imageUrls          String[]
   stockQuantity      Int
   maxQuantityPerUser Int        @default(5)
+  keywords           String[]   @default([])
   isActive           Boolean    @default(true)
   category           Category   @relation(fields: [categoryID], references: [id])
   categoryID         String
