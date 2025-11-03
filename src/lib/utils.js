@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { getToken } from "next-auth/jwt";
 import { twMerge } from "tailwind-merge";
+import { callGeminiAPI } from "./ai/geminiAPI";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -25,18 +26,11 @@ export async function getCurrentSessionData(request) {
  *
  * @param {string} productDescription The description of the product.
  * @param {string} userReview The user's review to be classified.
+ * @param {number} stars The star rating (1-5).
  * @returns {Promise<object | null>} A promise that resolves to the parsed JSON
  *   classification result, or null if an error occurs.
  */
 export async function classifyReview(productDescription, userReview, stars) {
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
-  if (!GEMINI_API_KEY) {
-    console.error(
-      "GEMINI_API_KEY is not set. Please set it as an environment variable or define it."
-    );
-    return null;
-  }
   const prompt = `
   Product Review Analysis
 
@@ -55,7 +49,7 @@ export async function classifyReview(productDescription, userReview, stars) {
   ${stars}
 
   Task:
-  Analyze the user’s review compared to the product description to determine whether the review is "natural" or "spam".
+  Analyze the user's review compared to the product description to determine whether the review is "natural" or "spam".
 
   Classify the review as "spam" only if one or more of the following apply:
   1. There is a clear mismatch between the product description and the written review.
@@ -76,83 +70,13 @@ export async function classifyReview(productDescription, userReview, stars) {
   }
   `;
 
-  const payload = {
-    contents: [
-      {
-        parts: [
-          {
-            text: prompt,
-          },
-        ],
-      },
-    ],
-    generationConfig: {
-      temperature: 0.2,
-      topK: 1,
-      topP: 1,
-      maxOutputTokens: 200,
-    },
-    safetySettings: [
-      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-      { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-      { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
-    ],
-  };
-
-  try {
-    const response = await fetch(GEMINI_API_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `API request failed with status ${response.status}: ${errorText}`
-      );
-    }
-
-    const responseData = await response.json();
-
-    // Extract the text content from the response
-    const generatedText =
-      responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!generatedText) {
-      console.error(
-        "No generated text found in Gemini response:",
-        responseData
-      );
-      return null;
-    }
-
-    // Remove markdown code block if present
-    let jsonString = generatedText.trim();
-    if (jsonString.startsWith("```json") && jsonString.endsWith("```")) {
-      jsonString = jsonString
-        .replace(/^```json/, "")
-        .replace(/```$/, "")
-        .trim();
-    }
-
-    try {
-      return JSON.parse(jsonString);
-    } catch (err) {
-      console.error(
-        "Failed to parse Gemini response as JSON:",
-        jsonString,
-        err
-      );
-      return null;
-    }
-  } catch (error) {
-    console.error("Error classifying review:", error);
-    return null;
-  }
+  return await callGeminiAPI(prompt, {
+    temperature: 0.2,
+    topK: 1,
+    topP: 1,
+    maxOutputTokens: 200,
+    parseJson: true,
+  });
 }
 
 export function enReasonToArabic(reason) {
