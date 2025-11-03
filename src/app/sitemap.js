@@ -98,7 +98,7 @@ export default async function sitemap() {
 
   // Dynamic category routes
   const categoryRoutes = categories.map((category) => ({
-    url: `${baseUrl}/categories/${category.slug}`,
+    url: `${baseUrl}/categories/${category.seoTitle}`,
     lastModified: category.updatedAt
       ? new Date(category.updatedAt)
       : new Date(),
