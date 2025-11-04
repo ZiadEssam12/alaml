@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import slugify from "slugify";
+import { productKeywordsCreator } from "@/lib/utils";
 
 export async function GET(request) {
   try {
@@ -86,6 +87,29 @@ export async function POST(request) {
         slug: slugify(name, { lower: true }),
       },
     });
+
+    // Generate keywords in parallel (non-blocking)
+    // Don't await this - let it run in the background
+    (async () => {
+      try {
+        const result = await productKeywordsCreator({
+          productTitle: name,
+          productDescription: description,
+        });
+
+        if (result && result.keywords && Array.isArray(result.keywords)) {
+          await prisma.product.update({
+            where: { id: product.id },
+            data: {
+              keywords: result.keywords,
+            },
+          });
+          console.log(`✅ Keywords generated for product: ${name}`);
+        }
+      } catch (error) {
+        console.error(`❌ Error generating keywords for ${name}:`, error);
+      }
+    })();
 
     return NextResponse.json(
       { data: product, message: "Product created successfully" },
