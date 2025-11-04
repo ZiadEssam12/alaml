@@ -17,11 +17,72 @@ export async function GET(request, { params }) {
       );
     }
 
-    // First get the product to ensure it exists
+    // First get the product with all nested data in one query
     const product = await prisma.product.findUnique({
       where: { slug: id },
       include: {
         category: true,
+        // Get reviews with stats in one query
+        reviews: {
+          where: { status: "approved" },
+          take: 5,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            userName: true,
+            userId: true,
+            rating: true,
+            comment: true,
+            createdAt: true,
+          },
+        },
+        // Get options with values
+        options: {
+          orderBy: { position: "asc" },
+          select: {
+            id: true,
+            name: true,
+            presentation: true,
+            position: true,
+            values: {
+              orderBy: { position: "asc" },
+              select: {
+                id: true,
+                value: true,
+                hex: true,
+                imageUrl: true,
+                position: true,
+              },
+            },
+          },
+        },
+        // Get variants with options
+        variants: {
+          select: {
+            id: true,
+            sku: true,
+            price: true,
+            stockQuantity: true,
+            isActive: true,
+            imageUrls: true,
+            combinationHash: true,
+            options: {
+              select: {
+                optionId: true,
+                valueId: true,
+                option: { select: { name: true, position: true } },
+                value: {
+                  select: {
+                    value: true,
+                    hex: true,
+                    imageUrl: true,
+                    position: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -29,110 +90,9 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Fetch product reviews with stats, similar products, and user permissions
-    const [
-      reviews,
-      totalCount,
-      ratingStats,
-      ratingDistribution,
-      options,
-      variants,
-      similarProducts,
-      purchase,
-      review,
-    ] = await Promise.all([
-      // reviews (unchanged)
-      prisma.review.findMany({
-        where: { productId: product.id, status: "approved" },
-        skip: 0,
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          userName: true,
-          userId: true,
-          rating: true,
-          comment: true,
-          createdAt: true,
-        },
-      }),
-      prisma.review.count({
-        where: { productId: product.id, status: "approved" },
-      }),
-      prisma.review.aggregate({
-        where: { productId: product.id, status: "approved" },
-        _avg: { rating: true },
-        _count: { rating: true },
-      }),
-      prisma.review.groupBy({
-        by: ["rating"],
-        where: { productId: product.id, status: "approved" },
-        _count: { rating: true },
-      }),
-
-      // Product options with ordered values
-      prisma.productOption.findMany({
-        where: { productId: product.id },
-        orderBy: { position: "asc" },
-        select: {
-          id: true,
-          name: true,
-          presentation: true,
-          position: true,
-          values: {
-            orderBy: { position: "asc" },
-            select: {
-              id: true,
-              value: true,
-              hex: true,
-              imageUrl: true,
-              position: true,
-            },
-          },
-        },
-      }),
-
-      // Variants with their option/value selections
-      prisma.productVariant.findMany({
-        where: { productId: product.id },
-        select: {
-          id: true,
-          sku: true,
-          price: true,
-          stockQuantity: true,
-          isActive: true,
-          imageUrls: true,
-          combinationHash: true,
-          options: {
-            // ProductVariant.options: ProductVariantOption[]
-            select: {
-              optionId: true,
-              valueId: true,
-              option: { select: { name: true, position: true } },
-              value: {
-                select: {
-                  value: true,
-                  hex: true,
-                  imageUrl: true,
-                  position: true,
-                },
-              },
-            },
-          },
-        },
-      }),
-
-      // Get similar products
-      prisma.product.findMany({
-        where: {
-          categoryID: product.categoryID,
-          isActive: true,
-          NOT: { id: product.id },
-        },
-        take: 4,
-      }),
-
-      // Check if user has purchased the product (null if not authenticated)
+    // Fetch only user-specific data and similar products in parallel (2 queries)
+    const [purchase, review, similarProducts, reviewStats] = await Promise.all([
+      // Check if user has purchased
       userId
         ? prisma.order.findFirst({
             where: {
@@ -148,18 +108,52 @@ export async function GET(request, { params }) {
           })
         : null,
 
-      // Check if user has reviewed the product (null if not authenticated)
+      // Check if user has reviewed
       userId
         ? prisma.review.findFirst({
             where: { userId, productId: product.id },
             select: { id: true },
           })
         : null,
+
+      // Get similar products
+      prisma.product.findMany({
+        where: {
+          categoryID: product.categoryID,
+          isActive: true,
+          NOT: { id: product.id },
+        },
+        take: 4,
+      }),
+
+      // Get review stats and distribution
+      prisma.review.groupBy({
+        by: ["rating"],
+        where: { productId: product.id, status: "approved" },
+        _count: { rating: true },
+      }),
     ]);
+
+    // Extract data from nested queries
+    const reviews = product.reviews;
+    const options = product.options;
+    const variants = product.variants;
+    const totalCount = reviews.length; // Already limited to 5
+
+    // Calculate rating stats from fetched reviews and distribution
+    const ratingStats = {
+      _avg: {
+        rating:
+          reviews.length > 0
+            ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+            : 0,
+      },
+      _count: { rating: product.ratingCount },
+    };
 
     // Process rating distribution
     const distribution = Array(5).fill(0);
-    ratingDistribution.forEach(({ rating, _count }) => {
+    reviewStats.forEach(({ rating, _count }) => {
       distribution[rating - 1] = _count.rating;
     });
 
@@ -170,16 +164,16 @@ export async function GET(request, { params }) {
     const reviewsData = {
       reviews,
       stats: {
-        averageRating: ratingStats._avg.rating || 0,
-        totalReviews: ratingStats._count.rating || 0,
+        averageRating: product.averageRating,
+        totalReviews: product.ratingCount,
       },
       ratingDistribution: distribution,
       pagination: {
         page: 1,
         pageSize: 5,
-        totalCount,
-        totalPages: Math.ceil(totalCount / 5),
-        hasNext: totalCount > 5,
+        totalCount: product.ratingCount,
+        totalPages: Math.ceil(product.ratingCount / 5),
+        hasNext: product.ratingCount > 5,
         hasPrevious: false,
       },
     };
