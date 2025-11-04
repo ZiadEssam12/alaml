@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { getToken } from "next-auth/jwt";
 import { twMerge } from "tailwind-merge";
-import { callGeminiAPI } from "./ai/geminiAPI";
+import { callGeminiAPI } from "./ai/geminiAPI.js";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
