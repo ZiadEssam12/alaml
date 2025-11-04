@@ -1,6 +1,9 @@
 import prisma from "../src/lib/prisma.js";
 import { productKeywordsCreator } from "../src/lib/utils.js";
 
+// Helper function to sleep
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function generateKeywordsForProducts() {
   try {
     console.log("🔍 Fetching products without keywords...");
@@ -29,6 +32,7 @@ async function generateKeywordsForProducts() {
 
     let successCount = 0;
     let errorCount = 0;
+    let requestCount = 0;
 
     for (const product of productsWithoutKeywords) {
       try {
@@ -62,10 +66,28 @@ async function generateKeywordsForProducts() {
       } catch (error) {
         console.error(`❌ Error processing ${product.name}:`, error.message);
         errorCount++;
+
+        // If rate limited, wait longer
+        if (error.message.includes("429") || error.message.includes("quota")) {
+          console.log(
+            "⏸️  Rate limited! Waiting 65 seconds before continuing..."
+          );
+          await sleep(65000); // Wait 65 seconds
+          continue;
+        }
       }
 
-      // Add delay to avoid API rate limiting
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      requestCount++;
+
+      // Rate limiting: Gemini free tier = 15 requests per minute
+      // After every 14 requests, wait 60+ seconds
+      if (requestCount % 14 === 0) {
+        console.log("⏸️  Rate limit protection: Waiting 61 seconds...");
+        await sleep(61000);
+      } else {
+        // Small delay between requests
+        await sleep(2000); // 2 seconds between requests
+      }
     }
 
     console.log("\n📊 Summary:");
