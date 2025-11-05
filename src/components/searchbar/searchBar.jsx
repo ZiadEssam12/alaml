@@ -17,7 +17,7 @@ export default function SearchBar() {
   const pathName = usePathname();
 
   useEffect(() => {
-    setQuery(query || "");
+    setQuery("");
     setResults([]);
     setIsOpen(false);
     setSelectedIndex(-1);
@@ -87,6 +87,7 @@ export default function SearchBar() {
           handleResultClick(results[selectedIndex]);
         } else {
           router.push(`/products?q=${encodeURIComponent(query)}`);
+          setQuery("");
           setIsOpen(false);
           setSelectedIndex(-1);
         }
@@ -104,7 +105,7 @@ export default function SearchBar() {
       toast.error("Invalid result selected");
       return;
     }
-    setQuery(result.title || "");
+    setQuery("");
     setIsOpen(false);
     setSelectedIndex(-1);
     router.push(`/products/${result.slug}`);
@@ -182,8 +183,10 @@ export default function SearchBar() {
 
       {/* No Results */}
       {isOpen && query.trim() && results.length === 0 && !isLoading && (
-        <div className="absolute w-screen lg:w-lg right-0 translate-x-0 lg:right-1/2  lg:translate-x-1/2 -mt-10 pt-10 bg-popover border border-border rounded-lg shadow-lg z-40 max-h-80 overflow-y-auto">
-          لا يوجد نتائج لـ "{query}"
+        <div className="absolute w-screen lg:w-lg right-0 translate-x-0 lg:right-1/2  lg:translate-x-1/2 -mt-10 pt-10 bg-popover border border-border rounded-lg shadow-lg z-40">
+          <div className="max-h-80 overflow-y-auto p-4 text-center text-muted-foreground">
+            لا يوجد نتائج لـ "{query}"
+          </div>
         </div>
       )}
     </div>
