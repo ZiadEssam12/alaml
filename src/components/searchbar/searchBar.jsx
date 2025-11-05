@@ -141,7 +141,7 @@ export default function SearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (results.length > 0) setIsOpen(true);
+            setIsOpen(true);
           }}
           className="pr-2 h-10 text-base rounded-lg border-2 focus:border-primary transition-colors"
         />
@@ -149,32 +149,34 @@ export default function SearchBar() {
 
       {/* Search Results Dropdown */}
       {isOpen && results.length > 0 && (
-        <div className="absolute w-screen lg:w-lg right-0 translate-x-0 lg:right-1/2 -mt-10 pt-10 lg:translate-x-1/2 bg-popover border border-border rounded-lg shadow-lg z-40 max-h-80 overflow-y-auto">
-          {results.map((result, index) => (
-            <Link
-              href={`/products/${result.slug}`}
-              key={result.id}
-              className={cn(
-                "block w-full text-left px-4 py-5 hover:bg-accent hover:text-accent-foreground transition-colors border-b border-border last:border-b-0 focus:outline-none focus:bg-accent focus:text-accent-foreground",
-                selectedIndex === index && "bg-accent text-accent-foreground"
-              )}
-            >
-              <div className="font-medium text-sm flex justify-between items-center">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
-                  <p>{result.name}</p>
-                  <div className="flex gap-1">
-                    <p>في</p>
-                    <p className="text-primary">{result.category.name}</p>
+        <div className="absolute w-screen lg:w-lg right-0 translate-x-0 lg:right-1/2 -mt-10 pt-10 lg:translate-x-1/2 bg-popover border border-border rounded-lg shadow-lg z-40">
+          <div className=" max-h-80 overflow-y-auto">
+            {results.map((result, index) => (
+              <Link
+                href={`/products/${result.slug}`}
+                key={result.id}
+                className={cn(
+                  "block w-full text-left px-4 py-5 hover:bg-accent hover:text-accent-foreground transition-colors border-b border-border last:border-b-0 focus:outline-none focus:bg-accent focus:text-accent-foreground",
+                  selectedIndex === index && "bg-accent text-accent-foreground"
+                )}
+              >
+                <div className="font-medium text-sm flex justify-between items-center">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
+                    <p>{result.name}</p>
+                    <div className="flex gap-1">
+                      <p>في</p>
+                      <p className="text-primary">{result.category.name}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <p className="text-primary">{result.price}</p>
+                    <p>جنيه</p>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1">
-                  <p className="text-primary">{result.price}</p>
-                  <p>جنيه</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
