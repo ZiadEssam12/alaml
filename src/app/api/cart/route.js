@@ -64,6 +64,7 @@ export async function POST(request) {
           select: {
             name: true,
             maxQuantityPerUser: true,
+            imageUrls: true,
           },
         }),
         prisma.productVariant.findUnique({
@@ -153,15 +154,23 @@ export async function POST(request) {
           .map((opt) => `${opt.option.name}: ${opt.value.value}`)
           .join(", ");
 
+        // Use variant images if available, otherwise use product images
+        const imageUrl =
+          variant.imageUrls && variant.imageUrls.length > 0
+            ? variant.imageUrls[0]
+            : product.imageUrls && product.imageUrls.length > 0
+            ? product.imageUrls[0]
+            : "";
+
         await tx.cartItem.create({
           data: {
             cartId: cart.id,
             productId: item.productId,
             variantId: item.variantId,
             name: product.name,
-            price: variant.price,
+            price: parseFloat(variant.price),
             quantity: item.quantity,
-            imageUrl: variant.imageUrls?.[0] || null,
+            imageUrl: imageUrl,
             variantOptions: optionDisplay,
           },
         });
