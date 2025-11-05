@@ -347,3 +347,157 @@ export function generateCategoryPageBreadcrumbSchema(category) {
     ],
   };
 }
+
+/**
+ * Generate ContactPoint JSON-LD Schema
+ * @returns {Object} ContactPoint schema for JSON-LD
+ */
+export function generateContactPointSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ContactPoint",
+    contactType: "Customer Service",
+    telephone: "+20-XXX-XXX-XXXX",
+    email: "info@maktabat-alamal.com",
+    availableLanguage: ["ar"],
+    contactOption: "TollFree",
+    areaServed: "EG",
+    hoursAvailable: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      opens: "09:00",
+      closes: "18:00",
+    },
+  };
+}
+
+/**
+ * Generate Service JSON-LD Schema (for custom orders)
+ * @returns {Object} Service schema for JSON-LD
+ */
+export function generateServiceSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "طلب مخصص | مكتبة الأمل",
+    description:
+      "خدمة الطلبات المخصصة للأدوات المكتبية والقرطاسية حسب مواصفات العميل",
+    provider: {
+      "@type": "Organization",
+      name: "مكتبة الأمل",
+      url: "https://alaml-theta.vercel.app",
+    },
+    serviceType: "Custom Order Service",
+    areaServed: {
+      "@type": "Country",
+      name: "Egypt",
+    },
+    availableChannel: {
+      "@type": "ServiceChannel",
+      availableLanguage: "ar",
+      serviceUrl: "https://alaml-theta.vercel.app/custom-order",
+    },
+  };
+}
+
+/**
+ * Generate Order JSON-LD Schema
+ * @param {Object} order - Order object with details
+ * @returns {Object} Order schema for JSON-LD
+ */
+export function generateOrderSchema(order) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Order",
+    orderNumber: order.id,
+    orderStatus:
+      order.status === "delivered" ? "OrderDelivered" : "OrderProcessing",
+    orderDate: order.createdAt,
+    customer: {
+      "@type": "Person",
+      name: order.customerName,
+      email: order.customerEmail,
+      telephone: order.customerPhone,
+    },
+    seller: {
+      "@type": "Organization",
+      name: "مكتبة الأمل",
+      url: "https://alaml-theta.vercel.app",
+    },
+    orderedItem: order.items.map((item) => ({
+      "@type": "OrderItem",
+      orderQuantity: item.quantity,
+      orderedItem: {
+        "@type": "Product",
+        name: item.productName,
+        offers: {
+          "@type": "Offer",
+          price: item.price.toString(),
+          priceCurrency: "EGP",
+        },
+      },
+    })),
+    paymentMethod: {
+      "@type": "PaymentMethod",
+      name: order.paymentMethod,
+    },
+    orderTotal: {
+      "@type": "MonetaryAmount",
+      value: order.finalAmount,
+      currency: "EGP",
+    },
+  };
+}
+
+/**
+ * Generate Order Collection Page JSON-LD Schema
+ * @param {Array} orders - Array of orders
+ * @returns {Object} CollectionPage schema for orders
+ */
+export function generateOrderCollectionSchema(orders) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "الطلبات | مكتبة الأمل",
+    description: "عرض جميع طلباتك في مكتبة الأمل",
+    url: "https://alaml-theta.vercel.app/order",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: orders.length,
+      itemListElement: orders.map((order, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `https://alaml-theta.vercel.app/order/${order.id}`,
+        name: `طلب رقم ${order.id}`,
+        description: `طلب بتاريخ ${order.createdAt} - الحالة: ${order.status}`,
+      })),
+    },
+  };
+}
+
+/**
+ * Generate Order Confirmation JSON-LD Schema
+ * @param {string} orderNumber - Order number
+ * @returns {Object} Order confirmation schema
+ */
+export function generateOrderConfirmationSchema(orderNumber) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Order",
+    orderNumber: orderNumber,
+    orderStatus: "OrderProcessing",
+    seller: {
+      "@type": "Organization",
+      name: "مكتبة الأمل",
+      url: "https://alaml-theta.vercel.app",
+    },
+    description: "تم استلام طلبك بنجاح وهو قيد المراجعة والتحضير للشحن",
+  };
+}

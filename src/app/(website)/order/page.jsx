@@ -5,12 +5,58 @@ import { Package } from "lucide-react";
 import Link from "next/link";
 import { getOrders } from "@/lib/api/shop/orderAPI";
 import { PaginationClient } from "@/components/Pagination";
+import {
+  generateOrderCollectionSchema,
+  generateOrganizationSchema,
+} from "@/lib/schemas/productSchemas";
+
+export async function generateMetadata() {
+  return {
+    title: "الطلبات | مكتبة الأمل",
+    description:
+      "عرض وتتبع جميع طلباتك في مكتبة الأمل. تحقق من حالة الطلبات وتفاصيل الشحن والتوصيل.",
+    robots: "noindex, nofollow", // Don't index user-specific order pages
+    openGraph: {
+      title: "الطلبات | مكتبة الأمل",
+      description: "عرض وتتبع جميع طلباتك في مكتبة الأمل",
+      url: "https://alaml-theta.vercel.app/order",
+      siteName: "مكتبة الأمل",
+      locale: "ar_EG",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "الطلبات | مكتبة الأمل",
+      description: "عرض وتتبع جميع طلباتك في مكتبة الأمل",
+    },
+    alternates: {
+      canonical: "https://alaml-theta.vercel.app/order",
+    },
+  };
+}
 
 export default async function OrdersPage({}) {
   const { orders, pagination } = await getOrders();
 
+  const orderCollectionSchema = generateOrderCollectionSchema(orders);
+  const organizationSchema = generateOrganizationSchema();
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
+      {/* JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(orderCollectionSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationSchema),
+        }}
+      />
+
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-8">جميع الطلبات</h1>
         {orders.length === 0 ? (

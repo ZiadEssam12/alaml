@@ -2,12 +2,59 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Package, Clock, Phone } from "lucide-react";
 import Link from "next/link";
+import {
+  generateOrderConfirmationSchema,
+  generateOrganizationSchema,
+} from "@/lib/schemas/productSchemas";
+
+export async function generateMetadata({ searchParams }) {
+  const orderNumber = (await searchParams).orderNumber || "";
+
+  return {
+    title: `تم إرسال الطلب بنجاح | مكتبة الأمل`,
+    description: `تم استلام طلبك رقم ${orderNumber} بنجاح. سنتواصل معك قريباً لتأكيد التفاصيل والشحن.`,
+    robots: "noindex, nofollow", // Don't index order confirmation pages
+    openGraph: {
+      title: `تم إرسال الطلب بنجاح | مكتبة الأمل`,
+      description: `تم استلام طلبك رقم ${orderNumber} بنجاح`,
+      url: `https://alaml-theta.vercel.app/order-success?orderNumber=${orderNumber}`,
+      siteName: "مكتبة الأمل",
+      locale: "ar_EG",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `تم إرسال الطلب بنجاح | مكتبة الأمل`,
+      description: `تم استلام طلبك رقم ${orderNumber} بنجاح`,
+    },
+    alternates: {
+      canonical: `https://alaml-theta.vercel.app/order-success`,
+    },
+  };
+}
 
 export default async function OrderSuccessPage({ searchParams }) {
   const orderNumber = (await searchParams).orderNumber || "";
 
+  const orderConfirmationSchema = generateOrderConfirmationSchema(orderNumber);
+  const organizationSchema = generateOrganizationSchema();
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
+      {/* JSON-LD Schemas */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(orderConfirmationSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationSchema),
+        }}
+      />
+
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center">
           <div className="mb-8">

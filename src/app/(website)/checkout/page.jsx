@@ -4,6 +4,32 @@ import { auth } from "@/auth/auth";
 import { getCartDetails } from "@/lib/api/shop/cartAPI";
 import Link from "next/link";
 import React from "react";
+import { generateContactPointSchema } from "@/lib/schemas/productSchemas";
+
+export async function generateMetadata() {
+  return {
+    title: "إتمام الطلب | مكتبة الأمل",
+    description:
+      "أكمل طلبك من مكتبة الأمل. ادخل بيانات الشحن والدفع لإتمام عملية الشراء.",
+    robots: "noindex, nofollow", // Don't index checkout pages
+    openGraph: {
+      title: "إتمام الطلب | مكتبة الأمل",
+      description: "أكمل طلبك من مكتبة الأمل بأمان وسهولة",
+      url: "https://alaml-theta.vercel.app/checkout",
+      siteName: "مكتبة الأمل",
+      locale: "ar_EG",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "إتمام الطلب | مكتبة الأمل",
+      description: "أكمل طلبك من مكتبة الأمل بأمان وسهولة",
+    },
+    alternates: {
+      canonical: "https://alaml-theta.vercel.app/checkout",
+    },
+  };
+}
 
 export default async function page({ searchParams }) {
   const searchParamsData = await searchParams;
@@ -14,9 +40,19 @@ export default async function page({ searchParams }) {
 
   const { cartItems, coupon, total } = await getCartDetails(userId, couponCode);
 
+  const contactPointSchema = generateContactPointSchema();
+
   if (cartItems.length === 0) {
     return (
       <div className="min-h-[40vh] flex flex-col items-center justify-center text-center bg-background  p-8">
+        {/* JSON-LD Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(contactPointSchema),
+          }}
+        />
+
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-16 w-16 text-muted-foreground mb-4"
@@ -48,7 +84,15 @@ export default async function page({ searchParams }) {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-8" dir="rtl">
+      {/* JSON-LD Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(contactPointSchema),
+        }}
+      />
+
       <h1 className="text-2xl font-bold mb-8">إتمام الطلب</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
