@@ -244,11 +244,16 @@ export default async function ProductPage({ params }) {
               {/* Category and Title */}
               <div className="space-y-4">
                 {displayProduct.category && (
-                  <Badge variant="secondary" className="w-fit">
-                    {displayProduct.category.name}
-                  </Badge>
+                  <Link
+                    href={`/categories/${displayProduct.category.seoTitle}`}
+                    className="hover:text-primary transition-colors"
+                  >
+                    <Badge variant="secondary" className="w-fit">
+                      {displayProduct.category.name}
+                    </Badge>
+                  </Link>
                 )}
-                <h1 className="text-3xl lg:text-4xl font-bold text-foreground leading-tight">
+                <h1 className="text-3xl lg:text-4xl font-bold text-foreground leading-tight mt-5">
                   {displayProduct.name}
                 </h1>
               </div>
