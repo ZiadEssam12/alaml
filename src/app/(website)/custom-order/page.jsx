@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth/auth";
 import CustomOrderForm from "./CustomOrderForm";
+import DeleteOrderButton from "./DeleteOrderButton";
 
 export const metadata = {
   title: "طلباتي المخصصة | مكتبة الأمل",
@@ -182,6 +183,8 @@ export default async function CustomOrderPage({ searchParams }) {
                     </a>
                   </div>
                 )}
+
+                <DeleteOrderButton orderId={order.id} status={order.status} />
               </CardContent>
             </Card>
           ))}

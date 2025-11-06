@@ -130,3 +130,72 @@ export async function POST(request) {
     );
   }
 }
+
+// PUT - Update custom order status (user can only update their own orders)
+export async function PUT(request) {
+  try {
+    const session = await getUserTokenSSR(request);
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "يجب تسجيل الدخول أولاً" },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get("id");
+    const body = await request.json();
+    const { status } = body;
+
+    if (!orderId) {
+      return NextResponse.json({ error: "معرف الطلب مطلوب" }, { status: 400 });
+    }
+
+    if (!status) {
+      return NextResponse.json({ error: "الحالة مطلوبة" }, { status: 400 });
+    }
+
+    // Find the order
+    const customOrder = await prisma.customOrder.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!customOrder) {
+      return NextResponse.json({ error: "الطلب غير موجود" }, { status: 404 });
+    }
+
+    // Verify ownership - user can only update their own orders
+    if (customOrder.userId !== session.id) {
+      return NextResponse.json(
+        { error: "غير مصرح لك بتحديث هذا الطلب" },
+        { status: 403 }
+      );
+    }
+
+    // Only allow cancellation of in_progress orders
+    if (customOrder.status !== "in_progress") {
+      return NextResponse.json(
+        { error: "لا يمكن إلغاء الطلبات المكتملة أو المرفوضة" },
+        { status: 400 }
+      );
+    }
+
+    // Update the order status
+    const updatedOrder = await prisma.customOrder.update({
+      where: { id: orderId },
+      data: { status },
+    });
+
+    return NextResponse.json(
+      {
+        data: updatedOrder,
+        message: "تم إلغاء الطلب بنجاح",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating custom order:", error);
+    return NextResponse.json({ error: "فشل في إلغاء الطلب" }, { status: 500 });
+  }
+}
