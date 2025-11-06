@@ -1,12 +1,68 @@
 import { auth } from "@/auth/auth";
+import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+
+// GET - Fetch custom orders for the current user with pagination
+export default async function GET(req) {
+  const session = await getUserTokenSSR(req);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+
+  try {
+    const [customOrders, total] = await Promise.all([
+      prisma.customOrder.findMany({
+        where: { userId: session.id },
+        skip: Number(skip),
+        take: Number(limit),
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.customOrder.count({
+        where: { userId: session.id },
+      }),
+    ]);
+
+    return NextResponse.json({ customOrders, total });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+const { page = 1, limit = 10 } = req.query;
+const skip = (page - 1) * limit;
+
+try {
+  const [customOrders, total] = await Promise.all([
+    prisma.customOrder.findMany({
+      where: { userId: session.user.id },
+      skip: Number(skip),
+      take: Number(limit),
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.customOrder.count({
+      where: { userId: session.user.id },
+    }),
+  ]);
+
+  return NextResponse.json({ customOrders, total });
+} catch (error) {
+  console.error(error);
+  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+}
 
 // POST - Create new custom order (user)
 export async function POST(request) {
   try {
     // Verify user is authenticated
-    const session = await auth(request);
+    const session = await getUserTokenSSR(request);
 
     if (!session) {
       return NextResponse.json(
@@ -75,7 +131,7 @@ export async function POST(request) {
         quantity: quantity ? parseInt(quantity) : null,
         budget: budget ? parseFloat(budget) : null,
         url: url && url.trim() ? url.trim() : null,
-        userId: session.user.id, // Add userId from session
+        userId: session.id, // Add userId from session
       },
     });
 

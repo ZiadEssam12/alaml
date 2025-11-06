@@ -1,91 +1,120 @@
+import React from "react";
 import {
-  generateServiceSchema,
-  generateOrganizationSchema,
-} from "@/lib/schemas/productSchemas";
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
+import prisma from "@/lib/prisma";
+import { auth } from "@/auth/auth";
 import CustomOrderForm from "./CustomOrderForm";
 
-export async function generateMetadata() {
-  return {
-    title: "طلب مخصص | مكتبة الأمل",
-    description:
-      "اطلب منتجات مخصصة حسب احتياجاتك من مكتبة الأمل. نقدم خدمة الطلبات المخصصة للأدوات المكتبية والقرطاسية بجودة عالية.",
-    keywords:
-      "طلب مخصص, منتجات مخصصة, أدوات مكتبية مخصصة, قرطاسية مخصصة, مكتبة الأمل",
-    openGraph: {
-      title: "طلب مخصص | مكتبة الأمل",
-      description: "اطلب منتجات مخصصة حسب احتياجاتك من مكتبة الأمل",
-      url: "https://alaml-theta.vercel.app/custom-order",
-      siteName: "مكتبة الأمل",
-      locale: "ar_EG",
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: "طلب مخصص | مكتبة الأمل",
-      description: "اطلب منتجات مخصصة حسب احتياجاتك من مكتبة الأمل",
-    },
-    alternates: {
-      canonical: "https://alaml-theta.vercel.app/custom-order",
-    },
-  };
+export const metadata = {
+  title: "طلباتي المخصصة | مكتبة الأمل",
+  description: "عرض وإدارة الطلبات المخصصة الخاصة بك في مكتبة الأمل.",
+};
+
+async function getUserCustomOrders(userId, skip, take) {
+  return await prisma.customOrder.findMany({
+    where: { userId },
+    skip,
+    take,
+    orderBy: { createdAt: "desc" },
+  });
 }
 
-export default function CustomOrderPage() {
-  const serviceSchema = generateServiceSchema();
-  const organizationSchema = generateOrganizationSchema();
+async function getUserCustomOrdersCount(userId) {
+  return await prisma.customOrder.count({
+    where: { userId },
+  });
+}
+
+export default async function CustomOrderPage({ searchParams }) {
+  const session = await auth();
+  if (!session) {
+    redirect("/");
+  }
+
+  const userId = session.user.id;
+  const paramsPage = searchParams?.page;
+  const page = Math.max(1, Number(paramsPage || 1));
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const [customOrders, total] = await Promise.all([
+    getUserCustomOrders(userId, skip, limit),
+    getUserCustomOrdersCount(userId),
+  ]);
+
+  const maxPage = Math.ceil(total / limit);
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      {/* JSON-LD Schemas */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(serviceSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationSchema),
-        }}
-      />
-
       <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">طلب مخصص</h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            لديك فكرة محددة للمنتج الذي تريده؟ نحن نقدم خدمة الطلبات المخصصة
-            لتلبية احتياجاتك الخاصة
-          </p>
+        <div className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="text-4xl font-bold mb-4">طلباتي المخصصة</h1>
+            <p className="text-muted-foreground text-lg">
+              عرض وإدارة جميع الطلبات المخصصة الخاصة بك.
+            </p>
+          </div>
         </div>
 
         <CustomOrderForm />
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-6 bg-blue-50 rounded-lg">
-            <div className="text-3xl mb-3">📚</div>
-            <h3 className="font-semibold mb-2">كتب نادرة</h3>
-            <p className="text-sm text-muted-foreground">
-              نبحث عن الكتب النادرة والمتخصصة من مصادر متعددة
-            </p>
-          </div>
-
-          <div className="text-center p-6 bg-green-50 rounded-lg">
-            <div className="text-3xl mb-3">🎓</div>
-            <h3 className="font-semibold mb-2">كتب أكاديمية</h3>
-            <p className="text-sm text-muted-foreground">
-              مراجع جامعية وكتب تخصصية للطلاب والباحثين
-            </p>
-          </div>
-
-          <div className="text-center p-6 bg-purple-50 rounded-lg">
-            <div className="text-3xl mb-3">✏️</div>
-            <h3 className="font-semibold mb-2">قرطاسية مخصصة</h3>
-            <p className="text-sm text-muted-foreground">
-              أدوات مكتبية وقرطاسية بمواصفات خاصة
-            </p>
-          </div>
+        <div className="mt-12 space-y-6">
+          {customOrders.map((order) => (
+            <div key={order.id} className="p-4 border rounded-lg shadow-md">
+              <h3 className="font-semibold text-lg">{order.productType}</h3>
+              <p className="text-sm text-muted-foreground">
+                {order.description}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                الحالة: {order.status}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                التاريخ: {new Date(order.createdAt).toLocaleDateString("ar-EG")}
+              </p>
+            </div>
+          ))}
         </div>
+
+        {maxPage > 1 && (
+          <div className="mt-8">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={`?page=${Math.max(1, page - 1)}`}
+                    className={
+                      page === 1
+                        ? "opacity-50 cursor-not-allowed pointer-events-none"
+                        : ""
+                    }
+                    aria-disabled={page === 1}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <span className="px-4 py-2">
+                    الصفحة {page} من {maxPage}
+                  </span>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href={`?page=${Math.min(maxPage, page + 1)}`}
+                    className={
+                      page === maxPage
+                        ? "opacity-50 cursor-not-allowed pointer-events-none"
+                        : ""
+                    }
+                    aria-disabled={page === maxPage}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </main>
     </div>
   );
