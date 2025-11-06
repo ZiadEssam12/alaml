@@ -6,6 +6,7 @@ import {
   Package,
   Users,
   MessageSquare,
+  ShoppingCart,
 } from "lucide-react";
 
 import {
@@ -37,6 +38,11 @@ const items = [
     title: "الطلبات",
     url: "/dashboard/orders",
     icon: Inbox,
+  },
+  {
+    title: "الطلبات المخصصة",
+    url: "/dashboard/custom-orders",
+    icon: ShoppingCart,
   },
   {
     title: "التنصيفات",

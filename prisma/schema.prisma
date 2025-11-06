@@ -275,6 +275,24 @@ model CouponUsage {
   @@map("coupon_usages")
 }
 
+model CustomOrder {
+  id          String            @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  productType String
+  description String
+  quantity    Int?
+  budget      Float?
+  url         String?
+  status      CustomOrderStatus @default(in_progress)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
 enum CouponType {
   percentage
   fixed
@@ -303,4 +321,10 @@ enum ReviewStatus {
 enum UserRole {
   user
   admin
+}
+
+enum CustomOrderStatus {
+  in_progress
+  done
+  refused
 }

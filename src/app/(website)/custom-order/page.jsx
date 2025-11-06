@@ -1,22 +1,8 @@
-"use client";
-
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   generateServiceSchema,
   generateOrganizationSchema,
 } from "@/lib/schemas/productSchemas";
+import CustomOrderForm from "./CustomOrderForm";
 
 export async function generateMetadata() {
   return {
@@ -45,23 +31,8 @@ export async function generateMetadata() {
 }
 
 export default function CustomOrderPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    productType: "",
-    description: "",
-    quantity: "",
-    budget: "",
-  });
-
   const serviceSchema = generateServiceSchema();
   const organizationSchema = generateOrganizationSchema();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Handle form submission
-  };
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
@@ -88,7 +59,7 @@ export default function CustomOrderPage() {
           </p>
         </div>
 
-        <FormWrapper />
+        <CustomOrderForm />
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-6 bg-blue-50 rounded-lg">
