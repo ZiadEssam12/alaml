@@ -6,7 +6,7 @@ import { LoadingProvider } from "@/Context/LoadinContext";
 import { ReviewDialogProvider } from "@/Context/ReviewDialogContext";
 import Loading from "@/components/Loading";
 import { SessionProvider } from "next-auth/react";
-
+import { Analytics } from "@vercel/analytics/next";
 export const metadata = {
   title: "مكتبة الأمل",
   description: "متجر الأدوات المكتبية الإلكتروني",
@@ -95,6 +95,8 @@ export default async function RootLayout({ children }) {
             </CartProvider>
           </LoadingProvider>
         </ThemeProvider>
+
+        <Analytics />
       </body>
     </html>
   );

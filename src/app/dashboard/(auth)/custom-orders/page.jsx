@@ -58,7 +58,9 @@ export default async function CustomOrdersPage({ searchParams }) {
     redirect("/");
   }
 
-  const page = Math.max(1, Number(searchParams?.page || 1));
+  const paramsPage = (await searchParams)?.page;
+
+  const page = Math.max(1, Number(paramsPage || 1));
   const limit = 10;
   const skip = (page - 1) * limit;
 
