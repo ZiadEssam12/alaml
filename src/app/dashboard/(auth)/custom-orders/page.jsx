@@ -11,6 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { cache } from "react";
+import { auth } from "@/auth/auth";
+import { redirect } from "next/navigation";
+import CustomOrderActions from "./CustomOrderActions";
 
 // Cache custom orders fetch
 const getCachedCustomOrders = cache(async (skip, take) => {
@@ -57,7 +60,8 @@ const statusLabel = (status) => {
 };
 
 export default async function CustomOrdersPage({ searchParams }) {
-  const paramsPage = (await searchParams).page;
+  const params = await searchParams;
+  const paramsPage = params?.page;
 
   const page = Math.max(1, Number(paramsPage || 1));
   const limit = 10;
@@ -195,6 +199,8 @@ export default async function CustomOrdersPage({ searchParams }) {
                     </p>
                   </div>
                 )}
+
+                <CustomOrderActions orderId={order.id} orderData={order} />
               </CardContent>
             </Card>
           ))}

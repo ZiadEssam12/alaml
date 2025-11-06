@@ -5,14 +5,6 @@ import { NextResponse } from "next/server";
 // GET - Fetch single custom order (admin only)
 export async function GET(request, { params }) {
   try {
-    const session = await getUserTokenSSR(request);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "غير مصرح له بالوصول" },
-        { status: 403 }
-      );
-    }
 
     const orderId = (await params).id;
 
@@ -34,15 +26,6 @@ export async function GET(request, { params }) {
 // PUT - Update custom order (admin only)
 export async function PUT(request, { params }) {
   try {
-    const session = await getUserTokenSSR(request);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "غير مصرح له بالوصول" },
-        { status: 403 }
-      );
-    }
-
     const orderId = (await params).id;
     const body = await request.json();
     const {
@@ -99,15 +82,6 @@ export async function PUT(request, { params }) {
 // DELETE - Delete custom order (set status to refused) (admin only)
 export async function DELETE(request, { params }) {
   try {
-    const session = await getUserTokenSSR(request);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "غير مصرح له بالوصول" },
-        { status: 403 }
-      );
-    }
-
     const orderId = (await params).id;
 
     const updatedOrder = await prisma.customOrder.update({

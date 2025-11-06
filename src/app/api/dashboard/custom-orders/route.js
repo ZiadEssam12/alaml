@@ -5,15 +5,6 @@ import { NextResponse } from "next/server";
 // GET - Fetch all custom orders with pagination (admin only)
 export async function GET(request) {
   try {
-    const session = await getUserTokenSSR(request);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "غير مصرح له بالوصول" },
-        { status: 403 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, Number(searchParams.get("page") || 1));
     const limit = Number(searchParams.get("limit") || 10);
