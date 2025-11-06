@@ -92,11 +92,14 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function page({ params }) {
+export default async function page({ params, searchParams }) {
   const { slug } = await params;
+  const params_obj = await searchParams;
+  const page = Math.max(1, Number(params_obj?.page || 1));
 
   const { category, pagination, products } = await getCachedCategoryDetails(
-    slug
+    slug,
+    page
   );
 
   // Generate JSON-LD schemas
@@ -189,7 +192,13 @@ export default async function page({ params }) {
                       <ProductCard key={product.id} product={product} />
                     ))}
                   </div>
-                  <PaginationClient maxPage={pagination.maxPage} />
+                  {pagination.maxPage > 1 && (
+                    <PaginationClient
+                      maxPage={pagination.maxPage}
+                      currentPage={page}
+                      basePath={`/categories/${slug}`}
+                    />
+                  )}
                 </>
               )}
             </div>

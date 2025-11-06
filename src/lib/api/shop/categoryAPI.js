@@ -1,7 +1,8 @@
-export async function getCategoryDetails(slug) {
+export async function getCategoryDetails(slug, page = 1) {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${slug}`
+      `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${slug}?page=${page}`,
+      { cache: "no-store" }
     );
 
     if (!res.ok) {
