@@ -10,7 +10,6 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { loading, setLoading } = useContext(loadingContext);
   const [userToken, setUserToken] = useState(null);
-  console.log("User Token in Cart Context:", userToken);
 
   useEffect(() => {
     const getToken = async () => {

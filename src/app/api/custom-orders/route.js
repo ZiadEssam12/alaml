@@ -1,4 +1,4 @@
-import { getUserTokenSSR } from "@/lib/auth-helpers";
+import { auth } from "@/auth/auth";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     // Verify user is authenticated
-    const session = await getUserTokenSSR(request);
+    const session = await auth(request);
 
     if (!session) {
       return NextResponse.json(
@@ -75,6 +75,7 @@ export async function POST(request) {
         quantity: quantity ? parseInt(quantity) : null,
         budget: budget ? parseFloat(budget) : null,
         url: url && url.trim() ? url.trim() : null,
+        userId: session.user.id, // Add userId from session
       },
     });
 
