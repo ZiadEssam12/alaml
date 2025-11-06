@@ -1,4 +1,5 @@
 import React from "react";
+import { redirect } from "next/navigation";
 import {
   Pagination,
   PaginationContent,
@@ -32,9 +33,6 @@ async function getUserCustomOrdersCount(userId) {
 
 export default async function CustomOrderPage({ searchParams }) {
   const session = await auth();
-  if (!session) {
-    redirect("/");
-  }
 
   const userId = session.user.id;
   const paramsPage = searchParams?.page;

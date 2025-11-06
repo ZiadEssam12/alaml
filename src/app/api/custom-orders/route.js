@@ -4,13 +4,15 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // GET - Fetch custom orders for the current user with pagination
-export default async function GET(req) {
-  const session = await getUserTokenSSR(req);
+export async function GET(request) {
+  const session = await getUserTokenSSR(request);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { page = 1, limit = 10 } = req.query;
+  const { searchParams } = new URL(request.url);
+  const page = searchParams.get("page") || 1;
+  const limit = searchParams.get("limit") || 10;
   const skip = (page - 1) * limit;
 
   try {
@@ -34,28 +36,6 @@ export default async function GET(req) {
       { status: 500 }
     );
   }
-}
-
-const { page = 1, limit = 10 } = req.query;
-const skip = (page - 1) * limit;
-
-try {
-  const [customOrders, total] = await Promise.all([
-    prisma.customOrder.findMany({
-      where: { userId: session.user.id },
-      skip: Number(skip),
-      take: Number(limit),
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.customOrder.count({
-      where: { userId: session.user.id },
-    }),
-  ]);
-
-  return NextResponse.json({ customOrders, total });
-} catch (error) {
-  console.error(error);
-  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
 }
 
 // POST - Create new custom order (user)
