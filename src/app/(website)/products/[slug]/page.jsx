@@ -42,6 +42,7 @@ export async function generateStaticParams() {
   }
 }
 
+export const dynamic = "auto";
 export const revalidate = 86400; // Revalidate every day (ISR)
 
 export async function generateMetadata({ params }) {
