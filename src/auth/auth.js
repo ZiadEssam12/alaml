@@ -23,31 +23,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // On initial sign-in, set user id and role
       if (user) {
         const dbUser = await prisma.user.findUnique({
           where: { email: user.email },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        }
+      }
+
+      // Always fetch fresh cart data for every session request
+      if (token.id) {
+        const userCart = await prisma.cart.findUnique({
+          where: { userId: token.id },
           include: {
-            cart: {
+            items: {
               include: {
-                items: {
-                  include: {
-                    product: {
-                      select: {
-                        id: true,
-                        name: true,
-                        price: true,
-                        slug: true,
-                        imageUrls: true,
-                      },
-                    },
-                    variant: {
-                      select: {
-                        id: true,
-                        price: true,
-                        imageUrls: true,
-                      },
-                    },
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    price: true,
+                    slug: true,
+                    imageUrls: true,
+                  },
+                },
+                variant: {
+                  select: {
+                    id: true,
+                    price: true,
+                    imageUrls: true,
                   },
                 },
               },
@@ -55,11 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         });
 
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.cart = dbUser.cart || { id: "", userId: "", items: [] };
-        }
+        token.cart = userCart || { id: "", userId: "", items: [] };
       }
 
       return token;

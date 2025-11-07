@@ -12,6 +12,8 @@ export const CartProvider = ({ children }) => {
   const { loading, setLoading } = useContext(loadingContext);
   const { data: session, status } = useSession();
 
+  console.log("session data:", session);
+
   // Initialize cart from session
   useEffect(() => {
     if (status === "loading") {
