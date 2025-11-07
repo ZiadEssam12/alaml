@@ -62,7 +62,7 @@ export default async function CartPage() {
   });
 
   const { data: cartItems } = await res.json();
-  const items = cartItems.items;
+  const items = cartItems?.items ?? [];
 
   // Generate JSON-LD schemas
   const websiteSchema = generateWebSiteSchema();
