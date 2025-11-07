@@ -8,7 +8,7 @@ export async function getHomeData() {
 
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/home`, {
-      cache: "no-store",
+      next: { revalidate: 3600 }, // Revalidate every hour (ISR)
       headers: {
         Authorization: `Bearer ${token}`,
       },

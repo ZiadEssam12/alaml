@@ -16,6 +16,13 @@ const getCachedHomeData = cache(async () => {
   return await getHomeData();
 });
 
+// Generate static params for home page (static route, no dynamic params)
+export async function generateStaticParams() {
+  return [{}]; // Home page has no dynamic parameters, just one static page
+}
+
+export const revalidate = 3600; // Revalidate every hour (ISR)
+
 export const metadata = {
   title: "مكتبة الأمل - متجر الأدوات المكتبية والقرطاسية الإلكتروني",
   description:
