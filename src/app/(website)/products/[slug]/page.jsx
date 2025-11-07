@@ -245,9 +245,9 @@ export default async function ProductPage({ params }) {
                     <Package className="h-4 w-4 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-red-800 dark:text-red-200">
+                    <p className="font-semibold text-red-800 dark:text-red-200">
                       المنتج غير متاح للعامة
-                    </h3>
+                    </p>
                     <p className="text-sm text-red-600 dark:text-red-300">
                       هذا المنتج غير متاح للشراء حالياً
                     </p>
@@ -284,7 +284,7 @@ export default async function ProductPage({ params }) {
                   displayProduct.stockQuantity > 0 && (
                     <Badge
                       variant="outline"
-                      className="text-orange-600 border-orange-300"
+                      className="text-orange-700 border-orange-600"
                     >
                       {displayProduct.stockQuantity} متبقي
                     </Badge>
@@ -316,7 +316,7 @@ export default async function ProductPage({ params }) {
 
               {/* Description */}
               <div className="space-y-3">
-                <h3 className="text-lg font-semibold">وصف المنتج</h3>
+                <h2 className="text-lg font-semibold">وصف المنتج</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {displayProduct.description}
                 </p>

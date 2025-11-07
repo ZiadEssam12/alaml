@@ -123,6 +123,7 @@ export default function ProductCarousel({ displayProduct }) {
                       onClick={handleZoomIn}
                       disabled={zoomLevel >= 3}
                       className="h-8 w-8 p-0"
+                      aria-label="تكبير الصورة"
                     >
                       <ZoomIn className="h-4 w-4" />
                     </Button>
@@ -132,6 +133,7 @@ export default function ProductCarousel({ displayProduct }) {
                       onClick={handleZoomOut}
                       disabled={zoomLevel <= 1}
                       className="h-8 w-8 p-0"
+                      aria-label="تصغير الصورة"
                     >
                       <ZoomOut className="h-4 w-4" />
                     </Button>
@@ -141,6 +143,7 @@ export default function ProductCarousel({ displayProduct }) {
                       onClick={resetZoom}
                       disabled={zoomLevel === 1}
                       className="h-8 w-8 p-0"
+                      aria-label="إعادة تعيين التكبير"
                     >
                       <RotateCcw className="h-4 w-4" />
                     </Button>

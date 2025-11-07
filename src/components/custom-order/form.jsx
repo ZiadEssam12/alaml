@@ -189,6 +189,8 @@ export default function CustomOrderForm() {
                         Number.parseInt(e.target.value) || 1
                       )
                     }
+                    aria-labelledby="quantity"
+                    aria-label="الكمية المطلوبة"
                     required
                   />
                 </div>

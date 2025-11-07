@@ -154,6 +154,7 @@ export default function AddToCartButton({
                 size="sm"
                 onClick={removeQuantity}
                 disabled={quantityNumber <= 1}
+                aria-label="تقليل الكمية"
                 className="h-10 w-10 rounded-none border-r hover:bg-muted disabled:opacity-50"
               >
                 <Minus className="h-4 w-4" />
@@ -170,6 +171,7 @@ export default function AddToCartButton({
                 onClick={addQuantity}
                 disabled={!isInStock || maxReached || stockLimitReached}
                 className="h-10 w-10 rounded-none border-l hover:bg-muted disabled:opacity-50"
+                aria-label="زيادة الكمية"
               >
                 <Plus className="h-4 w-4" />
               </Button>

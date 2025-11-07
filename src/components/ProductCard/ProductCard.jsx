@@ -62,7 +62,10 @@ export default function ProductCard({ product }) {
 
           {/* Stock Badge */}
           {isOutOfStock && (
-            <Badge variant="destructive" className="absolute top-2 right-2">
+            <Badge
+              variant="destructive"
+              className="absolute top-2 right-2 bg-red-700 text-white border-red-800"
+            >
               نفد المخزون
             </Badge>
           )}
@@ -87,7 +90,10 @@ export default function ProductCard({ product }) {
               {product.price} جنيه
             </span>
             {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
-              <Badge variant="outline" className="text-orange-600">
+              <Badge
+                variant="outline"
+                className="text-orange-700 border-orange-600"
+              >
                 {product.stockQuantity} متبقي
               </Badge>
             )}
