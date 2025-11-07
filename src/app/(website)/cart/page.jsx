@@ -4,6 +4,7 @@ import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
 import Link from "next/link";
 import React from "react";
 import { generateWebSiteSchema } from "@/lib/schemas/productSchemas";
+import { auth } from "@/auth/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -49,20 +50,10 @@ export async function generateMetadata() {
 }
 
 export default async function CartPage() {
-  const userToken = await getUserTokenFromHeaders();
+  const session = await auth();
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${userToken}`,
-    },
-    cache: "no-store",
-    credentials: "include",
-  });
-
-  const { data: cartItems } = await res.json();
-  const items = cartItems?.items ?? [];
+  // Get cart items directly from session (faster)
+  const items = session?.cart?.items ?? [];
 
   // Generate JSON-LD schemas
   const websiteSchema = generateWebSiteSchema();
