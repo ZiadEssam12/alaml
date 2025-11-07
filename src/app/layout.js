@@ -82,17 +82,17 @@ export default async function RootLayout({ children }) {
           disableTransitionOnChange
         >
           <LoadingProvider>
-            <CartProvider>
-              <ReviewDialogProvider>
-                <SessionProvider>
+            <SessionProvider>
+              <CartProvider>
+                <ReviewDialogProvider>
                   <div className="min-h-screen flex flex-col overflow-x-hidden">
                     {children}
                   </div>
-                </SessionProvider>
-              </ReviewDialogProvider>
-              <Toaster position="bottom-right" />
-              <Loading />
-            </CartProvider>
+                </ReviewDialogProvider>
+                <Toaster position="bottom-right" />
+                <Loading />
+              </CartProvider>
+            </SessionProvider>
           </LoadingProvider>
         </ThemeProvider>
 

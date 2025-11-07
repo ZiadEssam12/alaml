@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, use, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { loadingContext } from "./LoadinContext";
 
@@ -9,54 +10,24 @@ export const cartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const { loading, setLoading } = useContext(loadingContext);
-  const [userToken, setUserToken] = useState(null);
+  const { data: session, status } = useSession();
 
+  // Initialize cart from session
   useEffect(() => {
-    const getToken = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/auth/token`
-        );
-        const data = await response.json();
-        if (data.token) {
-          setUserToken(data.token);
-        } else {
-          setUserToken(null);
-        }
-      } catch (error) {
-        console.error("Failed to get token:", error);
-        setUserToken(null);
-      }
-    };
-    getToken();
-  }, []);
-
-  // Fetch cart when token is available
-  useEffect(() => {
-    if (!userToken) {
-      setLoading(false);
-      return;
+    if (status === "loading") {
+      return; // Wait for session to load
     }
 
-    // Fetch cart from API using token
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/user/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setCart(data.data?.items || []);
-      })
-      .catch(() => {
-        setCart([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [userToken, setLoading]);
+    if (status === "authenticated" && session?.cart?.items) {
+      // User is logged in and cart is available from session
+      setCart(session.cart.items);
+    } else if (status === "unauthenticated") {
+      // User is not logged in
+      setCart([]);
+    }
+
+    setLoading(false);
+  }, [session?.cart?.items, status, setLoading]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
@@ -69,7 +40,8 @@ export const CartProvider = ({ children }) => {
       setCart((prev) => [...prev, { ...product, quantity }]);
     }
 
-    if (!userToken) {
+    // Check if user is authenticated
+    if (!session) {
       toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
@@ -85,7 +57,6 @@ export const CartProvider = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({ item }),
       })
@@ -110,7 +81,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeCartItem = (id) => {
-    if (!userToken) {
+    if (!session) {
       toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
@@ -120,7 +91,6 @@ export const CartProvider = ({ children }) => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userToken}`,
         },
       })
         .then(async (res) => {
@@ -143,7 +113,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const emptyCart = () => {
-    if (!userToken) {
+    if (!session) {
       toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
@@ -153,7 +123,6 @@ export const CartProvider = ({ children }) => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userToken}`,
         },
       })
         .then(async (res) => {
@@ -178,7 +147,7 @@ export const CartProvider = ({ children }) => {
   const totalItemInCart = cart.length;
 
   const updateCartItem = (id, newQuantity) => {
-    if (!userToken) {
+    if (!session) {
       toast.error("يرجى تسجيل الدخول أولاً!");
       return;
     }
@@ -197,7 +166,6 @@ export const CartProvider = ({ children }) => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({ quantity: newQuantity }),
       })
