@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 
 export async function getProduct(slug) {
@@ -66,4 +67,11 @@ export async function getProducts({
     console.error("Error fetching products:", error);
     return { products: [], totalPages: 0 };
   }
+}
+
+export async function getAllSlugs() {
+  return prisma.product.findMany({
+    where: { isActive: true },
+    select: { slug: true },
+  });
 }

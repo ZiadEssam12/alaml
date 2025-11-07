@@ -16,7 +16,7 @@ import ProductCarousel from "@/components/dashbaord/product/productCarousel";
 import { imageService } from "@/lib/image-service";
 import ProductsList from "@/components/Home/productsList";
 import ProductReviewsContainer from "@/components/reviewComponents/ProductReviewsContainer";
-import { getProduct } from "@/lib/api/shop/productAPI";
+import { getAllSlugs, getProduct } from "@/lib/api/shop/productAPI";
 import {
   generateProductSchema,
   generateOrganizationSchema,
@@ -27,6 +27,22 @@ import {
 const getCachedProduct = cache(async (slug) => {
   return await getProduct(slug);
 });
+
+// Generate static params for all active products
+export async function generateStaticParams() {
+  try {
+    const products = await getAllSlugs();
+
+    return products.map((product) => ({
+      slug: product.slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
+
+export const revalidate = 86400; // Revalidate every day (ISR)
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
