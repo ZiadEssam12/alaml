@@ -3,7 +3,10 @@ import ProductCard from "@/components/ProductCard/ProductCard";
 import Link from "next/link";
 import React from "react";
 import SortingForm from "@/components/SortingForm";
-import { getCategoryDetails } from "@/lib/api/shop/categoryAPI";
+import {
+  getCategoryDetails,
+  getAllActiveCategorySlugs,
+} from "@/lib/api/shop/categoryAPI";
 import { cache } from "react";
 import {
   generateOrganizationSchema,
@@ -15,6 +18,20 @@ import {
 const getCachedCategoryDetails = cache(async (slug) => {
   return await getCategoryDetails(slug);
 });
+
+// Generate static params for all active categories
+export async function generateStaticParams() {
+  try {
+    const categories = await getAllActiveCategorySlugs();
+
+    return categories.map((category) => ({
+      slug: category.seoTitle,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
