@@ -24,7 +24,7 @@ export async function getCategoryDetails(slug, page = 1) {
 export async function getAllActiveCategorySlugs() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`, {
-      cache: "revalidate",
+      next: { revalidate: 86400 }, // Revalidate every day (ISR)
     });
 
     if (!res.ok) {
