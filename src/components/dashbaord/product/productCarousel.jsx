@@ -95,6 +95,7 @@ export default function ProductCarousel({ displayProduct }) {
                     alt={`${displayProduct.name} صورة ${i + 1}`}
                     fill
                     priority={i === 0}
+                    fetchPriority={i === 0 ? "high" : "low"}
                     placeholder="blur"
                     blurDataURL={img.placeholder}
                     className={`object-contain transition-transform duration-300 ${
