@@ -227,16 +227,14 @@ export default async function ProductPage({ params }) {
         </div>
 
         {/* Main Product Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-12">
           {/* Product Images */}
-          <div className="space-y-4">
-            <div className="bg-white dark:bg-card rounded-2xl shadow-lg p-6 border">
-              <ProductCarousel displayProduct={displayProduct} />
-            </div>
+          <div className="space-y-4 lg:col-span-2">
+            <ProductCarousel displayProduct={displayProduct} />
           </div>
 
           {/* Product Information */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:col-span-3">
             {/* Product Status */}
             {!displayProduct.isActive && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
