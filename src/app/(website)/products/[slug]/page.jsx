@@ -58,6 +58,18 @@ export async function generateMetadata({ params }) {
       };
     }
 
+    // Generate responsive URLs for better image quality
+    const publicImageIds = displayProduct.imageUrls.map((url) =>
+      imageService.extractPublicId(url)
+    );
+    const responsiveUrls = publicImageIds.map((id) =>
+      imageService.generateResponsiveUrls(id)
+    );
+
+    // Use the first image's large version for OG (1200x1200)
+    const firstImage = responsiveUrls[0];
+    const ogImageUrl = firstImage?.large || displayProduct.imageUrls[0];
+
     return {
       title: `${displayProduct.name} | مكتبة الأمل`,
       description: displayProduct.description,
@@ -65,20 +77,29 @@ export async function generateMetadata({ params }) {
         displayProduct.name,
         displayProduct.category?.name,
         "أدوات مكتبية",
+        "قرطاسية",
+        "متجر إلكتروني",
         ...(displayProduct?.keywords || []),
       ].join(", "),
       openGraph: {
         title: `${displayProduct.name} | مكتبة الأمل`,
         description: displayProduct.description,
-        type: "website",
+        type: "product",
         url: `https://alaml-theta.vercel.app/products/${displayProduct.slug}`,
         siteName: "مكتبة الأمل",
         locale: "ar_EG",
         images: [
           {
-            url: displayProduct.imageUrls[0],
+            url: ogImageUrl,
             width: 1200,
             height: 630,
+            alt: displayProduct.name,
+            type: "image/jpeg",
+          },
+          {
+            url: firstImage?.medium || displayProduct.imageUrls[0],
+            width: 800,
+            height: 600,
             alt: displayProduct.name,
             type: "image/jpeg",
           },
@@ -88,17 +109,19 @@ export async function generateMetadata({ params }) {
         card: "summary_large_image",
         title: `${displayProduct.name} | مكتبة الأمل`,
         description: displayProduct.description,
-        images: [displayProduct.imageUrls[0]],
+        images: [ogImageUrl],
         creator: "@alaml_store",
         site: "@alaml_store",
       },
-      linkedIn: {
-        title: `${displayProduct.name} | مكتبة الأمل`,
-        description: displayProduct.description,
-        image: displayProduct.imageUrls[0],
-      },
       alternates: {
         canonical: `https://alaml-theta.vercel.app/products/${displayProduct.slug}`,
+      },
+      other: {
+        "product:price:amount": displayProduct.price,
+        "product:price:currency": "EGP",
+        "product:availability":
+          displayProduct.stockQuantity > 0 ? "in stock" : "out of stock",
+        "product:category": displayProduct.category?.name,
       },
     };
   } catch (error) {
