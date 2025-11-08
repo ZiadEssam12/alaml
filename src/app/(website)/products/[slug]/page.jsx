@@ -84,7 +84,7 @@ export async function generateMetadata({ params }) {
       openGraph: {
         title: `${displayProduct.name} | مكتبة الأمل`,
         description: displayProduct.description,
-        type: "product",
+        type: "website",
         url: `https://alaml-theta.vercel.app/products/${displayProduct.slug}`,
         siteName: "مكتبة الأمل",
         locale: "ar_EG",
