@@ -117,6 +117,7 @@ export async function generateMetadata({ params }) {
         canonical: `https://alaml-theta.vercel.app/products/${displayProduct.slug}`,
       },
       other: {
+        "fb:app_id": "YOUR_FACEBOOK_APP_ID", // Replace with your actual Facebook App ID
         "product:price:amount": displayProduct.price,
         "product:price:currency": "EGP",
         "product:availability":

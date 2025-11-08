@@ -83,6 +83,9 @@ export const metadata = {
     maximumScale: 5,
   },
   themeColor: "#ffffff",
+  other: {
+    "fb:app_id": "YOUR_FACEBOOK_APP_ID", // Replace with your actual Facebook App ID
+  },
 };
 
 export default async function Home() {
