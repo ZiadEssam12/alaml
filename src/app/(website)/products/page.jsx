@@ -18,7 +18,7 @@ const getCachedProducts = cache(async (filters) => {
 export const metadata = {
   title: "جميع المنتجات | مكتبة الأمل - أدوات مكتبية وقرطاسية",
   description:
-    "تصفح آلاف المنتجات من الأدوات المكتبية والقرطاسية الإلكترونية بأفضل الأسعار. اكتشف مجموعة واسعة من أقلام، دفاتر، ملفات وأكثر. توصيل سريع وآمن.",
+    "تصفح آلاف المنتجات من الأدوات المكتبية  الإلكترونية بأفضل الأسعار. اكتشف مجموعة واسعة من أقلام، دفاتر، ملفات وأكثر. توصيل سريع وآمن.",
   keywords:
     "منتجات قرطاسية، أدوات مكتبية، متجر إلكتروني، أقلام، دفاتر، ملفات، مكتبة الأمل، شراء أدوات مكتبية أونلاين",
   robots: {
@@ -30,8 +30,7 @@ export const metadata = {
   },
   openGraph: {
     title: "جميع المنتجات | مكتبة الأمل",
-    description:
-      "اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية بأفضل الأسعار",
+    description: "اكتشف مجموعة واسعة من الأدوات المكتبية  بأفضل الأسعار",
     type: "website",
     url: "https://alaml-theta.vercel.app/products",
     siteName: "مكتبة الأمل",
@@ -49,7 +48,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "جميع المنتجات | مكتبة الأمل",
-    description: "اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية",
+    description: "اكتشف مجموعة واسعة من الأدوات المكتبية ",
     images: ["https://alaml-theta.vercel.app/og-products.jpg"],
     creator: "@alaml_store",
     site: "@alaml_store",

@@ -50,7 +50,7 @@ export async function generateMetadata({ params }) {
       title: `${category.name} | مكتبة الأمل`,
       description:
         category.description ||
-        `تصفح جميع منتجات قسم ${category.name} من الأدوات المكتبية والقرطاسية`,
+        `تصفح جميع منتجات قسم ${category.name} من الأدوات المكتبية `,
       keywords: [
         category.name,
         "منتجات",

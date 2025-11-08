@@ -23,7 +23,7 @@ export default function Footer() {
               {settings?.storeName || "مكتبة الأمل"}
             </h3>
             <p className="text-muted-foreground mb-4">
-              متجرك الموثوق للكتب والقرطاسية والهدايا المميزة
+              متجرك الموثوق للكتب والهدايا المميزة
             </p>
             <div className="flex space-x-4">
               {settings?.facebookUrl && (

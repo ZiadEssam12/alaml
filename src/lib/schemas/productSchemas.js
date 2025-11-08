@@ -121,8 +121,7 @@ export function generateCollectionPageSchema(products, totalProducts) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "جميع المنتجات | مكتبة الأمل",
-    description:
-      "تصفح جميع منتجاتنا من الأدوات المكتبية والقرطاسية الإلكترونية",
+    description: "تصفح جميع منتجاتنا من الأدوات المكتبية  الإلكترونية",
     url: "https://alaml-theta.vercel.app/products",
     mainEntity: {
       "@type": "ItemList",
@@ -182,13 +181,13 @@ export function generateLocalBusinessSchema() {
     "@type": "LocalBusiness",
     name: "مكتبة الأمل",
     image: "https://alaml-theta.vercel.app/logo.png",
-    description: "متجر إلكتروني متخصص في الأدوات المكتبية والقرطاسية",
+    description: "متجر إلكتروني متخصص في الأدوات المكتبية ",
     url: "https://alaml-theta.vercel.app",
     telephone: "+20-XXX-XXX-XXXX",
     address: {
       "@type": "PostalAddress",
       addressCountry: "EG",
-      addressLocality: "مصر",
+      addressLocality: "ابشواي",
     },
     sameAs: [
       "https://www.facebook.com/alaml-store",
@@ -219,7 +218,7 @@ export function generateWebSiteSchema() {
       "query-input": "required name=search_term_string",
     },
     image: "https://alaml-theta.vercel.app/logo.png",
-    description: "متجر إلكتروني متخصص في الأدوات المكتبية والقرطاسية",
+    description: "متجر إلكتروني متخصص في الأدوات المكتبية ",
   };
 }
 
@@ -387,8 +386,7 @@ export function generateServiceSchema() {
     "@context": "https://schema.org",
     "@type": "Service",
     name: "طلب مخصص | مكتبة الأمل",
-    description:
-      "خدمة الطلبات المخصصة للأدوات المكتبية والقرطاسية حسب مواصفات العميل",
+    description: "خدمة الطلبات المخصصة للأدوات المكتبية حسب مواصفات العميل",
     provider: {
       "@type": "Organization",
       name: "مكتبة الأمل",
