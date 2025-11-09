@@ -35,13 +35,20 @@ function ProductFiltersCode() {
   });
   const [categories, setCategories] = useState([]);
 
-  console.log("categories:", categories);
-
   useEffect(() => {
     const getCategories = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
-      const categoriesList = await res.json();
-      setCategories(categoriesList.data);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/categories`,
+          {
+            next: { revalidate: 3600 },
+          }
+        );
+        const categoriesList = await res.json();
+        setCategories(categoriesList.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
 
     getCategories();
