@@ -34,6 +34,7 @@ function ProductFiltersCode() {
     inStock: false,
   });
   const [categories, setCategories] = useState([]);
+  const [showScrollbar, setShowScrollbar] = useState(false);
 
   useEffect(() => {
     const getCategories = async () => {
@@ -45,7 +46,15 @@ function ProductFiltersCode() {
           }
         );
         const categoriesList = await res.json();
+        // Using your test data - replace with: setCategories(categoriesList.data);
+
         setCategories(categoriesList.data);
+
+        // Calculate if scrollbar is needed (assuming each item is ~40px height)
+        const itemHeight = 40; // approximate height per category item
+        const maxHeight = 200; // max-h-[200px]
+        const totalHeight = categoriesList.data.length * itemHeight;
+        setShowScrollbar(totalHeight > maxHeight);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -156,7 +165,13 @@ function ProductFiltersCode() {
                 <Label className="text-sm font-medium mb-3 block">
                   الأقسام
                 </Label>
-                <div className="space-y-2">
+                <div
+                  className={`space-y-2 max-h-[200px] ${
+                    showScrollbar
+                      ? "overflow-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400"
+                      : "overflow-hidden"
+                  }`}
+                >
                   {categories?.map((category) => (
                     <div
                       key={category.id}
@@ -328,7 +343,13 @@ function ProductFiltersCode() {
         {/* Categories Filter */}
         <div>
           <Label className="text-sm font-medium mb-3 block">الأقسام</Label>
-          <div className="space-y-2">
+          <div
+            className={`space-y-2 max-h-[200px] ${
+              showScrollbar
+                ? "overflow-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400"
+                : "overflow-hidden"
+            }`}
+          >
             {categories?.map((category) => (
               <div key={category.id} className="flex items-center space-x-2">
                 <Checkbox
