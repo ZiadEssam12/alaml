@@ -77,7 +77,6 @@ export async function generateMetadata({ params }) {
         displayProduct.name,
         displayProduct.category?.name,
         "أدوات مكتبية",
-        "قرطاسية",
         "متجر إلكتروني",
         ...(displayProduct?.keywords || []),
       ].join(", "),

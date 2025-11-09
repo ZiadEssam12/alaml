@@ -15,8 +15,8 @@ import {
 } from "@/lib/schemas/productSchemas";
 
 // Cache category data fetch to prevent duplicate calls
-const getCachedCategoryDetails = cache(async (slug) => {
-  return await getCategoryDetails(slug);
+const getCachedCategoryDetails = cache(async ({ slug, page, sort }) => {
+  return await getCategoryDetails({ slug, page, sort });
 });
 
 // Generate static params for all active categories
@@ -37,7 +37,11 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
 
   try {
-    const { category } = await getCachedCategoryDetails(slug);
+    const { category } = await getCachedCategoryDetails({
+      slug,
+      page: 1,
+      sort: undefined,
+    });
 
     if (!category) {
       return {
@@ -113,19 +117,18 @@ export default async function page({ params, searchParams }) {
   const { slug } = await params;
   const params_obj = await searchParams;
   const page = Math.max(1, Number(params_obj?.page || 1));
+  const sort = params_obj?.sort;
 
-  const { category, pagination, products } = await getCachedCategoryDetails(
+  const { category, pagination, products } = await getCachedCategoryDetails({
     slug,
-    page
-  );
+    page,
+    sort,
+  });
 
   // Generate JSON-LD schemas
   const organizationSchema = generateOrganizationSchema();
   const categoryPageSchema = generateCategoryPageSchema(category, products);
   const breadcrumbSchema = generateCategoryPageBreadcrumbSchema(category);
-
-  const currentSort = null; // No sort by default
-  const currentFilters = null; // No filters by default
 
   return (
     <>
@@ -160,10 +163,7 @@ export default async function page({ params, searchParams }) {
                 {products.length} منتج متاح
               </p>
             </div>
-            <SortingForm
-              currentSort={currentSort}
-              currentFilters={currentFilters}
-            />
+            <SortingForm currentSort={sort ?? null} currentFilters={null} />
             <div>
               {products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-muted rounded-lg shadow-md">
