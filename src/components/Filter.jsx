@@ -35,6 +35,8 @@ function ProductFiltersCode() {
   });
   const [categories, setCategories] = useState([]);
 
+  console.log("categories:", categories);
+
   useEffect(() => {
     const getCategories = async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/categories`);
@@ -74,7 +76,9 @@ function ProductFiltersCode() {
     const params = new URLSearchParams();
 
     if (filters.categories.length > 0) {
-      params.set("categories", filters.categories.join(","));
+      // filters.categories already contains seoTitles as strings
+      const categorySlugs = filters.categories.join(",");
+      params.set("categories", categorySlugs);
     }
     if (filters.minPrice) {
       params.set("minPrice", filters.minPrice);
@@ -95,12 +99,12 @@ function ProductFiltersCode() {
     router.push(newURL);
   };
 
-  const handleCategoryChange = (categoryId, checked) => {
+  const handleCategoryChange = (seoTitle, checked) => {
     setFilters((prev) => ({
       ...prev,
       categories: checked
-        ? [...prev.categories, categoryId]
-        : prev.categories.filter((id) => id !== categoryId),
+        ? [...prev.categories, seoTitle]
+        : prev.categories.filter((title) => title !== seoTitle),
     }));
   };
 
@@ -153,9 +157,9 @@ function ProductFiltersCode() {
                     >
                       <Checkbox
                         id={category.id}
-                        checked={filters.categories.includes(category.id)}
+                        checked={filters.categories.includes(category.seoTitle)}
                         onCheckedChange={(checked) =>
-                          handleCategoryChange(category.id, checked)
+                          handleCategoryChange(category.seoTitle, checked)
                         }
                       />
                       <Label
@@ -319,15 +323,18 @@ function ProductFiltersCode() {
           <Label className="text-sm font-medium mb-3 block">الأقسام</Label>
           <div className="space-y-2">
             {categories?.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2 ">
+              <div key={category.id} className="flex items-center space-x-2">
                 <Checkbox
-                  id={category.id}
-                  checked={filters.categories.includes(category.id)}
+                  id={category.seoTitle}
+                  checked={filters.categories.includes(category.seoTitle)}
                   onCheckedChange={(checked) =>
-                    handleCategoryChange(category.id, checked)
+                    handleCategoryChange(category.seoTitle, checked)
                   }
                 />
-                <Label htmlFor={category.id} className="text-sm cursor-pointer">
+                <Label
+                  htmlFor={category.seoTitle}
+                  className="text-sm cursor-pointer"
+                >
                   {category.name}
                 </Label>
               </div>

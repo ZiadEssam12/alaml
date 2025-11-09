@@ -45,7 +45,7 @@ export async function GET(request) {
       isActive: true,
     };
     if (categories.length > 0 && categories[0] !== "") {
-      where.categoryID = { in: categories };
+      where.category = { seoTitle: { in: categories } };
     }
     if (minPrice) {
       where.price = { ...(where.price || {}), gte: Number(minPrice) };
@@ -80,7 +80,11 @@ export async function GET(request) {
           stockQuantity: true,
           maxQuantityPerUser: true,
           isActive: true,
-          categoryID: true,
+          category: {
+            select: {
+              seoTitle: true,
+            },
+          },
           createdAt: true,
           updatedAt: true,
           // Include denormalized rating fields
