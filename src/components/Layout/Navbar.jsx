@@ -8,6 +8,7 @@ import CategoriesPopUp from "../CategoriesPopUp";
 import CartItemsCount from "./CartItemsCound";
 import UserProfileDropdown from "./UserProfileDropdown";
 import SearchBar from "../searchbar/searchBar";
+import Image from "next/image";
 
 export default function Navbar() {
   return (
@@ -17,11 +18,14 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex-1">
-            <Link href="/" className="w-fit flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">
-                  م
-                </span>
+            <Link href="/" className="w-fit flex items-center">
+              <div className="bg-primary rounded-lg flex items-center justify-center">
+                <Image
+                  src="/favicon.ico"
+                  alt="مكتبة الأمل"
+                  width={40}
+                  height={40}
+                />
               </div>
               <span className="text-xl font-bold hidden lg:block">
                 مكتبة الأمل
