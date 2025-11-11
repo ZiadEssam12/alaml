@@ -18,8 +18,8 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex-1">
-            <Link href="/" className="w-fit flex items-center">
-              <div className="bg-primary rounded-lg flex items-center justify-center">
+            <Link href="/" className="w-fit flex items-center gap-1 ">
+              <div className="bg-primary flex items-center justify-center rounded-full overflow-hidden mr-2">
                 <Image
                   src="/favicon.ico"
                   alt="مكتبة الأمل"
