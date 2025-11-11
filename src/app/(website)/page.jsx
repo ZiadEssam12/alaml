@@ -24,11 +24,11 @@ export async function generateStaticParams() {
 export const revalidate = 3600; // Revalidate every hour (ISR)
 
 export const metadata = {
-  title: "مكتبة الأمل - متجر الأدوات المكتبية الإلكتروني",
+  title: "مكتبة الأمل ابشواي | أدوات مكتبية",
   description:
-    "اكتشف مكتبة الأمل، متجرك الإلكتروني الأول للأدوات المكتبية . توفر آلاف المنتجات الأصلية بأفضل الأسعار مع شحن مجاني وخدمة عملاء 24/7.",
+    "اكتشف مكتبة الأمل، متجرك الإلكتروني الأول للأدوات المكتبية في ابشواي. توفر آلاف المنتجات الأصلية بأفضل الأسعار مع شحن مجاني وخدمة عملاء 24/7.",
   keywords:
-    "أدوات مكتبية، قرطاسية، أقلام، دفاتر، ملفات، متجر إلكتروني، شراء أونلاين، مكتبة الأمل، أدوات مكتب، منتجات قرطاسية",
+    "أدوات مكتبية، أقلام، دفاتر، ملفات، متجر إلكتروني، شراء أونلاين، مكتبة الأمل، أدوات مكتب، منتجات مكتبية",
   authors: [{ name: "مكتبة الأمل" }],
   creator: "مكتبة الأمل",
   publisher: "مكتبة الأمل",
@@ -40,8 +40,9 @@ export const metadata = {
     "max-video-preview": -1,
   },
   openGraph: {
-    title: "مكتبة الأمل - متجر الأدوات المكتبية ",
-    description: "متجر إلكتروني متخصص في بيع الأدوات المكتبية  بأفضل الأسعار",
+    title: "مكتبة الأمل ابشواي | أدوات مكتبية",
+    description:
+      "متجر إلكتروني متخصص في بيع الأدوات المكتبية بأفضل الأسعار في ابشواي",
     type: "website",
     url: "https://alaml-theta.vercel.app",
     siteName: "مكتبة الأمل",
@@ -51,7 +52,7 @@ export const metadata = {
         url: "https://alaml-theta.vercel.app/og-home.jpg",
         width: 1200,
         height: 630,
-        alt: "مكتبة الأمل - متجر الأدوات المكتبية",
+        alt: "مكتبة الأمل - أدوات مكتبية",
         type: "image/jpeg",
       },
       {
@@ -65,8 +66,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "مكتبة الأمل - متجر الأدوات المكتبية ",
-    description: "اكتشف أفضل الأدوات المكتبية  بأسعار مميزة",
+    title: "مكتبة الأمل ابشواي | أدوات مكتبية",
+    description: "اكتشف أفضل الأدوات المكتبية بأسعار مميزة في ابشواي",
     images: ["https://alaml-theta.vercel.app/og-home.jpg"],
     creator: "@alaml_store",
     site: "@alaml_store",
@@ -129,7 +130,7 @@ export default async function Home() {
           <ProductsList data={products} title="المنتجات المقترحة" />
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-3 place-items-center text-center !my-20">
+        <section className="grid grid-cols-1 lg:grid-cols-3 place-items-center text-center my-20!">
           <div className="flex flex-col justify-center items-center gap-4">
             <div className="bg-accent p-3 rounded-full w-fit">
               <svg
