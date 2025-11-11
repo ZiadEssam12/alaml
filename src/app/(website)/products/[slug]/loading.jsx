@@ -14,9 +14,9 @@ export default function ProductPageLoading() {
         </div>
 
         {/* Main Content Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-12">
           {/* Product Images Skeleton */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-2">
             <div className="bg-white dark:bg-card rounded-2xl shadow-lg p-6 border">
               <div className="w-full h-[500px] bg-muted rounded-xl animate-pulse" />
             </div>
@@ -32,7 +32,7 @@ export default function ProductPageLoading() {
           </div>
 
           {/* Product Information Skeleton */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:col-span-3">
             {/* Product Details Skeleton */}
             <div className="bg-white dark:bg-card rounded-2xl shadow-lg p-8 border space-y-6">
               {/* Category and Title */}
@@ -110,21 +110,21 @@ export default function ProductPageLoading() {
             ))}
           </div>
         </section>
-        {/* Similar products section skeleton */}
-        <div className="mt-12">
-          <div className="mb-4 h-6 w-48 bg-muted rounded animate-pulse" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-card rounded-2xl shadow-lg p-4 border flex flex-col items-center"
-              >
-                <div className="w-32 h-32 bg-muted rounded-xl animate-pulse mb-3" />
-                <div className="w-24 h-5 bg-muted rounded animate-pulse mb-2" />
-                <div className="w-16 h-4 bg-muted rounded animate-pulse" />
-              </div>
-            ))}
-          </div>
+      </div>
+      {/* Similar products section skeleton */}
+      <div className="mt-12">
+        <div className="mb-4 h-6 w-48 bg-muted rounded animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-card rounded-2xl shadow-lg p-4 border flex flex-col items-center"
+            >
+              <div className="w-32 h-32 bg-muted rounded-xl animate-pulse mb-3" />
+              <div className="w-24 h-5 bg-muted rounded animate-pulse mb-2" />
+              <div className="w-16 h-4 bg-muted rounded animate-pulse" />
+            </div>
+          ))}
         </div>
       </div>
     </div>
