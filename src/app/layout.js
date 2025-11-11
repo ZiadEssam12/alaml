@@ -7,6 +7,8 @@ import { ReviewDialogProvider } from "@/Context/ReviewDialogContext";
 import Loading from "@/components/Loading";
 import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 export const metadata = {
   title: "مكتبة الأمل",
   description: "متجر الأدوات المكتبية الإلكتروني",
@@ -97,6 +99,7 @@ export default async function RootLayout({ children }) {
         </ThemeProvider>
 
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
