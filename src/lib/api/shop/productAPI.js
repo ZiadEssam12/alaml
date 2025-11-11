@@ -2,19 +2,12 @@ import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 
 export async function getProduct(slug) {
-  const cookiesStore = await cookies();
-  const token =
-    cookiesStore.get("authjs.session-token")?.value ||
-    cookiesStore.get("__Secure-authjs.session-token")?.value;
-
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/product/${slug}`,
       {
-        cache: "no-store",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        // Use Next.js ISR revalidate option for static rendering
+        next: { revalidate: 86400 },
       }
     );
     if (!res.ok) {

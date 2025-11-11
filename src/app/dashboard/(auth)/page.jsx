@@ -55,7 +55,7 @@ export default async function Page() {
 
   return (
     <main className="container">
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 !mb-4 !pb-0">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4! pb-0!">
         {/* Total Orders */}
         <div className="h-fit border border-accent px-4 py-5 flex flex-col-reverse md:flex-row items-center justify-between gap-3 rounded-lg">
           <div className="flex flex-col items-center lg:items-start">
@@ -161,7 +161,7 @@ export default async function Page() {
         </div>
       </section>
 
-      <section className="bg-white p-6 !my-0 rounded-lg shadow">
+      <section className="bg-white p-6 my-0! rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">آخر الطلبات</h2>
         {dashboardData.lastOrders.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
