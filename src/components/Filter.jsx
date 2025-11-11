@@ -144,8 +144,6 @@ function ProductFiltersCode() {
   };
 
   if (isMobile) {
-    console.log("isMobile:", isMobile); // Debugging
-
     return (
       <Dialog>
         <DialogTrigger asChild>

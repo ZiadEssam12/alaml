@@ -39,6 +39,11 @@ export async function getOrderDetails(orderId) {
       }
     );
 
+    // If unauthorized or not found, return null (order doesn't exist or doesn't belong to user)
+    if (res.status === 401 || res.status === 404) {
+      return null;
+    }
+
     if (!res.ok) {
       throw new Error("Failed to fetch order details");
     }
