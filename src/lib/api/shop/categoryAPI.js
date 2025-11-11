@@ -2,7 +2,7 @@ export async function getCategoryDetails({ slug, page = 1, sort }) {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/categories/${slug}?page=${page}&sort=${sort}`,
-      { cache: "no-store" }
+      { next: { revalidate: 86400 } }
     );
 
     if (!res.ok) {
