@@ -1,4 +1,5 @@
 /** @type {import('next-sitemap').IConfig} */
+
 module.exports = {
   siteUrl: "https://alaml-theta.vercel.app",
   generateRobotsTxt: true,
@@ -11,10 +12,18 @@ module.exports = {
       },
     ],
   },
+  // Set a high sitemapSize to keep all URLs in a single sitemap.xml
+  sitemapSize: 100000,
   // Additional paths for dynamic routes (products and categories)
   additionalPaths: async (config) => {
     const result = [];
-    const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+    // Dynamic import of Prisma for proper ES6 module support
+    const { default: prisma } = await import("./src/lib/prisma.js");
+
+    console.log(
+      "Next-sitemap: Starting to fetch products and categories from database"
+    );
 
     // Comprehensive URL encoding for sitemap XML - handles ALL special characters
     function encodeUrlPath(path) {
@@ -147,33 +156,19 @@ module.exports = {
     }
 
     try {
-      // Fetch products
-      const productsRes = await fetch(`${API_BASE_URL}/product`, {
-        next: { revalidate: 86400 },
+      // Fetch products directly from database
+      const products = await prisma.product.findMany({
+        where: { isActive: true },
+        select: { slug: true, updatedAt: true, createdAt: true },
       });
-      const productsData = productsRes.ok
-        ? await productsRes.json()
-        : { data: [] };
-      const products = (productsData.data || []).filter(
-        (product) =>
-          product.slug &&
-          typeof product.slug === "string" &&
-          product.slug.trim() !== ""
-      );
+      console.log("Next-sitemap: Products found:", products.length);
 
-      // Fetch categories
-      const categoriesRes = await fetch(`${API_BASE_URL}/categories`, {
-        next: { revalidate: 86400 },
+      // Fetch categories directly from database
+      const categories = await prisma.category.findMany({
+        where: { status: "active" },
+        select: { seoTitle: true, createdAt: true },
       });
-      const categoriesData = categoriesRes.ok
-        ? await categoriesRes.json()
-        : { data: [] };
-      const categories = (categoriesData.data || []).filter(
-        (category) =>
-          category.seoTitle &&
-          typeof category.seoTitle === "string" &&
-          category.seoTitle.trim() !== ""
-      );
+      console.log("Next-sitemap: Categories found:", categories.length);
 
       // Add static routes
       const staticRoutes = [
@@ -234,18 +229,26 @@ module.exports = {
       ];
 
       result.push(...staticRoutes);
+      console.log(
+        "Next-sitemap: Added static routes, total so far:",
+        result.length
+      );
 
       // Add category routes - safely handles ANY special characters
       categories.forEach((category) => {
         const entry = createSitemapEntry(
           "https://alaml-theta.vercel.app/categories",
           category.seoTitle,
-          category.updatedAt || category.createdAt,
+          category.createdAt,
           "weekly",
           0.8
         );
         if (entry) result.push(entry);
       });
+      console.log(
+        "Next-sitemap: Added category routes, total so far:",
+        result.length
+      );
 
       // Add product routes - safely handles ANY special characters
       products.forEach((product) => {
@@ -258,8 +261,12 @@ module.exports = {
         );
         if (entry) result.push(entry);
       });
+      console.log(
+        "Next-sitemap: Added product routes, total now:",
+        result.length
+      );
     } catch (error) {
-      console.error("Error fetching data for sitemap:", error);
+      console.error("Next-sitemap: Error fetching data from database:", error);
     }
 
     return result;
