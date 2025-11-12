@@ -78,7 +78,6 @@ export const metadata = {
       "ar-EG": "https://alaml-theta.vercel.app",
     },
   },
-  themeColor: "#ffffff",
   other: {
     "fb:app_id": "YOUR_FACEBOOK_APP_ID", // Replace with your actual Facebook App ID
   },
@@ -88,6 +87,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#ffffff",
 };
 
 export default async function Home() {
