@@ -138,7 +138,12 @@ module.exports = {
       changeFrequency = "weekly",
       priority = 0.8
     ) {
-      const encodedPath = encodeUrlPath(path);
+      // Split path by '/' to handle segments separately
+      const pathSegments = path.split("/");
+      const encodedSegments = pathSegments.map((segment) =>
+        encodeUrlPath(segment)
+      );
+      const encodedPath = encodedSegments.join("/");
       const url = `${baseUrl}/${encodedPath}`;
 
       // Validate the URL before adding
