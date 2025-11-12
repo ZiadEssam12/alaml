@@ -16,6 +16,136 @@ module.exports = {
     const result = [];
     const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
+    // Comprehensive URL encoding for sitemap XML - handles ALL special characters
+    function encodeUrlPath(path) {
+      if (!path || typeof path !== "string") {
+        return "";
+      }
+
+      // Remove any leading/trailing whitespace
+      path = path.trim();
+
+      // Convert to string and handle edge cases
+      if (path === "") return "";
+
+      // Use encodeURIComponent for most characters, then handle XML-specific issues
+      let encoded = encodeURIComponent(path);
+
+      // Handle characters that encodeURIComponent doesn't encode but could cause issues
+      const xmlUnsafeChars = {
+        // XML reserved characters
+        "&": "%26",
+        "<": "%3C",
+        ">": "%3E",
+        '"': "%22",
+        "'": "%27",
+
+        // URI reserved characters that might not be encoded
+        ":": "%3A",
+        "/": "%2F",
+        "?": "%3F",
+        "#": "%23",
+        "[": "%5B",
+        "]": "%5D",
+        "@": "%40",
+
+        // Additional problematic characters
+        "!": "%21",
+        $: "%24",
+        "(": "%28",
+        ")": "%29",
+        "*": "%2A",
+        "+": "%2B",
+        ",": "%2C",
+        ";": "%3B",
+        "=": "%3D",
+
+        // Unicode and extended characters
+        " ": "%20", // Space (sometimes not encoded properly)
+        "|": "%7C",
+        "\\": "%5C",
+        "^": "%5E",
+        "`": "%60",
+        "{": "%7B",
+        "}": "%7D",
+        "~": "%7E",
+      };
+
+      // Replace any remaining unsafe characters
+      for (const [char, encoded_char] of Object.entries(xmlUnsafeChars)) {
+        encoded = encoded.replace(new RegExp("\\" + char, "g"), encoded_char);
+      }
+
+      // Handle any remaining non-ASCII characters (Arabic, emoji, etc.)
+      encoded = encoded.replace(/[^\x00-\x7F]/g, function (char) {
+        return encodeURIComponent(char);
+      });
+
+      // Ensure all percent-encoded values are uppercase (RFC standard)
+      encoded = encoded.replace(/%[0-9a-f]{2}/gi, function (match) {
+        return match.toUpperCase();
+      });
+
+      // Final validation - remove any remaining problematic characters
+      encoded = encoded.replace(/[^A-Za-z0-9\-_.~%]/g, "");
+
+      return encoded;
+    }
+
+    // Helper function to ensure valid date
+    function getValidDate(dateString) {
+      if (!dateString) return new Date().toISOString();
+
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return new Date().toISOString();
+      }
+
+      return date.toISOString();
+    }
+
+    // Validate URL for sitemap compliance
+    function isValidSitemapUrl(url) {
+      try {
+        // Check URL length (Google limit: 2048 characters)
+        if (!url || url.length > 2048) return false;
+
+        // Check if it's a valid URL structure
+        new URL(url);
+
+        // Check for XML-breaking characters after encoding
+        const xmlBreakers = ["<", ">", '"', "'", "&"];
+        return !xmlBreakers.some((char) => url.includes(char));
+      } catch (error) {
+        return false;
+      }
+    }
+
+    // Create a safe sitemap entry
+    function createSitemapEntry(
+      baseUrl,
+      path,
+      lastModified,
+      changeFrequency = "weekly",
+      priority = 0.8
+    ) {
+      const encodedPath = encodeUrlPath(path);
+      const url = `${baseUrl}/${encodedPath}`;
+
+      // Validate the URL before adding
+      if (!isValidSitemapUrl(url)) {
+        console.warn(`Invalid URL skipped in sitemap: ${url}`);
+        return null;
+      }
+
+      return {
+        loc: `/${encodedPath}`,
+        lastmod: getValidDate(lastModified),
+        changefreq: changeFrequency,
+        priority,
+      };
+    }
+
     try {
       // Fetch products
       const productsRes = await fetch(`${API_BASE_URL}/product`, {
@@ -45,56 +175,94 @@ module.exports = {
           category.seoTitle.trim() !== ""
       );
 
-      // Add product routes
-      products.forEach((product) => {
-        result.push({
-          loc: `/products/${product.slug}`,
+      // Add static routes
+      const staticRoutes = [
+        // Homepage
+        {
+          loc: "/",
+          lastmod: new Date().toISOString(),
           changefreq: "weekly",
-          priority: 0.8,
-          lastmod: product.updatedAt || product.createdAt,
-        });
+          priority: 1.0,
+        },
+        // Products Listing
+        {
+          loc: "/products",
+          lastmod: new Date().toISOString(),
+          changefreq: "daily",
+          priority: 0.9,
+        },
+        // Shopping Pages
+        {
+          loc: "/cart",
+          lastmod: new Date().toISOString(),
+          changefreq: "monthly",
+          priority: 0.7,
+        },
+        {
+          loc: "/checkout",
+          lastmod: new Date().toISOString(),
+          changefreq: "monthly",
+          priority: 0.7,
+        },
+        // Customer Pages
+        {
+          loc: "/order",
+          lastmod: new Date().toISOString(),
+          changefreq: "weekly",
+          priority: 0.6,
+        },
+        {
+          loc: "/order-success",
+          lastmod: new Date().toISOString(),
+          changefreq: "monthly",
+          priority: 0.5,
+        },
+        // Custom Services
+        {
+          loc: "/custom-order",
+          lastmod: new Date().toISOString(),
+          changefreq: "monthly",
+          priority: 0.7,
+        },
+        // Contact & Support
+        {
+          loc: "/contact",
+          lastmod: new Date().toISOString(),
+          changefreq: "monthly",
+          priority: 0.6,
+        },
+      ];
+
+      result.push(...staticRoutes);
+
+      // Add category routes - safely handles ANY special characters
+      categories.forEach((category) => {
+        const entry = createSitemapEntry(
+          "https://alaml-theta.vercel.app/categories",
+          category.seoTitle,
+          category.updatedAt || category.createdAt,
+          "weekly",
+          0.8
+        );
+        if (entry) result.push(entry);
       });
 
-      // Add category routes
-      categories.forEach((category) => {
-        result.push({
-          loc: `/categories/${category.seoTitle}`,
-          changefreq: "weekly",
-          priority: 0.8,
-          lastmod: category.updatedAt || category.createdAt,
-        });
+      // Add product routes - safely handles ANY special characters
+      products.forEach((product) => {
+        const entry = createSitemapEntry(
+          "https://alaml-theta.vercel.app/products",
+          product.slug,
+          product.updatedAt || product.createdAt,
+          "weekly",
+          0.8
+        );
+        if (entry) result.push(entry);
       });
     } catch (error) {
       console.error("Error fetching data for sitemap:", error);
     }
 
     return result;
-  },
-  // Transform function for static routes
-  transform: async (config, path) => {
-    // Custom priorities and frequencies for different route types
-    const pathConfig = {
-      "/": { priority: 1.0, changefreq: "weekly" },
-      "/products": { priority: 0.9, changefreq: "daily" },
-      "/cart": { priority: 0.7, changefreq: "monthly" },
-      "/checkout": { priority: 0.7, changefreq: "monthly" },
-      "/order": { priority: 0.6, changefreq: "weekly" },
-      "/order-success": { priority: 0.5, changefreq: "monthly" },
-      "/custom-order": { priority: 0.7, changefreq: "monthly" },
-      "/contact": { priority: 0.6, changefreq: "monthly" },
-    };
-
-    const routeConfig = pathConfig[path] || {
-      priority: 0.8,
-      changefreq: "weekly",
-    };
-
-    return {
-      loc: path,
-      changefreq: routeConfig.changefreq,
-      priority: routeConfig.priority,
-      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
-    };
   },
   // Exclude dashboard routes
   exclude: ["/dashboard/**"],
