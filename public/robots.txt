@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /dashboard
+
+# Host
+Host: https://alaml-theta.vercel.app
+
+# Sitemaps
+Sitemap: https://alaml-theta.vercel.app/sitemap.xml

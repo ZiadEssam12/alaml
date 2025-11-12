@@ -149,7 +149,7 @@ export default async function ProductPage({ params }) {
   // or if the product is only shown for admin and the user is not an admin
   if (!displayProduct) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-background to-muted/20 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white dark:bg-card rounded-2xl shadow-lg p-8 text-center border">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Box className="h-8 w-8 text-red-600 dark:text-red-400" />

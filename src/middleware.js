@@ -43,5 +43,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/:path*"],
+  matcher: ["/((?!robots\\.txt).*)"],
 };
