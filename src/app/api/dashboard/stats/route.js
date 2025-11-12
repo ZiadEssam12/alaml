@@ -3,32 +3,34 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    // Reduced to 3 queries (down from 6) with optimized database operations
     const [
+      // Combined stats query - order counts and revenue in one shot using raw SQL
       orderStats,
-      totalUsers,
-      totalProducts,
-      totalCategories,
+      // Combined count query for users, products, and categories
+      counts,
+      // Get last 5 orders
       lastOrders,
-      revenue,
     ] = await Promise.all([
-      // Get order counts by status in a single query
-      prisma.order.groupBy({
-        by: ["status"],
-        _count: {
-          id: true,
-        },
-      }),
+      // Single query to get order stats and revenue together
+      prisma.$queryRaw`
+        SELECT 
+          status,
+          COUNT(*) as count,
+          COALESCE(SUM(CASE WHEN status = 'delivered' THEN "finalAmount" ELSE 0 END), 0) as deliveredRevenue
+        FROM "Order"
+        GROUP BY status
+      `,
 
-      // Count total users
-      prisma.user.count(),
+      // Single query to count all entities at once
+      prisma.$queryRaw`
+        SELECT 
+          (SELECT COUNT(*) FROM "User") as "totalUsers",
+          (SELECT COUNT(*) FROM "Product") as "totalProducts",
+          (SELECT COUNT(*) FROM "Category") as "totalCategories"
+      `,
 
-      // Count total products
-      prisma.product.count(),
-
-      // Count total categories
-      prisma.category.count(),
-
-      // Get last 5 orders with user information
+      // Get last 5 orders efficiently
       prisma.order.findMany({
         take: 5,
         orderBy: {
@@ -43,19 +45,9 @@ export async function GET() {
           createdAt: true,
         },
       }),
-
-      // Calculate total revenue from delivered orders
-      prisma.order.aggregate({
-        _sum: {
-          finalAmount: true,
-        },
-        where: {
-          status: "delivered",
-        },
-      }),
     ]);
 
-    // Process order statistics
+    // Process order statistics from raw query
     const orderCounts = {
       total: 0,
       pending: 0,
@@ -65,10 +57,20 @@ export async function GET() {
       cancelled: 0,
     };
 
+    let totalRevenue = 0;
+
     orderStats.forEach((stat) => {
-      orderCounts.total += stat._count.id;
-      orderCounts[stat.status] = stat._count.id;
+      const count = Number(stat.count);
+      orderCounts.total += count;
+      orderCounts[stat.status] = count;
+      totalRevenue += Number(stat.deliveredRevenue);
     });
+
+    // Extract counts from aggregated result
+    const countData = counts[0];
+    const totalUsers = Number(countData.totalUsers);
+    const totalProducts = Number(countData.totalProducts);
+    const totalCategories = Number(countData.totalCategories);
 
     // Format the response
     const dashboardData = {
@@ -78,7 +80,7 @@ export async function GET() {
       cancelledOrders: orderCounts.cancelled,
       processingOrders: orderCounts.processing,
       shippedOrders: orderCounts.shipped,
-      revenue: revenue._sum.finalAmount || 0,
+      revenue: totalRevenue,
       users: totalUsers,
       products: totalProducts,
       categories: totalCategories,
@@ -88,7 +90,7 @@ export async function GET() {
         customerEmail: order.customerEmail,
         total: order.finalAmount,
         status: order.status,
-        createdAt: order.createdAt.toISOString().split("T")[0], // Format date
+        createdAt: order.createdAt.toISOString().split("T")[0],
       })),
     };
 
