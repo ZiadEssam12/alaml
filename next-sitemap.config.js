@@ -166,7 +166,7 @@ module.exports = {
       // Fetch categories directly from database
       const categories = await prisma.category.findMany({
         where: { status: "active" },
-        select: { seoTitle: true, createdAt: true },
+        select: { seoTitle: true, updatedAt: true, createdAt: true },
       });
       console.log("Next-sitemap: Categories found:", categories.length);
 
@@ -239,7 +239,7 @@ module.exports = {
         const entry = createSitemapEntry(
           "https://alaml-theta.vercel.app/categories",
           category.seoTitle,
-          category.createdAt,
+          category.updatedAt || category.createdAt,
           "weekly",
           0.8
         );

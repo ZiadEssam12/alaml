@@ -18,6 +18,7 @@ model Category {
   seoTitle       String         @unique
   seoDescription String
   createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now()) @updatedAt
   products       Product[]
 
   @@index([status])
@@ -42,7 +43,7 @@ model Product {
   options            ProductOption[]
   variants           ProductVariant[]
   createdAt          DateTime         @default(now())
-  updatedAt          DateTime?        @updatedAt
+  updatedAt          DateTime?        @updatedAt  
 
   // Denormalized review stats
   ratingCount   Int   @default(0)
