@@ -10,6 +10,9 @@ import {
   generateOrganizationSchema,
 } from "@/lib/schemas/productSchemas";
 
+// Force this route to be server-rendered (SSR) because it relies on cookies/user session
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata() {
   return {
     title: "الطلبات | مكتبة الأمل",
