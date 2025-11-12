@@ -237,8 +237,8 @@ module.exports = {
       // Add category routes - safely handles ANY special characters
       categories.forEach((category) => {
         const entry = createSitemapEntry(
-          "https://alaml-theta.vercel.app/categories",
-          category.seoTitle,
+          "https://alaml-theta.vercel.app",
+          `categories/${category.seoTitle}`,
           category.updatedAt || category.createdAt,
           "weekly",
           0.8
@@ -253,8 +253,8 @@ module.exports = {
       // Add product routes - safely handles ANY special characters
       products.forEach((product) => {
         const entry = createSitemapEntry(
-          "https://alaml-theta.vercel.app/products",
-          product.slug,
+          "https://alaml-theta.vercel.app",
+          `products/${product.slug}`,
           product.updatedAt || product.createdAt,
           "weekly",
           0.8
