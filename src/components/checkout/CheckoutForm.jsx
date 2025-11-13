@@ -13,23 +13,13 @@ import { useRouter } from "next/navigation";
 import { cartContext } from "@/Context/Cart";
 
 export function CheckoutForm({ items, total, coupon }) {
-  console.log("🔄 CheckoutForm Props Received:", {
-    itemsCount: items?.length,
-    total,
-    coupon,
-    couponType: coupon?.type,
-    couponCode: coupon?.code,
-  });
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     customerName: "",
-    email: "",
     phone: "",
     address: "",
-    city: "",
-    zipCode: "",
     notes: "",
-    paymentMethod: "cash", // Only COD
+    paymentMethod: "cash",
     couponCode: null,
   });
 
@@ -75,18 +65,13 @@ export function CheckoutForm({ items, total, coupon }) {
     if (!formData.customerName) {
       errors["customerName"] = "الاسم مطلوب";
     }
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      errors["email"] = "البريد الإلكتروني غير صالح";
-    }
     if (!formData.phone) {
       errors["phone"] = "رقم الهاتف مطلوب";
     }
     if (!formData.address) {
       errors["address"] = "العنوان مطلوب";
     }
-    if (!formData.city) {
-      errors["city"] = "المدينة مطلوبة";
-    }
+    // Removed city validation
     if (!formData.paymentMethod) {
       errors["paymentMethod"] = "طريقة الدفع مطلوبة";
     }
@@ -108,11 +93,8 @@ export function CheckoutForm({ items, total, coupon }) {
     // Prepare order data for backend
     const orderData = {
       customerName: formData.customerName,
-      customerEmail: formData.email,
       customerPhone: formData.phone,
       shippingStreet: formData.address,
-      shippingCity: formData.city,
-      shippingZipCode: formData.zipCode,
       paymentMethod: formData.paymentMethod,
       notes: formData.notes,
       couponCode: coupon?.coupon?.code || null,
@@ -169,24 +151,7 @@ export function CheckoutForm({ items, total, coupon }) {
               )}
             </div>
           </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="email">البريد الإلكتروني</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              required
-              className={errors["email"] ? "border-red-500" : ""}
-            />
-            {errors["email"] && (
-              <p className="text-red-500 text-sm mt-1">{errors["email"]}</p>
-            )}
-          </div>
-
+          {/* Removed city and zip code fields */}
           <div className="space-y-3">
             <Label htmlFor="address">العنوان التفصيلي</Label>
             <Textarea
@@ -203,38 +168,6 @@ export function CheckoutForm({ items, total, coupon }) {
               <p className="text-red-500 text-sm mt-1">{errors["address"]}</p>
             )}
           </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="city">المدينة</Label>
-            <Input
-              id="city"
-              value={formData.city}
-              onChange={(e) =>
-                setFormData({ ...formData, city: e.target.value })
-              }
-              required
-              className={errors["city"] ? "border-red-500" : ""}
-            />
-            {errors["city"] && (
-              <p className="text-red-500 text-sm mt-1">{errors["city"]}</p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="zipCode">الرمز البريدي (اختياري)</Label>
-            <Input
-              id="zipCode"
-              value={formData.zipCode}
-              onChange={(e) =>
-                setFormData({ ...formData, zipCode: e.target.value })
-              }
-              className={errors["zipCode"] ? "border-red-500" : ""}
-            />
-            {errors["zipCode"] && (
-              <p className="text-red-500 text-sm mt-1">{errors["zipCode"]}</p>
-            )}
-          </div>
-
           <div className="space-y-3">
             <Label htmlFor="notes">ملاحظات إضافية (اختياري)</Label>
             <Textarea

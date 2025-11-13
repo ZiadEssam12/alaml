@@ -126,8 +126,6 @@ model Order {
   customerEmail      String
   customerPhone      String
   shippingStreet     String
-  shippingCity       String
-  shippingZipCode    String?
   items              OrderItem[]
   subtotal           Float
   shippingCost       Float

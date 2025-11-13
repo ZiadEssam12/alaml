@@ -64,7 +64,6 @@ export async function POST(request) {
     const body = await request.json();
     const {
       customerName,
-      customerEmail,
       customerPhone,
       shippingStreet,
       shippingCity,
@@ -216,11 +215,11 @@ export async function POST(request) {
     }
 
     // Create order and update stock in a transaction
+    const userEmail = session?.email || null;
     const [order] = await prisma.$transaction([
       prisma.order.create({
         data: {
           customerName,
-          customerEmail,
           customerPhone,
           shippingStreet,
           shippingCity,
@@ -232,6 +231,7 @@ export async function POST(request) {
           paymentMethod,
           notes,
           userId,
+          customerEmail: userEmail,
           couponId: coupon?.id,
           couponCode: coupon?.code,
           items: {
