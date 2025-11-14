@@ -1,14 +1,13 @@
-import { Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 export default function Footer() {
   const settings = {
     storeName: "مكتبة الأمل",
-    contactPhone: "+1234567890",
-    address: "1234 Elm Street, Springfield, USA",
-    facebookUrl: "https://facebook.com/maktabat-alamal",
-    instagramUrl: "https://instagram.com/maktabat_alamal",
+    contactPhone: "01096126768",
+    address: "الفيوم - ابشواي - شارع التأمينات - اما دكتور احمد الكريمي",
+    facebookUrl: "https://www.facebook.com/groups/hope.store/",
   };
 
   const currentYear = new Date().getFullYear();
@@ -35,17 +34,6 @@ export default function Footer() {
                   aria-label="Facebook"
                 >
                   <Facebook className="h-5 w-5" />
-                </a>
-              )}
-              {settings?.instagramUrl && (
-                <a
-                  href={settings.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="h-5 w-5" />
                 </a>
               )}
             </div>
