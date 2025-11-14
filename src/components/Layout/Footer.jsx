@@ -6,7 +6,7 @@ export default function Footer() {
   const settings = {
     storeName: "مكتبة الأمل",
     contactPhone: "01096126768",
-    address: "الفيوم - ابشواي - شارع التأمينات - اما دكتور احمد الكريمي",
+    address: "الفيوم - ابشواي - شارع التأمينات - امام دكتور أحمد الكريمي",
     facebookUrl: "https://www.facebook.com/groups/hope.store/",
   };
 
