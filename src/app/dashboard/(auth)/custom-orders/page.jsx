@@ -11,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { cache } from "react";
-import { auth } from "@/auth/auth";
-import { redirect } from "next/navigation";
 import CustomOrderActions from "./CustomOrderActions";
 
 // Cache custom orders fetch
@@ -101,7 +99,7 @@ export default async function CustomOrdersPage({ searchParams }) {
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {customOrders.map((order) => (
             <Card key={order.id} className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between">

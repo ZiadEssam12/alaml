@@ -1,12 +1,11 @@
+import { getUserTokenCSR } from "@/lib/auth-helpers-client";
 import Cookies from "js-cookie";
 
 // Client-side API functions for users management (no server-side dependencies)
 
 export const createAdmin = async ({ name, email }) => {
   try {
-    const token =
-      Cookies.get("authjs.session-token") ||
-      Cookies.get("__Secure-authjs.session-token");
+    const token = getUserTokenCSR();
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users`,
@@ -34,9 +33,7 @@ export const createAdmin = async ({ name, email }) => {
 
 export const updateUser = async (id, data) => {
   try {
-    const token =
-      Cookies.get("authjs.session-token") ||
-      Cookies.get("__Secure-authjs.session-token");
+    const token = getUserTokenCSR();
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users/${id}`,
@@ -64,9 +61,7 @@ export const updateUser = async (id, data) => {
 
 export const deleteUser = async (id) => {
   try {
-    const token =
-      Cookies.get("authjs.session-token") ||
-      Cookies.get("__Secure-authjs.session-token");
+    const token = getUserTokenCSR();
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/users/${id}`,

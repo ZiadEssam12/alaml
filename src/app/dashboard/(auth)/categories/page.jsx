@@ -15,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Folder, FolderOpen, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
 import DynamicIcons from "@/components/DynamicIcons";

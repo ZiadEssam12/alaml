@@ -1,12 +1,10 @@
+import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
 import { cookies } from "next/headers";
 
 export const getOrders = async (page = 1, pageSize = 10, q = "") => {
   try {
     const params = new URLSearchParams({ page, pageSize });
-    const cookieStore = await cookies();
-    const token =
-      cookieStore.get("authjs.session-token")?.value ||
-      cookieStore.get("__Secure-authjs.session-token")?.value;
+    const token = await getUserTokenFromHeaders();
 
     if (q) params.set("q", q);
 
