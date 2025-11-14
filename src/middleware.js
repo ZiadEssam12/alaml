@@ -29,12 +29,14 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Restrict /api/dashboard endpoints to admin only
   if (
     pathname.startsWith("/api/dashboard") &&
     (!session || session.role !== "admin")
   ) {
-    console.log("Unauthorized API access");
+    console.log("Unauthorized API access attempt to", pathname);
+    // const sessionWithoutCart = { ...session };
+    // delete sessionWithoutCart.cart;
+    console.log("Session info:", session?.role);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     const body = await request.json();
-    console.log("body :", body);
     const { name, email, role } = body;
     if (!name) {
       return NextResponse.json({ error: "Name are required" }, { status: 400 });

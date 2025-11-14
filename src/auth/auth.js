@@ -37,7 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       // Always fetch fresh cart data for every session request
-      if (token.id) {
+      if (token.id && token.role === "user") {
         const userCart = await prisma.cart.findUnique({
           where: { userId: token.id },
           include: {

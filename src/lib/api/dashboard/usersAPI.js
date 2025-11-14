@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { getUserTokenFromHeaders } from "@/lib/auth-helpers";
 
 // Server-side API functions for users management
 
@@ -12,11 +12,7 @@ export const getUsers = async (
     const params = new URLSearchParams({ role, page, pageSize });
     if (q) params.set("q", q);
 
-    const cookieStore = await cookies();
-    const token =
-      cookieStore.get("authjs.session-token")?.value ||
-      cookieStore.get("__Secure-authjs.session-token")?.value;
-
+    const token = await getUserTokenFromHeaders();
     const res = await fetch(
       `${
         process.env.NEXT_PUBLIC_BASE_URL
