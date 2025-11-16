@@ -34,6 +34,7 @@ function ProductFiltersCode() {
     inStock: false,
   });
   const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [showScrollbar, setShowScrollbar] = useState(false);
 
   useEffect(() => {
@@ -57,6 +58,8 @@ function ProductFiltersCode() {
         setShowScrollbar(totalHeight > maxHeight);
       } catch (error) {
         console.error("Error fetching categories:", error);
+      } finally {
+        setLoadingCategories(false);
       }
     };
 
@@ -170,26 +173,42 @@ function ProductFiltersCode() {
                       : "overflow-hidden"
                   }`}
                 >
-                  {categories?.map((category) => (
-                    <div
-                      key={category.id}
-                      className="flex items-center space-x-2 "
-                    >
-                      <Checkbox
-                        id={category.id}
-                        checked={filters.categories.includes(category.seoTitle)}
-                        onCheckedChange={(checked) =>
-                          handleCategoryChange(category.seoTitle, checked)
-                        }
-                      />
-                      <Label
-                        htmlFor={category.id}
-                        className="text-sm cursor-pointer"
+                  {loadingCategories ? (
+                    <>
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center space-x-2 py-1"
+                        >
+                          <Skeleton className="h-5 w-5" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    categories?.map((category) => (
+                      <div
+                        key={category.id}
+                        className="flex items-center space-x-2 "
                       >
-                        {category.name}
-                      </Label>
-                    </div>
-                  ))}
+                        <Checkbox
+                          id={category.id}
+                          checked={filters.categories.includes(
+                            category.seoTitle
+                          )}
+                          onCheckedChange={(checked) =>
+                            handleCategoryChange(category.seoTitle, checked)
+                          }
+                        />
+                        <Label
+                          htmlFor={category.id}
+                          className="text-sm cursor-pointer"
+                        >
+                          {category.name}
+                        </Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -348,23 +367,34 @@ function ProductFiltersCode() {
                 : "overflow-hidden"
             }`}
           >
-            {categories?.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={category.seoTitle}
-                  checked={filters.categories.includes(category.seoTitle)}
-                  onCheckedChange={(checked) =>
-                    handleCategoryChange(category.seoTitle, checked)
-                  }
-                />
-                <Label
-                  htmlFor={category.seoTitle}
-                  className="text-sm cursor-pointer"
-                >
-                  {category.name}
-                </Label>
-              </div>
-            ))}
+            {loadingCategories ? (
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-2">
+                    <Skeleton className="h-5 w-5" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                ))}
+              </>
+            ) : (
+              categories?.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={category.seoTitle}
+                    checked={filters.categories.includes(category.seoTitle)}
+                    onCheckedChange={(checked) =>
+                      handleCategoryChange(category.seoTitle, checked)
+                    }
+                  />
+                  <Label
+                    htmlFor={category.seoTitle}
+                    className="text-sm cursor-pointer"
+                  >
+                    {category.name}
+                  </Label>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
