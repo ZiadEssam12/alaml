@@ -127,7 +127,7 @@ export default function CategoriesPopUp({ title, data, children }) {
                   href={`/categories/${category.seoTitle}`}
                   className="flex items-center gap-2 p-2 text-sm text-muted-foreground hover:bg-muted"
                 >
-                  <DynamicIcons icon={category.icon} />
+                  <DynamicIcons color={category.color} icon={category.icon} />
                   {category.name}
                 </Link>
               );

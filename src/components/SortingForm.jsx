@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function SortingForm({ currentSort, currentFilters }) {
-  const [sort, setSort] = useState(currentSort);
+  const [sort, setSort] = useState(currentSort ?? "");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -38,7 +38,7 @@ export default function SortingForm({ currentSort, currentFilters }) {
         <select
           id="sort"
           name="sort"
-          value={sort}
+          value={sort ?? ""}
           onChange={handleSortChange}
           className="border rounded px-3 py-2"
         >
