@@ -49,31 +49,11 @@ export default async function RootLayout({ children }) {
       <head>
         <link
           rel="preload"
-          href="/fonts/cairo/cairo-v31-latin-300.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/cairo/cairo-v31-latin-500.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/cairo/cairo-v31-latin-700.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
           href="/fonts/cairo/cairo-v31-latin-regular.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
+          importance="high"
         />
       </head>
       <body className={`no-scroll`}>

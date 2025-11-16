@@ -147,6 +147,7 @@ body.no-scroll {
   src: url("/fonts/cairo/cairo-v31-latin-300.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -154,6 +155,7 @@ body.no-scroll {
   src: url("/fonts/cairo/cairo-v31-latin-500.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -161,6 +163,7 @@ body.no-scroll {
   src: url("/fonts/cairo/cairo-v31-latin-700.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -168,6 +171,7 @@ body.no-scroll {
   src: url("/fonts/cairo/cairo-v31-latin-regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 /* Apply Cairo font globally */
