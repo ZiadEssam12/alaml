@@ -34,7 +34,6 @@ async function getDashboardData() {
     return res.json();
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    // Return fallback data
     return {
       totalOrders: 0,
       pendingOrders: 0,
@@ -50,7 +49,6 @@ async function getDashboardData() {
 }
 
 export default async function Page() {
-  const session = await auth();
   const dashboardData = await getDashboardData();
 
   return (
@@ -113,7 +111,7 @@ export default async function Page() {
           <div className="flex flex-col items-center lg:items-start">
             <p>إجمالي الإيرادات</p>
             <div className="flex items-center gap-1">
-              <p>{dashboardData.revenue} جنيه</p>
+              <p>{dashboardData.revenue ?? 0} جنيه</p>
             </div>
           </div>
           <div className="p-2 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
