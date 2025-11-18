@@ -68,15 +68,15 @@ export default function VariantForm({
     const newErrors = {};
 
     if (!formData.price || parseFloat(formData.price) <= 0) {
-      newErrors.price = "Price must be greater than 0";
+      newErrors.price = "يجب أن يكون السعر أكبر من 0";
     }
 
     if (typeof formData.stockQuantity !== "number" && !formData.stockQuantity) {
-      newErrors.stockQuantity = "Stock quantity is required";
+      newErrors.stockQuantity = "كمية المخزون مطلوبة";
     }
 
     if (parseInt(formData.stockQuantity) < 0) {
-      newErrors.stockQuantity = "Stock quantity cannot be negative";
+      newErrors.stockQuantity = "لا يمكن أن تكون كمية المخزون سالبة";
     }
 
     // Check all options are selected
@@ -85,7 +85,7 @@ export default function VariantForm({
     );
 
     if (missingOptions.length > 0) {
-      newErrors.options = `Please select: ${missingOptions
+      newErrors.options = `يرجى اختيار: ${missingOptions
         .map((o) => o.name)
         .join(", ")}`;
     }
@@ -131,7 +131,7 @@ export default function VariantForm({
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error("Please fix the errors in the form");
+      toast.error("يرجى إصلاح الأخطاء في النموذج");
       return;
     }
 
@@ -171,7 +171,7 @@ export default function VariantForm({
 
       await onSubmit(variantData);
     } catch (error) {
-      toast.error("Failed to submit variant");
+      toast.error("فشل في إرسال المتغير");
       console.error("Variant submit error:", error);
     }
   };
@@ -182,10 +182,10 @@ export default function VariantForm({
     <Card className="w-full">
       <CardHeader>
         <CardTitle>
-          {initialVariant ? "Edit Variant" : "Create New Variant"}
+          {initialVariant ? "تحرير المتغير" : "إنشاء متغير جديد"}
         </CardTitle>
         <CardDescription>
-          Configure the variant options, pricing, and inventory
+          تكوين خيارات المتغير والتسعير والمخزون
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -194,7 +194,7 @@ export default function VariantForm({
           {productOptions.length > 0 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-semibold mb-3">Select Options</h3>
+                <h3 className="text-sm font-semibold mb-3">اختر الخيارات</h3>
                 <div className="space-y-3">
                   {productOptions.map((option) => (
                     <div key={option.id} className="space-y-2">
@@ -211,7 +211,7 @@ export default function VariantForm({
                         }
                       >
                         <SelectTrigger id={`option-${option.id}`}>
-                          <SelectValue placeholder={`Select ${option.name}`} />
+                          <SelectValue placeholder={`اختر ${option.name}`} />
                         </SelectTrigger>
                         <SelectContent>
                           {option.values?.map((value) => (
@@ -240,7 +240,7 @@ export default function VariantForm({
           {/* Price and Stock */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price (EGP)</Label>
+              <Label htmlFor="price">السعر (جنيه مصري)</Label>
               <Input
                 id="price"
                 type="number"
@@ -259,7 +259,7 @@ export default function VariantForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stock">Stock Quantity</Label>
+              <Label htmlFor="stock">كمية المخزون</Label>
               <Input
                 id="stock"
                 type="number"
@@ -282,35 +282,35 @@ export default function VariantForm({
 
           {/* SKU */}
           <div className="space-y-2">
-            <Label htmlFor="sku">SKU (Optional)</Label>
+            <Label htmlFor="sku">رمز المنتج (اختياري)</Label>
             <Input
               id="sku"
               type="text"
-              placeholder="e.g., TS-RED-S"
+              placeholder="مثال: TS-RED-S"
               value={formData.sku}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, sku: e.target.value }))
               }
             />
             <p className="text-xs text-muted-foreground">
-              Leave empty for auto-generated SKU
+              اتركه فارغاً لإنشاء رمز تلقائي
             </p>
           </div>
 
           {/* Images */}
           <div className="space-y-3">
-            <Label>Variant Images</Label>
+            <Label>صور المتغير</Label>
 
             {/* Existing Images */}
             {formData.imageUrls.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium">Existing Images</p>
+                <p className="text-sm font-medium">الصور الموجودة</p>
                 <div className="grid grid-cols-4 gap-3">
                   {formData.imageUrls.map((url, index) => (
                     <div key={`existing-${index}`} className="relative group">
                       <img
                         src={url}
-                        alt={`Variant ${index}`}
+                        alt={`متغير ${index}`}
                         className="w-full h-24 object-cover rounded-lg border"
                       />
                       <button
@@ -329,13 +329,13 @@ export default function VariantForm({
             {/* New Image Files */}
             {imageFiles.length > 0 && (
               <div className="space-y-2">
-                <p className="text-sm font-medium">New Images</p>
+                <p className="text-sm font-medium">الصور الجديدة</p>
                 <div className="grid grid-cols-4 gap-3">
                   {imageFiles.map((file, index) => (
                     <div key={`new-${index}`} className="relative group">
                       <img
                         src={URL.createObjectURL(file)}
-                        alt={`New ${index}`}
+                        alt={`جديد ${index}`}
                         className="w-full h-24 object-cover rounded-lg border"
                       />
                       <button
@@ -357,7 +357,7 @@ export default function VariantForm({
             <div className="border-2 border-dashed rounded-lg p-4">
               <label className="cursor-pointer flex items-center justify-center gap-2">
                 <Upload className="h-4 w-4" />
-                <span className="text-sm">Click to upload more images</span>
+                <span className="text-sm">انقر لرفع المزيد من الصور</span>
                 <input
                   type="file"
                   multiple
@@ -368,7 +368,7 @@ export default function VariantForm({
               </label>
             </div>
             <p className="text-xs text-muted-foreground">
-              {allImagesCount} image(s) selected
+              {allImagesCount} صورة محددة
             </p>
           </div>
 
@@ -382,7 +382,7 @@ export default function VariantForm({
               }
             />
             <Label htmlFor="isActive" className="cursor-pointer">
-              Active (Available for purchase)
+              نشط (متاح للشراء)
             </Label>
           </div>
 
@@ -394,14 +394,14 @@ export default function VariantForm({
               onClick={onCancel}
               disabled={isLoading}
             >
-              Cancel
+              إلغاء
             </Button>
             <Button type="submit" disabled={isLoading} className="gap-2">
               {isLoading
-                ? "Saving..."
+                ? "جاري الحفظ..."
                 : initialVariant
-                ? "Update Variant"
-                : "Create Variant"}
+                ? "تحديث المتغير"
+                : "إنشاء متغير"}
             </Button>
           </div>
         </form>

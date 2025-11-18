@@ -10,7 +10,7 @@ import crypto from "crypto";
 
 export async function PUT(request, { params }) {
   try {
-    const { variantId } = await params;
+    const { variantid: variantId } = await params;
     const session = await getUserTokenSSR(request);
 
     if (session?.role !== "admin") {
@@ -39,21 +39,45 @@ export async function PUT(request, { params }) {
 
     // If options changed, regenerate hash and check for duplicates
     let newCombinationHash = existingVariant.combinationHash;
+    let optionsChanged = false;
+
     if (options && Array.isArray(options) && options.length > 0) {
-      const sortedOptions = options
-        .sort((a, b) => a.optionId.localeCompare(b.optionId))
-        .map((o) => `${o.optionId}:${o.valueId}`)
-        .join("|");
+      // Create maps for comparison
+      const incomingMap = new Map();
+      options.forEach((opt) => {
+        incomingMap.set(opt.optionId, opt.valueId);
+      });
 
-      newCombinationHash = crypto
-        .createHash("sha256")
-        .update(sortedOptions)
-        .digest("hex");
+      const existingMap = new Map();
+      existingVariant.options.forEach((opt) => {
+        existingMap.set(opt.optionId, opt.valueId);
+      });
 
-      // Check if another variant has this combination
-      if (newCombinationHash !== existingVariant.combinationHash) {
-        const duplicate = await prisma.productVariant.findUnique({
-          where: { combinationHash: newCombinationHash },
+      // Check if they have the same options and values
+      optionsChanged =
+        incomingMap.size !== existingMap.size ||
+        [...incomingMap.entries()].some(
+          ([optId, valId]) => existingMap.get(optId) !== valId
+        );
+
+      if (optionsChanged) {
+        // Sort options for hash generation
+        const sortedOptions = options
+          .sort((a, b) => a.optionId.localeCompare(b.optionId))
+          .map((o) => `${o.optionId}:${o.valueId}`)
+          .join("|");
+
+        newCombinationHash = crypto
+          .createHash("sha256")
+          .update(sortedOptions)
+          .digest("hex");
+
+        // Check if another variant has this combination
+        const duplicate = await prisma.productVariant.findFirst({
+          where: {
+            combinationHash: newCombinationHash,
+            id: { not: variantId }, // Exclude current variant
+          },
         });
 
         if (duplicate) {
@@ -81,8 +105,8 @@ export async function PUT(request, { params }) {
         },
       });
 
-      // Update options if provided
-      if (options && Array.isArray(options) && options.length > 0) {
+      // Update options if they actually changed
+      if (optionsChanged) {
         // Delete existing options
         await tx.productVariantOption.deleteMany({
           where: { variantId },
@@ -128,7 +152,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { variantId } = await params;
+    const { variantid: variantId } = await params;
     const session = await getUserTokenSSR(request);
 
     if (session?.role !== "admin") {

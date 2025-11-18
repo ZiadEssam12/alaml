@@ -187,12 +187,10 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json(
       { message: "تم حذف الخيار بنجاح" },
-      { status: 204 }
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error deleting option:", error);
     return NextResponse.json({ error: "فشل في حذف الخيار" }, { status: 500 });
   }
 }
-
-

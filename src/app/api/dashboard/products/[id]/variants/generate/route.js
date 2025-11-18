@@ -59,7 +59,6 @@ export async function POST(request, { params }) {
       where: { productId },
       include: {
         values: {
-          where: includeInactive ? {} : { isActive: true },
           orderBy: { position: "asc" },
         },
       },
@@ -135,7 +134,7 @@ export async function POST(request, { params }) {
               isActive: true,
               imageUrls: [],
               sku: null,
-              productVariantOptions: {
+              options: {
                 create: activeOptions.map((opt, idx) => ({
                   optionId: opt.id,
                   valueId: combination[idx].id,
@@ -143,7 +142,7 @@ export async function POST(request, { params }) {
               },
             },
             include: {
-              productVariantOptions: {
+              options: {
                 include: {
                   option: { select: { name: true } },
                   value: { select: { value: true, hex: true, imageUrl: true } },
