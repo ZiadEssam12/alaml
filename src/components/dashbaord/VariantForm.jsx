@@ -49,19 +49,35 @@ export default function VariantForm({
 
   useEffect(() => {
     if (initialVariant) {
+      const optionsMap =
+        initialVariant.options?.reduce((acc, opt) => {
+          acc[opt.optionId] = opt.valueId;
+          return acc;
+        }, {}) || {};
+
+      console.log("Setting form data with options:", optionsMap);
+
       setFormData({
         sku: initialVariant.sku || "",
         price: initialVariant.price || "",
         stockQuantity: initialVariant.stockQuantity || "",
         isActive: initialVariant.isActive !== false,
         imageUrls: initialVariant.imageUrls || [],
-        options:
-          initialVariant.options?.reduce((acc, opt) => {
-            acc[opt.optionId] = opt.valueId;
-            return acc;
-          }, {}) || {},
+        options: optionsMap,
+      });
+    } else {
+      // Reset form for creating new variant
+      setFormData({
+        sku: "",
+        price: "",
+        stockQuantity: "",
+        isActive: true,
+        imageUrls: [],
+        options: {},
       });
     }
+    setImageFiles([]);
+    setErrors({});
   }, [initialVariant]);
 
   const validateForm = () => {
@@ -205,7 +221,7 @@ export default function VariantForm({
                         {option.name}
                       </Label>
                       <Select
-                        value={formData.options[option.id] || ""}
+                        value={String(formData.options[option.id] || "")}
                         onValueChange={(value) =>
                           handleOptionChange(option.id, value)
                         }
@@ -215,7 +231,7 @@ export default function VariantForm({
                         </SelectTrigger>
                         <SelectContent>
                           {option.values?.map((value) => (
-                            <SelectItem key={value.id} value={value.id}>
+                            <SelectItem key={value.id} value={String(value.id)}>
                               {value.value}
                               {value.hex && (
                                 <span

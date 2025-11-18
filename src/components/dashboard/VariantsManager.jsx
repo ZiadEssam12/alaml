@@ -293,6 +293,7 @@ export default function VariantsManager({ productId }) {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
+                              console.log("Editing variant:", variant);
                               setEditingVariant(variant);
                               setShowForm(true);
                             }}

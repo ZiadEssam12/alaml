@@ -238,6 +238,50 @@ export default function OptionsManager({ productId }) {
     }
   };
 
+  const handleAddValue = async () => {
+    if (!optionForNewValue) {
+      toast.error("الخيار غير محدد");
+      return;
+    }
+
+    try {
+      if (!newValueName.trim()) {
+        toast.error("اسم القيمة مطلوب");
+        return;
+      }
+
+      const payload = {
+        valueId: undefined,
+        value: newValueName,
+        hex: newValueHex || null,
+        imageUrl: newValueImageUrl || null,
+        position: optionForNewValue.values?.length || 0,
+      };
+
+      const response = await fetch(
+        `/api/dashboard/products/${productId}/options/${optionForNewValue.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("تم إضافة القيمة بنجاح");
+        setShowAddValueDialog(false);
+        resetValueForm();
+        loadOptions();
+      } else {
+        toast.error(data.error || "فشل في إضافة القيمة");
+      }
+    } catch (error) {
+      console.error("Error adding value:", error);
+      toast.error("فشل في إضافة القيمة");
+    }
+  };
+
   const resetValueForm = () => {
     setNewValueName("");
     setNewValueHex("");
@@ -282,6 +326,18 @@ export default function OptionsManager({ productId }) {
             إدارة الخيارات (الحجم، اللون، إلخ) وقيمها
           </CardDescription>
         </div>
+        <Button
+          className="gap-2"
+          onClick={() => {
+            setEditingOption(null);
+            resetForm();
+            setShowAddDialog(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          إضافة خيار
+        </Button>
+
         <Dialog
           open={showAddDialog || !!editingOption}
           onOpenChange={(open) => {
@@ -292,12 +348,6 @@ export default function OptionsManager({ productId }) {
             }
           }}
         >
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              إضافة خيار
-            </Button>
-          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -395,6 +445,83 @@ export default function OptionsManager({ productId }) {
                 <Button onClick={handleSubmit}>
                   {editingOption ? "تحرير الخيار" : "إنشاء الخيار"}
                 </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Value Dialog */}
+        <Dialog
+          open={showAddValueDialog}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowAddValueDialog(false);
+              resetValueForm();
+            }
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>إضافة قيمة جديدة</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">اسم القيمة</label>
+                <Input
+                  placeholder="مثال: صغير، أحمر"
+                  value={newValueName}
+                  onChange={(e) => setNewValueName(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+
+              {optionForNewValue?.presentation === "swatch" && (
+                <div>
+                  <label className="text-sm font-medium">
+                    لون Hex (اختياري)
+                  </label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      type="color"
+                      value={newValueHex || "#000000"}
+                      onChange={(e) => setNewValueHex(e.target.value)}
+                      className="w-20 h-10"
+                    />
+                    <Input
+                      placeholder="#000000"
+                      value={newValueHex}
+                      onChange={(e) => setNewValueHex(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {optionForNewValue?.presentation === "swatch" && (
+                <div>
+                  <label className="text-sm font-medium">
+                    رابط الصورة (اختياري)
+                  </label>
+                  <Input
+                    placeholder="https://..."
+                    value={newValueImageUrl}
+                    onChange={(e) => setNewValueImageUrl(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddValueDialog(false);
+                    resetValueForm();
+                  }}
+                >
+                  إلغاء
+                </Button>
+                <Button onClick={handleAddValue}>إضافة القيمة</Button>
               </div>
             </div>
           </DialogContent>
