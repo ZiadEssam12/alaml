@@ -220,8 +220,18 @@ export default function VariantForm({
                       >
                         {option.name}
                       </Label>
+                      {console.log(
+                        "Rendering option:",
+                        option,
+                        "with selected value:",
+                        formData.options[option.id]
+                      )}
                       <Select
-                        value={String(formData.options[option.id] || "")}
+                        value={String(
+                          initialVariant?.options?.find(
+                            (opt) => opt.optionId === option.id
+                          )?.valueId || ""
+                        )}
                         onValueChange={(value) =>
                           handleOptionChange(option.id, value)
                         }

@@ -113,6 +113,7 @@ export default function VariantsManager({ productId }) {
     try {
       await updateVariant(productId, editingVariant.id, variantData);
       toast.success("تم تحديث المتغير بنجاح");
+      setShowForm(false);
       setEditingVariant(null);
       handleLoadVariants();
     } catch (error) {
