@@ -190,7 +190,7 @@ export default function CustomOrderActions({ orderId, orderData }) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="books">كتب</SelectItem>
-                      <SelectItem value="stationery">قرطاسية</SelectItem>
+                      <SelectItem value="stationery">أدوات مكتبية</SelectItem>
                       <SelectItem value="office-tools">أدوات مكتبية</SelectItem>
                       <SelectItem value="other">أخرى</SelectItem>
                     </SelectContent>

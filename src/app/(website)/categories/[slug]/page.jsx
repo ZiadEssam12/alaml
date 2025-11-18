@@ -58,7 +58,7 @@ export async function generateMetadata({ params }) {
       keywords: [
         category.name,
         "منتجات",
-        "قرطاسية",
+        "أدوات مكتبية",
         "أدوات مكتبية",
         "متجر إلكتروني",
         "مكتبة الأمل",
@@ -108,7 +108,7 @@ export async function generateMetadata({ params }) {
     console.error("Error generating metadata:", error);
     return {
       title: "مكتبة الأمل",
-      description: "متجر القرطاسية الإلكتروني",
+      description: "متجر الأدوات المكتبية الإلكتروني",
     };
   }
 }

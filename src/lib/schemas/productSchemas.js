@@ -97,7 +97,7 @@ export function generateBreadcrumbSchema(product) {
       {
         "@type": "ListItem",
         position: 3,
-        name: product.category?.name || "قرطاسية",
+        name: product.category?.name || "أدوات مكتبية",
         item: `https://alaml-theta.vercel.app/categories/${product.category?.seoTitle}`,
       },
       {
