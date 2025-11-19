@@ -9,7 +9,18 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "معرف المنتج مطلوب" }, { status: 400 });
     }
 
-    revalidatePath(`/products/${productId}`);
+    // Revalidate the product page
+    const productSlug = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { slug: true },
+    });
+
+    // Revalidate only if product slug exists
+    // The revalidated path should match the actual product page path
+    if (!productSlug?.slug) {
+      return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
+    }
+    revalidatePath(`/products/${productSlug.slug}`);
     return NextResponse.json(
       { message: `المنتج ${productId} تم تحديثه بنجاح` },
       { status: 200 }
