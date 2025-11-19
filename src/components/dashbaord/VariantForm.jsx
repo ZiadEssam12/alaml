@@ -22,6 +22,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, Plus, Upload } from "lucide-react";
 import toast from "react-hot-toast";
+import { imageService } from "@/lib/image-service";
 
 /**
  * VariantForm Component
@@ -156,19 +157,17 @@ export default function VariantForm({
       let uploadedUrls = [...formData.imageUrls];
       if (imageFiles.length > 0) {
         const uploadPromises = imageFiles.map((file) => {
-          const uploadFormData = new FormData();
-          uploadFormData.append("file", file);
-
-          return fetch("/api/upload", {
-            method: "POST",
-            body: uploadFormData,
-          }).then((res) => res.json());
+          return imageService.uploadImage(file, "variants");
         });
 
-        const uploadResults = await Promise.all(uploadPromises);
-        uploadedUrls = uploadedUrls.concat(
-          uploadResults.map((result) => result.url || result.secure_url)
-        );
+        try {
+          const uploadedImages = await Promise.all(uploadPromises);
+          uploadedUrls = uploadedUrls.concat(uploadedImages);
+        } catch (uploadError) {
+          console.error("Image upload error:", uploadError);
+          toast.error("فشل في رفع بعض الصور");
+          return;
+        }
       }
 
       const variantData = {
