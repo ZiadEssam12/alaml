@@ -27,6 +27,7 @@ import {
   toggleProductStatus,
   fetchProductsDataClient,
 } from "@/lib/api/dashboard/productsAPI.client";
+import { RefreshCcw } from "lucide-react";
 
 // Dynamic import for AddingProductForm with skeleton loader
 const AddingProductForm = dynamic(() => import("./AddingProductForm"), {
@@ -241,6 +242,26 @@ function ProductsManagementContent() {
     setEditingProduct(null);
   };
 
+  const revalidateProductPath = async (productId) => {
+    try {
+      console.log("Revalidating product with ID2:", productId);
+      const response = await fetch(
+        `/api/dashboard/products/${productId}/revalidate`,
+        {
+          method: "POST",
+        }
+      );
+      if (response.ok) {
+        toast.success("تم تحديث ذاكرة التخزين المؤقت للمنتج بنجاح");
+      } else {
+        toast.error("فشل في تحديث ذاكرة التخزين المؤقت للمنتج");
+      }
+    } catch (error) {
+      console.error("Error revalidating product path:", error);
+      toast.error("خطأ في تحديث ذاكرة التخزين المؤقت للمنتج");
+    }
+  };
+
   return (
     <div className="space-y-6 container my-10">
       <div className="flex items-center justify-between">
@@ -360,6 +381,14 @@ function ProductsManagementContent() {
                       </td>
                       <td className="px-4 py-2 text-center">
                         <div className="flex justify-center items-center gap-2">
+                          <Button
+                            variant={"outline"}
+                            size="sm"
+                            title="تحديث المنتج"
+                            onClick={() => revalidateProductPath(product.id)}
+                          >
+                            <RefreshCcw className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
