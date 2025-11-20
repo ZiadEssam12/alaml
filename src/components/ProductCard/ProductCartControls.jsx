@@ -7,7 +7,6 @@ import PriceDisplay from "@/components/Product/PriceDisplay";
 import useVariantSelection from "@/hooks/useVariantSelection";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
-import toast from "react-hot-toast";
 
 export default function ProductCartControls({
   product,
@@ -63,7 +62,7 @@ export default function ProductCartControls({
       {selectedVariant && (
         <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg border">
           <div
-            className={`w-3 h-3 rounded-full mt-0.5 flex-shrink-0 ${
+            className={`w-3 h-3 rounded-full mt-0.5 shrink-0 ${
               selectedVariant.stockQuantity > 10
                 ? "bg-green-500"
                 : selectedVariant.stockQuantity > 0

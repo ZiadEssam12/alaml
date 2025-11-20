@@ -25,61 +25,17 @@ export default function OptionPicker({
     option.presentation === "color" ||
     option.name.includes("اللون") ||
     option.name.includes("Color");
-  const isImageOption =
-    option.presentation === "image" || option.values?.some((v) => v.imageUrl);
 
   // Color swatches UI
   if (isColorOption && option.values?.length > 0) {
     return (
-      <div className="space-y-3">
-        <label className="text-sm font-medium text-foreground">
-          {option.name}
-        </label>
-        <div className="flex flex-wrap gap-3">
-          {option.values.map((value) => (
-            <button
-              key={value.id}
-              onClick={() => !disabled && onSelect(value.id)}
-              disabled={disabled}
-              className={cn(
-                "relative group transition-all",
-                selectedValueId === value.id
-                  ? "ring-2 ring-offset-2 ring-primary"
-                  : ""
-              )}
-              title={value.value}
-              aria-label={`Select ${value.value}`}
-            >
-              <div
-                className={cn(
-                  "w-10 h-10 rounded-lg border-2 transition-all shadow-sm",
-                  selectedValueId === value.id
-                    ? "border-primary"
-                    : "border-muted-foreground/30 hover:border-muted-foreground/50"
-                )}
-                style={{
-                  backgroundColor: value.hex || "#e5e7eb",
-                }}
-              />
-              <span className="text-xs font-medium mt-1 block text-foreground">
-                {value.value}
-              </span>
-              <div className="absolute top-full left-0 mt-1 px-2 py-1 bg-foreground text-background text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                {value.value}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Image variants UI
-  if (isImageOption && option.values?.some((v) => v.imageUrl)) {
-    return (
-      <div className="space-y-3">
-        <label className="text-sm font-medium text-foreground">
-          {option.name}
+      <div className="flex flex-col gap-y-3">
+        <label className="text-sm  text-foreground">
+          {option.name} -{" "}
+          <span className="font-bold">
+            {option.values.find((v) => v.id === selectedValueId)?.value ||
+              "اختر"}
+          </span>
         </label>
         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
           {option.values.map((value) => (
@@ -90,7 +46,7 @@ export default function OptionPicker({
               className={cn(
                 "relative transition-all rounded-lg overflow-hidden border-2",
                 selectedValueId === value.id
-                  ? "border-primary ring-2 ring-offset-2 ring-primary"
+                  ? "ring-2 ring-offset-2 ring-primary"
                   : "border-muted-foreground/20 hover:border-muted-foreground/50"
               )}
               title={value.value}

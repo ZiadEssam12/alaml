@@ -22,7 +22,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -34,6 +33,138 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Edit, Trash2, GripVertical } from "lucide-react";
 import toast from "react-hot-toast";
+import { imageService } from "@/lib/image-service";
+
+// OptionValueDialog: Add/Edit value dialog as a separate component
+function OptionValueDialog({
+  open,
+  mode,
+  option,
+  value,
+  valueName,
+  setValueName,
+  valueHex,
+  setValueHex,
+  valueImageUrl,
+  setValueImageUrl,
+  isUpdating,
+  onClose,
+  onSubmit,
+}) {
+  const fileInputRef = React.useRef(null);
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "edit" ? "تحرير القيمة" : "إضافة قيمة جديدة"}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">اسم القيمة</label>
+            <Input
+              placeholder="مثال: صغير، أحمر"
+              value={valueName}
+              onChange={(e) => setValueName(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          {option?.presentation === "swatch" && (
+            <div>
+              <label className="text-sm font-medium">لون Hex (اختياري)</label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  type="color"
+                  value={valueHex || "#000000"}
+                  onChange={(e) => setValueHex(e.target.value)}
+                  className="w-20 h-10"
+                />
+                <Input
+                  placeholder="#000000"
+                  value={valueHex}
+                  onChange={(e) => setValueHex(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          )}
+          {option?.presentation === "swatch" && (
+            <div>
+              <label className="text-sm font-medium">
+                صورة القيمة (اختياري)
+              </label>
+              <div className="mt-2 space-y-2">
+                {valueImageUrl && (
+                  <div className="relative inline-block">
+                    <img
+                      src={valueImageUrl}
+                      alt="Preview"
+                      className="w-24 h-24 object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setValueImageUrl("")}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setValueImageUrl(""); // Reset to show loading state
+                        imageService
+                          .uploadImage(file, "product-options")
+                          .then((url) => {
+                            setValueImageUrl(url);
+                            toast.success("تم تحميل الصورة بنجاح");
+                          })
+                          .catch((error) => {
+                            toast.error("فشل تحميل الصورة");
+                            console.error("Image upload error:", error);
+                          });
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUpdating}
+                    className="w-full"
+                  >
+                    اختر صورة
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={onClose}>
+              إلغاء
+            </Button>
+            <Button onClick={onSubmit} disabled={isUpdating}>
+              {isUpdating
+                ? "جاري الحفظ..."
+                : mode === "edit"
+                ? "تحرير القيمة"
+                : "إضافة القيمة"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function OptionsManager({ productId }) {
   const [options, setOptions] = useState([]);
@@ -43,12 +174,13 @@ export default function OptionsManager({ productId }) {
   const [optionToDelete, setOptionToDelete] = useState(null);
   const [isUpdatingValue, setIsUpdatingValue] = useState(false);
   const [valueToDelete, setValueToDelete] = useState(null);
-  const [editingValue, setEditingValue] = useState(null);
-  const [optionForNewValue, setOptionForNewValue] = useState(null);
-  const [showAddValueDialog, setShowAddValueDialog] = useState(false);
-  const [newValueName, setNewValueName] = useState("");
-  const [newValueHex, setNewValueHex] = useState("");
-  const [newValueImageUrl, setNewValueImageUrl] = useState("");
+  const [valueDialogOpen, setValueDialogOpen] = useState(false);
+  const [valueDialogMode, setValueDialogMode] = useState("add");
+  const [valueDialogOption, setValueDialogOption] = useState(null);
+  const [valueDialogValue, setValueDialogValue] = useState(null);
+  const [valueName, setValueName] = useState("");
+  const [valueHex, setValueHex] = useState("");
+  const [valueImageUrl, setValueImageUrl] = useState("");
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionPresentation, setNewOptionPresentation] = useState("select");
 
@@ -60,11 +192,6 @@ export default function OptionsManager({ productId }) {
     if (editingOption) {
       setNewOptionName(editingOption.name || "");
       setNewOptionPresentation(editingOption.presentation || "select");
-      // Note: For editing options, we don't pre-fill values as option editing
-      // typically only changes name and presentation, not values
-      setNewValueName("");
-      setNewValueHex("");
-      setNewValueImageUrl("");
     }
   }, [editingOption]);
 
@@ -94,12 +221,10 @@ export default function OptionsManager({ productId }) {
         toast.error("اسم الخيار مطلوب");
         return;
       }
-
       const optionData = {
         name: newOptionName,
         presentation: newOptionPresentation,
       };
-
       let response;
       if (editingOption) {
         // Update existing option
@@ -113,24 +238,12 @@ export default function OptionsManager({ productId }) {
         );
       } else {
         // Create new option
-        if (!newValueName.trim()) {
-          toast.error("قيمة واحدة على الأقل مطلوبة");
-          return;
-        }
-
         response = await fetch(`/api/dashboard/products/${productId}/options`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...optionData,
-            value: newValueName,
-            hex: newValueHex || null,
-            imageUrl: newValueImageUrl || null,
-            position: 0,
-          }),
+          body: JSON.stringify(optionData),
         });
       }
-
       const data = await response.json();
       if (response.ok) {
         toast.success(
@@ -154,76 +267,12 @@ export default function OptionsManager({ productId }) {
     }
   };
 
-  const handleDeleteOption = async () => {
-    try {
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/options/${optionToDelete.id}`,
-        { method: "DELETE" }
-      );
-
-      if (response.ok) {
-        toast.success("تم حذف الخيار بنجاح");
-        setOptionToDelete(null);
-        loadOptions();
-      } else {
-        const data = await response.json();
-        toast.error(data.error || "فشل في حذف الخيار");
-      }
-    } catch (error) {
-      console.error("Error deleting option:", error);
-      toast.error("فشل في حذف الخيار");
-    }
-  };
-
-  const handleUpdateValue = async () => {
-    if (isUpdatingValue) return; // Prevent multiple submissions
-
-    try {
-      setIsUpdatingValue(true);
-
-      if (!newValueName.trim()) {
-        toast.error("اسم القيمة مطلوب");
-        return;
-      }
-
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/options/${editingValue.optionId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            valueId: editingValue.id,
-            value: newValueName,
-            hex: newValueHex || null,
-            imageUrl: newValueImageUrl || null,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("تم تحرير القيمة بنجاح");
-        setEditingValue(null);
-        resetValueForm();
-        await loadOptions(); // Await to ensure it completes
-      } else {
-        toast.error(data.error || "فشل في تحرير القيمة");
-      }
-    } catch (error) {
-      console.error("Error updating value:", error);
-      toast.error("فشل في تحرير القيمة");
-    } finally {
-      setIsUpdatingValue(false);
-    }
-  };
-
   const handleDeleteValue = async () => {
     try {
       const response = await fetch(
         `/api/dashboard/products/${productId}/options/${valueToDelete.optionId}/values/${valueToDelete.id}`,
         { method: "DELETE" }
       );
-
       if (response.ok) {
         toast.success("تم حذف القيمة بنجاح");
         setValueToDelete(null);
@@ -238,62 +287,96 @@ export default function OptionsManager({ productId }) {
     }
   };
 
-  const handleAddValue = async () => {
-    if (!optionForNewValue) {
+  // Remove handleAddValue, all value add/edit is now in handleValueDialogSubmit
+  // Unified add/edit value handler
+  const handleValueDialogSubmit = async () => {
+    if (isUpdatingValue) return;
+    if (!valueDialogOption) {
       toast.error("الخيار غير محدد");
       return;
     }
-
+    if (!valueName.trim()) {
+      toast.error("اسم القيمة مطلوب");
+      return;
+    }
+    setIsUpdatingValue(true);
     try {
-      if (!newValueName.trim()) {
-        toast.error("اسم القيمة مطلوب");
-        return;
+      let response;
+      if (valueDialogMode === "edit" && valueDialogValue) {
+        // Edit value
+        response = await fetch(
+          `/api/dashboard/products/${productId}/options/${valueDialogOption.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              valueId: valueDialogValue.id,
+              value: valueName,
+              hex: valueHex || null,
+              imageUrl: valueImageUrl || null,
+            }),
+          }
+        );
+      } else {
+        // Add value
+        response = await fetch(
+          `/api/dashboard/products/${productId}/options/${valueDialogOption.id}/values`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              value: valueName,
+              hex: valueHex || null,
+              imageUrl: valueImageUrl || null,
+              position: valueDialogOption.values?.length || 0,
+            }),
+          }
+        );
       }
-
-      const response = await fetch(
-        `/api/dashboard/products/${productId}/options/${optionForNewValue.id}/values`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            value: newValueName,
-            hex: newValueHex || null,
-            imageUrl: newValueImageUrl || null,
-            position: optionForNewValue.values?.length || 0,
-          }),
-        }
-      );
-
       const data = await response.json();
       if (response.ok) {
-        toast.success("تم إضافة القيمة بنجاح");
-        setShowAddValueDialog(false);
-        resetValueForm();
+        toast.success(
+          valueDialogMode === "edit"
+            ? "تم تحرير القيمة بنجاح"
+            : "تم إضافة القيمة بنجاح"
+        );
+        setValueDialogOpen(false);
+        resetValueDialog();
         await loadOptions();
       } else {
-        toast.error(data.error || "فشل في إضافة القيمة");
+        toast.error(
+          data.error ||
+            (valueDialogMode === "edit"
+              ? "فشل في تحرير القيمة"
+              : "فشل في إضافة القيمة")
+        );
       }
     } catch (error) {
-      console.error("Error adding value:", error);
-      toast.error("فشل في إضافة القيمة");
+      console.error("Error submitting value dialog:", error);
+      toast.error(
+        valueDialogMode === "edit"
+          ? "فشل في تحرير القيمة"
+          : "فشل في إضافة القيمة"
+      );
+    } finally {
+      setIsUpdatingValue(false);
     }
   };
 
-  const resetValueForm = () => {
-    setNewValueName("");
-    setNewValueHex("");
-    setNewValueImageUrl("");
-    setOptionForNewValue(null);
-    setEditingValue(null);
+  // Reset value dialog state
+  const resetValueDialog = () => {
+    setValueName("");
+    setValueHex("");
+    setValueImageUrl("");
+    setValueDialogOption(null);
+    setValueDialogValue(null);
+    setValueDialogMode("add");
     setIsUpdatingValue(false);
   };
 
   const resetForm = () => {
     setNewOptionName("");
     setNewOptionPresentation("select");
-    setNewValueName("");
-    setNewValueHex("");
-    setNewValueImageUrl("");
     setEditingOption(null);
   };
 
@@ -378,55 +461,7 @@ export default function OptionsManager({ productId }) {
                 </Select>
               </div>
 
-              {!editingOption && (
-                <>
-                  <div>
-                    <label className="text-sm font-medium">القيمة الأولى</label>
-                    <Input
-                      placeholder="مثال: صغير، أحمر"
-                      value={newValueName}
-                      onChange={(e) => setNewValueName(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  {newOptionPresentation === "swatch" && (
-                    <div>
-                      <label className="text-sm font-medium">
-                        لون Hex (اختياري)
-                      </label>
-                      <div className="flex gap-2 mt-1">
-                        <Input
-                          type="color"
-                          value={newValueHex || "#000000"}
-                          onChange={(e) => setNewValueHex(e.target.value)}
-                          className="w-20 h-10"
-                        />
-                        <Input
-                          placeholder="#000000"
-                          value={newValueHex}
-                          onChange={(e) => setNewValueHex(e.target.value)}
-                          className="flex-1"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {newOptionPresentation === "swatch" && (
-                    <div>
-                      <label className="text-sm font-medium">
-                        رابط الصورة (اختياري)
-                      </label>
-                      <Input
-                        placeholder="https://..."
-                        value={newValueImageUrl}
-                        onChange={(e) => setNewValueImageUrl(e.target.value)}
-                        className="mt-1"
-                      />
-                    </div>
-                  )}
-                </>
-              )}
+              {/* Remove initial value fields from option dialog. Option values are managed via OptionValueDialog. */}
 
               <div className="flex gap-3 justify-end">
                 <Button
@@ -442,83 +477,6 @@ export default function OptionsManager({ productId }) {
                 <Button onClick={handleSubmit}>
                   {editingOption ? "تحرير الخيار" : "إنشاء الخيار"}
                 </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Add Value Dialog */}
-        <Dialog
-          open={showAddValueDialog}
-          onOpenChange={(open) => {
-            if (!open) {
-              setShowAddValueDialog(false);
-              resetValueForm();
-            }
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>إضافة قيمة جديدة</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">اسم القيمة</label>
-                <Input
-                  placeholder="مثال: صغير، أحمر"
-                  value={newValueName}
-                  onChange={(e) => setNewValueName(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-
-              {optionForNewValue?.presentation === "swatch" && (
-                <div>
-                  <label className="text-sm font-medium">
-                    لون Hex (اختياري)
-                  </label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      type="color"
-                      value={newValueHex || "#000000"}
-                      onChange={(e) => setNewValueHex(e.target.value)}
-                      className="w-20 h-10"
-                    />
-                    <Input
-                      placeholder="#000000"
-                      value={newValueHex}
-                      onChange={(e) => setNewValueHex(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {optionForNewValue?.presentation === "swatch" && (
-                <div>
-                  <label className="text-sm font-medium">
-                    رابط الصورة (اختياري)
-                  </label>
-                  <Input
-                    placeholder="https://..."
-                    value={newValueImageUrl}
-                    onChange={(e) => setNewValueImageUrl(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-              )}
-
-              <div className="flex gap-3 justify-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowAddValueDialog(false);
-                    resetValueForm();
-                  }}
-                >
-                  إلغاء
-                </Button>
-                <Button onClick={handleAddValue}>إضافة القيمة</Button>
               </div>
             </div>
           </DialogContent>
@@ -580,14 +538,13 @@ export default function OptionsManager({ productId }) {
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => {
-                                  setEditingValue({
-                                    ...value,
-                                    optionId: option.id,
-                                    option,
-                                  });
-                                  setNewValueName(value.value);
-                                  setNewValueHex(value.hex || "");
-                                  setNewValueImageUrl(value.imageUrl || "");
+                                  setValueDialogMode("edit");
+                                  setValueDialogOption(option);
+                                  setValueDialogValue(value);
+                                  setValueName(value.value);
+                                  setValueHex(value.hex || "");
+                                  setValueImageUrl(value.imageUrl || "");
+                                  setValueDialogOpen(true);
                                 }}
                                 className="text-blue-600 hover:text-blue-700 p-1"
                                 title="تحرير"
@@ -617,8 +574,13 @@ export default function OptionsManager({ productId }) {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setOptionForNewValue(option);
-                          setShowAddValueDialog(true);
+                          setValueDialogMode("add");
+                          setValueDialogOption(option);
+                          setValueDialogValue(null);
+                          setValueName("");
+                          setValueHex("");
+                          setValueImageUrl("");
+                          setValueDialogOpen(true);
                         }}
                       >
                         <Plus className="h-4 w-4" />
@@ -678,81 +640,24 @@ export default function OptionsManager({ productId }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Edit Value Dialog */}
-      <Dialog
-        open={!!editingValue}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingValue(null);
-            resetValueForm();
-          }
+      <OptionValueDialog
+        open={valueDialogOpen}
+        mode={valueDialogMode}
+        option={valueDialogOption}
+        value={valueDialogValue}
+        valueName={valueName}
+        setValueName={setValueName}
+        valueHex={valueHex}
+        setValueHex={setValueHex}
+        valueImageUrl={valueImageUrl}
+        setValueImageUrl={setValueImageUrl}
+        isUpdating={isUpdatingValue}
+        onClose={() => {
+          setValueDialogOpen(false);
+          resetValueDialog();
         }}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>تحرير القيمة</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">اسم القيمة</label>
-              <Input
-                value={newValueName}
-                onChange={(e) => setNewValueName(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-
-            {editingValue?.option?.presentation === "swatch" && (
-              <div>
-                <label className="text-sm font-medium">لون Hex (اختياري)</label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    type="color"
-                    value={newValueHex || "#000000"}
-                    onChange={(e) => setNewValueHex(e.target.value)}
-                    className="w-20 h-10"
-                  />
-                  <Input
-                    placeholder="#000000"
-                    value={newValueHex}
-                    onChange={(e) => setNewValueHex(e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-            )}
-
-            {editingValue?.option?.presentation === "swatch" && (
-              <div>
-                <label className="text-sm font-medium">
-                  رابط الصورة (اختياري)
-                </label>
-                <Input
-                  placeholder="https://..."
-                  value={newValueImageUrl}
-                  onChange={(e) => setNewValueImageUrl(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-            )}
-
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setEditingValue(null);
-                  resetValueForm();
-                }}
-              >
-                إلغاء
-              </Button>
-              <Button onClick={handleUpdateValue} disabled={isUpdatingValue}>
-                {isUpdatingValue ? "جاري التحرير..." : "تحرير القيمة"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        onSubmit={handleValueDialogSubmit}
+      />
     </Card>
   );
 }
