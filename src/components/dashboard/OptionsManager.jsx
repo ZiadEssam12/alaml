@@ -250,20 +250,17 @@ export default function OptionsManager({ productId }) {
         return;
       }
 
-      const payload = {
-        valueId: undefined,
-        value: newValueName,
-        hex: newValueHex || null,
-        imageUrl: newValueImageUrl || null,
-        position: optionForNewValue.values?.length || 0,
-      };
-
       const response = await fetch(
-        `/api/dashboard/products/${productId}/options/${optionForNewValue.id}`,
+        `/api/dashboard/products/${productId}/options/${optionForNewValue.id}/values`,
         {
-          method: "PUT",
+          method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            value: newValueName,
+            hex: newValueHex || null,
+            imageUrl: newValueImageUrl || null,
+            position: optionForNewValue.values?.length || 0,
+          }),
         }
       );
 
@@ -272,7 +269,7 @@ export default function OptionsManager({ productId }) {
         toast.success("تم إضافة القيمة بنجاح");
         setShowAddValueDialog(false);
         resetValueForm();
-        loadOptions();
+        await loadOptions();
       } else {
         toast.error(data.error || "فشل في إضافة القيمة");
       }

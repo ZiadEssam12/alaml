@@ -22,9 +22,7 @@ export async function DELETE(request, { params }) {
       where: {
         id: valueId,
         optionId,
-        productOption: {
-          productId,
-        },
+        option: { productId },
       },
       select: { id: true, value: true },
     });
@@ -65,9 +63,6 @@ export async function DELETE(request, { params }) {
     );
   } catch (error) {
     console.error("Error deleting option value:", error);
-    return NextResponse.json(
-      { error: "فشل في حذف القيمة" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "فشل في حذف القيمة" }, { status: 500 });
   }
 }
