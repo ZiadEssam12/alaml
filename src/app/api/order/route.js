@@ -221,8 +221,6 @@ export async function POST(request) {
           customerName,
           customerPhone,
           shippingStreet,
-          y,
-          shippingZipCode,
           subtotal,
           shippingCost,
           discount,
@@ -263,6 +261,7 @@ export async function POST(request) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Error creating order:", error);
     return NextResponse.json(
       { error: "Failed to create order" },
       { status: 500 }
