@@ -36,37 +36,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
 
-      // Always fetch fresh cart data for every session request
-      if (token.id && token.role === "user") {
-        const userCart = await prisma.cart.findUnique({
-          where: { userId: token.id },
-          include: {
-            items: {
-              include: {
-                product: {
-                  select: {
-                    id: true,
-                    name: true,
-                    price: true,
-                    slug: true,
-                    imageUrls: true,
-                  },
-                },
-                variant: {
-                  select: {
-                    id: true,
-                    price: true,
-                    imageUrls: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        token.cart = userCart || { id: "", userId: "", items: [] };
-      }
-
       return token;
     },
     async session({ session, token }) {
@@ -76,8 +45,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: token.id,
           role: token.role,
         };
-        // Add cart to session
-        session.cart = token.cart || { id: "", userId: "", items: [] };
+        // Don't add cart directly to session - it contains non-serializable objects
+        // Fetch cart data from database when needed instead
       }
 
       return session;

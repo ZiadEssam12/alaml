@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { loadingContext } from "./LoadinContext";
+import { getUserTokenCSR } from "@/lib/auth-helpers-client";
 
 export const cartContext = createContext();
 
@@ -12,22 +13,51 @@ export const CartProvider = ({ children }) => {
   const { loading, setLoading } = useContext(loadingContext);
   const { data: session, status } = useSession();
 
-  // Initialize cart from session
+  const userToken = getUserTokenCSR();
+
+  // Initialize cart from database when user is authenticated
   useEffect(() => {
     if (status === "loading") {
       return; // Wait for session to load
     }
 
-    if (status === "authenticated" && session?.cart?.items) {
-      // User is logged in and cart is available from session
-      setCart(session.cart.items);
+    if (status === "authenticated") {
+      // Fetch cart from database for authenticated users
+      const fetchCart = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/cart/user`,
+            {
+              cache: "no-store",
+              headers: {
+                Authorization: `Bearer ${userToken}`,
+              },
+            }
+          );
+          const data = await response.json();
+          if (response.ok) {
+            // Endpoint returns data.data which contains the cart object with items
+            setCart(data.data?.items || []);
+          } else {
+            console.error("Failed to fetch cart:", data.error);
+            setCart([]);
+          }
+        } catch (error) {
+          console.error("Error fetching cart:", error);
+          setCart([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchCart();
     } else if (status === "unauthenticated") {
       // User is not logged in
       setCart([]);
+      setLoading(false);
     }
-
-    setLoading(false);
-  }, [session?.cart?.items, status, setLoading]);
+  }, [status, setLoading]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
