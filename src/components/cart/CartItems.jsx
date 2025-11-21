@@ -63,10 +63,9 @@ export function CartItems() {
           className="flex flex-col lg:flex-row items-center lg:space-x-4 space-y-4 lg:space-y-0 p-4 border rounded-lg"
         >
           <div className="relative w-20 h-20">
-            <Image
+            <img
               src={item.imageUrl || "/placeholder.svg"}
               alt={item.name}
-              fill
               className="object-contain rounded"
             />
           </div>

@@ -2,40 +2,6 @@ import { getUserTokenSSR } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// // GET: Get all carts with pagination
-// export async function GET(request) {
-//   try {
-//     const { searchParams } = new URL(request.url);
-//     const page = Number(searchParams.get("page") || 1);
-//     const limit = Number(process.env.DATABASE_PAGINATION_LIMIT || 10);
-
-//     const totalCarts = await prisma.cart.count();
-//     const maxPage = Math.ceil(totalCarts / limit);
-
-//     const carts = await prisma.cart.findMany({
-//       skip: (page - 1) * limit,
-//       take: limit,
-//       orderBy: { createdAt: "desc" },
-//       include: { items: true },
-//     });
-
-//     return NextResponse.json(
-//       {
-//         data: carts,
-//         page,
-//         maxPage,
-//         message: "Carts fetched successfully",
-//       },
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     return NextResponse.json(
-//       { error: "Failed to fetch carts" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 export async function POST(request) {
   try {
     const session = await getUserTokenSSR(request);
@@ -80,8 +46,8 @@ export async function POST(request) {
               select: {
                 optionId: true,
                 valueId: true,
-                option: { select: { name: true } },
-                value: { select: { value: true } },
+                option: { select: { name: true, presentation: true } },
+                value: { select: { value: true, imageUrl: true } },
               },
             },
           },
@@ -154,13 +120,21 @@ export async function POST(request) {
           .map((opt) => `${opt.option.name}: ${opt.value.value}`)
           .join(", ");
 
-        // Use variant images if available, otherwise use product images
+        // Find color option image if exists
+        const colorOptionImage = variant.options.find(
+          (opt) =>
+            opt.option.presentation.toLowerCase() === "swatch" &&
+            opt.value.imageUrl
+        )?.value.imageUrl;
+
+        // Use color option image first, then variant images, then product images
         const imageUrl =
-          variant.imageUrls && variant.imageUrls.length > 0
+          colorOptionImage ||
+          (variant.imageUrls && variant.imageUrls.length > 0
             ? variant.imageUrls[0]
             : product.imageUrls && product.imageUrls.length > 0
             ? product.imageUrls[0]
-            : "";
+            : "");
 
         await tx.cartItem.create({
           data: {

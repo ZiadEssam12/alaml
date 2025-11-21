@@ -105,20 +105,34 @@ export async function POST(request, { params }) {
 
     const body = await request.json();
 
-    // Validate with Yup schema
-    let validated;
-    try {
-      validated = await CreateOptionInput.validate(body, { abortEarly: false });
-    } catch (validationError) {
-      return NextResponse.json(
-        { error: "بيانات غير صالحة", details: validationError.errors },
-        { status: 400 }
-      );
+    // For creating option without initial value, we'll create just the option
+    // If value is provided, create both option and value together
+    const hasInitialValue = body.value && body.value.trim();
+
+    // Validate based on whether we have an initial value
+    if (hasInitialValue) {
+      // Validate with Yup schema (requires value)
+      try {
+        await CreateOptionInput.validate(body, { abortEarly: false });
+      } catch (validationError) {
+        return NextResponse.json(
+          { error: "بيانات غير صالحة", details: validationError.errors },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Only validate name and presentation
+      if (!body.name || !body.name.trim()) {
+        return NextResponse.json(
+          { error: "اسم الخيار مطلوب" },
+          { status: 400 }
+        );
+      }
     }
 
     // Check for duplicate option name per product
     const existing = await prisma.productOption.findFirst({
-      where: { productId, name: validated.name },
+      where: { productId, name: body.name },
       select: { id: true },
     });
 
@@ -136,21 +150,23 @@ export async function POST(request, { params }) {
     });
     const nextPosition = (maxPos._max.position ?? -1) + 1;
 
-    // Create option with one value atomically
+    // Create option (with or without initial value)
     const option = await prisma.productOption.create({
       data: {
         productId,
-        name: validated.name,
-        presentation: validated.presentation ?? null,
+        name: body.name,
+        presentation: body.presentation ?? null,
         position: nextPosition,
-        values: {
-          create: {
-            value: validated.value,
-            hex: validated.hex ?? null,
-            imageUrl: validated.imageUrl ?? null,
-            position: validated.position ?? 0,
+        ...(hasInitialValue && {
+          values: {
+            create: {
+              value: body.value,
+              hex: body.hex ?? null,
+              imageUrl: body.imageUrl ?? null,
+              position: body.position ?? 0,
+            },
           },
-        },
+        }),
       },
       include: {
         values: {
