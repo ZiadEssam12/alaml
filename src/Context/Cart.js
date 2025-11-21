@@ -62,12 +62,14 @@ export const CartProvider = ({ children }) => {
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const isInCart = (id) => {
-    return cart.some((item) => item.productId === id);
+  const isInCart = (id, variantId) => {
+    return cart.some(
+      (item) => item.productId === id && item.variantId === variantId
+    );
   };
 
   const addToCart = (product, quantity, variantId) => {
-    if (!isInCart(product.id)) {
+    if (!isInCart(product.id, variantId)) {
       setCart((prev) => [...prev, { ...product, quantity }]);
     }
 

@@ -39,7 +39,7 @@ export default function AddToCartButton({
   const [quantityNumber, setQuantityNumber] = useState(quantity);
   const [isAdding, setIsAdding] = useState(false);
 
-  const isItemInCart = isInCart(product.id);
+  const isItemInCart = isInCart(product.id, variantId);
   const isInStock = product.stockQuantity > 0;
   const maxReached = quantityNumber >= product.maxQuantityPerUser;
   const stockLimitReached = quantityNumber >= product.stockQuantity;
