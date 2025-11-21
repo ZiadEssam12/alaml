@@ -6,10 +6,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Badge } from "@/components/ui/badge";
-import { ProductCartControlsWrapper } from "@/components/ProductCard/ProductCartControlsWrapper";
+import { ProductDetailsClient } from "@/components/ProductDetails/ProductDetailsClient";
 import Link from "next/link";
-import { Home, Box, Star, Package, Truck, Shield } from "lucide-react";
+import { Home, Box } from "lucide-react";
 import { cache } from "react";
 
 import ProductCarousel from "@/components/dashbaord/product/productCarousel";
@@ -256,126 +255,12 @@ export default async function ProductPage({ params }) {
             <ProductCarousel displayProduct={displayProduct} />
           </div>
 
-          {/* Product Information */}
-          <div className="space-y-6 lg:col-span-3">
-            {/* Product Status */}
-            {!displayProduct.isActive && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-red-100 dark:bg-red-800 rounded-full flex items-center justify-center">
-                    <Package className="h-4 w-4 text-red-600 dark:text-red-400" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-red-800 dark:text-red-200">
-                      المنتج غير متاح للعامة
-                    </p>
-                    <p className="text-sm text-red-600 dark:text-red-300">
-                      هذا المنتج غير متاح للشراء حالياً
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Product Details */}
-            <div className="bg-white dark:bg-card rounded-2xl shadow-lg p-8 border space-y-6">
-              {/* Category and Title */}
-              <div className="space-y-4">
-                {displayProduct.category && (
-                  <Link
-                    href={`/categories/${displayProduct.category.seoTitle}`}
-                    className="hover:text-primary transition-colors"
-                  >
-                    <Badge variant="secondary" className="w-fit">
-                      {displayProduct.category.name}
-                    </Badge>
-                  </Link>
-                )}
-                <h1 className="text-3xl lg:text-4xl font-bold text-foreground leading-tight mt-5">
-                  {displayProduct.name}
-                </h1>
-              </div>
-
-              {/* Price */}
-              <div className="flex items-center gap-4">
-                <div className="text-3xl font-bold text-primary">
-                  {displayProduct.price.toLocaleString()} جنيه
-                </div>
-                {displayProduct.stockQuantity <= 5 &&
-                  displayProduct.stockQuantity > 0 && (
-                    <Badge
-                      variant="outline"
-                      className="text-orange-700 border-orange-600"
-                    >
-                      {displayProduct.stockQuantity} متبقي
-                    </Badge>
-                  )}
-              </div>
-
-              {/* Stock Status */}
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    displayProduct.stockQuantity > 10
-                      ? "bg-green-500"
-                      : displayProduct.stockQuantity > 0
-                      ? "bg-orange-500"
-                      : "bg-red-500"
-                  }`}
-                />
-                <span className="text-sm font-medium">
-                  {displayProduct.stockQuantity > 10
-                    ? "متوفر"
-                    : displayProduct.stockQuantity > 0
-                    ? "كمية محدودة"
-                    : "غير متوفر"}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  ({displayProduct.stockQuantity} قطعة)
-                </span>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-3">
-                <h2 className="text-lg font-semibold">وصف المنتج</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  {displayProduct.description}
-                </p>
-              </div>
-
-              {/* Add to Cart Section */}
-              <div className="pt-6 border-t">
-                <ProductCartControlsWrapper
-                  product={displayProduct}
-                  options={options}
-                  variants={variants}
-                />
-              </div>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white dark:bg-card rounded-xl p-4 border text-center">
-                <Truck className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">شحن مجاني</p>
-                <p className="text-xs text-muted-foreground">
-                  على الطلبات فوق 500 جنيه
-                </p>
-              </div>
-              <div className="bg-white dark:bg-card rounded-xl p-4 border text-center">
-                <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">ضمان الجودة</p>
-                <p className="text-xs text-muted-foreground">
-                  منتجات أصلية 100%
-                </p>
-              </div>
-              <div className="bg-white dark:bg-card rounded-xl p-4 border text-center">
-                <Star className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">تقييم عالي</p>
-                <p className="text-xs text-muted-foreground">رضا العملاء</p>
-              </div>
-            </div>
-          </div>
+          {/* Product Information - Client Component */}
+          <ProductDetailsClient
+            displayProduct={displayProduct}
+            options={options}
+            variants={variants}
+          />
         </div>
 
         {/* Reviews Section */}

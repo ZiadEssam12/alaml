@@ -42,12 +42,14 @@ export function ProductCartControlsWrapper({
   product,
   options = [],
   variants = [],
+  onVariantChange,
 }) {
   return (
     <ProductCartControlsDynamic
       product={product}
       options={options}
       variants={variants}
+      onVariantChange={onVariantChange}
     />
   );
 }

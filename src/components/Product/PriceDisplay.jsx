@@ -61,15 +61,20 @@ export default function PriceDisplay({
   if (prices && prices.length > 1) {
     const minPrice = prices[0];
     const maxPrice = prices[prices.length - 1];
+    const samePrice = minPrice === maxPrice;
 
     return (
       <div className="space-y-2">
         <div className="text-3xl font-bold text-primary">
-          {minPrice.toLocaleString()} - {maxPrice.toLocaleString()} جنيه
+          {samePrice
+            ? `${minPrice.toLocaleString()} جنيه`
+            : `${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()} جنيه`}
         </div>
-        <p className="text-sm text-muted-foreground">
-          السعر يختلف حسب الخيارات المختارة
-        </p>
+        {samePrice ? null : (
+          <p className="text-sm text-muted-foreground">
+            السعر يختلف حسب الخيارات المختارة
+          </p>
+        )}
       </div>
     );
   }

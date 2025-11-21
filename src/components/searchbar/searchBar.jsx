@@ -162,7 +162,7 @@ export default function SearchBar() {
                 )}
               >
                 <div className="font-medium text-sm flex justify-between items-center">
-                  <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center gap-1">
                     <p>{result.name}</p>
                     <div className="flex gap-1">
                       <p>في</p>

@@ -39,6 +39,7 @@ export const CartProvider = ({ children }) => {
           if (response.ok) {
             // Endpoint returns data.data which contains the cart object with items
             setCart(data.data?.items || []);
+            console.log("Cart fetched:", data.data?.items || []);
           } else {
             console.error("Failed to fetch cart:", data.error);
             setCart([]);

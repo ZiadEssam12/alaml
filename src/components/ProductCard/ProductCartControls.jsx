@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from "react";
+import React, { use, useEffect } from "react";
 import AddToCartButton from "./AddToCartButton";
 import OptionPicker from "@/components/Product/OptionPicker";
 import PriceDisplay from "@/components/Product/PriceDisplay";
@@ -12,11 +12,51 @@ export default function ProductCartControls({
   product,
   options = [],
   variants = [],
+  onVariantChange,
 }) {
   const { selectedValues, setSelected, selectedVariant, isComplete } =
     useVariantSelection(options, variants);
 
   const hasVariants = options.length > 0 && variants.length > 0;
+
+  // Automatically select first available value for each option
+  useEffect(() => {
+    if (hasVariants && !selectedVariant && options.length > 0) {
+      // Build a map of available value IDs per option
+      const availableValuesByOption = new Map();
+
+      variants.forEach((variant) => {
+        variant.options?.forEach((variantOption) => {
+          if (!availableValuesByOption.has(variantOption.optionId)) {
+            availableValuesByOption.set(variantOption.optionId, new Set());
+          }
+          availableValuesByOption
+            .get(variantOption.optionId)
+            .add(variantOption.valueId);
+        });
+      });
+
+      // Select first available value for each option
+      options.forEach((option) => {
+        const availableIds = availableValuesByOption.get(option.id);
+        if (availableIds) {
+          const firstValue = option.values.find((value) =>
+            availableIds.has(value.id)
+          );
+          if (firstValue) {
+            setSelected(option.id, firstValue.id);
+          }
+        }
+      });
+    }
+  }, [hasVariants, options, variants, selectedVariant, setSelected]);
+
+  // Notify parent when variant changes
+  useEffect(() => {
+    if (onVariantChange) {
+      onVariantChange(selectedVariant);
+    }
+  }, [selectedVariant, onVariantChange]);
 
   // If product has no variants, use simple add to cart
   if (!hasVariants) {
@@ -48,42 +88,6 @@ export default function ProductCartControls({
           />
         ))}
       </div>
-
-      {/* Price Display */}
-      <div className="border-t pt-4">
-        <PriceDisplay
-          product={product}
-          selectedVariant={selectedVariant}
-          variants={variants}
-        />
-      </div>
-
-      {/* Stock Status */}
-      {selectedVariant && (
-        <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg border">
-          <div
-            className={`w-3 h-3 rounded-full mt-0.5 shrink-0 ${
-              selectedVariant.stockQuantity > 10
-                ? "bg-green-500"
-                : selectedVariant.stockQuantity > 0
-                ? "bg-orange-500"
-                : "bg-red-500"
-            }`}
-          />
-          <div>
-            <p className="text-sm font-medium">
-              {selectedVariant.stockQuantity > 10
-                ? "متوفر"
-                : selectedVariant.stockQuantity > 0
-                ? "كمية محدودة"
-                : "غير متوفر"}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              ({selectedVariant.stockQuantity} قطعة متاحة)
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Add to Cart Button */}
       {!isComplete ? (
