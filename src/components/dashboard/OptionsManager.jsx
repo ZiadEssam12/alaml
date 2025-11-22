@@ -287,6 +287,26 @@ export default function OptionsManager({ productId }) {
     }
   };
 
+  const handleDeleteOption = async () => {
+    try {
+      const response = await fetch(
+        `/api/dashboard/products/${productId}/options/${optionToDelete.id}`,
+        { method: "DELETE" }
+      );
+      if (response.ok) {
+        toast.success("تم حذف الخيار بنجاح");
+        setOptionToDelete(null);
+        loadOptions();
+      } else {
+        const data = await response.json();
+        toast.error(data.error || "فشل في حذف الخيار");
+      }
+    } catch (error) {
+      console.error("Error deleting option:", error);
+      toast.error("فشل في حذف الخيار");
+    }
+  };
+
   // Remove handleAddValue, all value add/edit is now in handleValueDialogSubmit
   // Unified add/edit value handler
   const handleValueDialogSubmit = async () => {

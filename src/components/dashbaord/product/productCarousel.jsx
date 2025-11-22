@@ -11,6 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { generateBlurPlaceholder } from "@/lib/generateBase64DataURL";
 
 export default function ProductCarousel({ displayProduct }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -18,6 +19,26 @@ export default function ProductCarousel({ displayProduct }) {
   const [emblaApi, setEmblaApi] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [blurDataUrls, setBlurDataUrls] = useState({});
+
+  // Pre-generate blur placeholders
+  useEffect(() => {
+    const generatePlaceholders = async () => {
+      const urls = {};
+      for (let i = 0; i < displayProduct.responsiveImageUrls.length; i++) {
+        const img = displayProduct.responsiveImageUrls[i];
+        const largeBlur = await generateBlurPlaceholder(img.large);
+        const thumbBlur = await generateBlurPlaceholder(img.thumbnail);
+        urls[`large-${i}`] = largeBlur;
+        urls[`thumb-${i}`] = thumbBlur;
+      }
+      setBlurDataUrls(urls);
+    };
+
+    if (displayProduct?.responsiveImageUrls) {
+      generatePlaceholders();
+    }
+  }, [displayProduct]);
 
   // When a thumbnail is clicked
   const handleThumbnailClick = (idx) => {
@@ -73,11 +94,6 @@ export default function ProductCarousel({ displayProduct }) {
 
   if (!displayProduct || !displayProduct.imageUrls) return null;
 
-  console.log(
-    "displayProduct.responsiveImageUrls:",
-    displayProduct.responsiveImageUrls
-  );
-
   return (
     <div className="space-y-4 selection:bg-transparent">
       {/* Main Image Display */}
@@ -101,8 +117,8 @@ export default function ProductCarousel({ displayProduct }) {
                     fill
                     priority={i === 0}
                     fetchPriority={i === 0 ? "high" : "low"}
-                    placeholder="blur"
-                    blurDataURL={img.placeholder}
+                    placeholder={blurDataUrls[`large-${i}`] ? "blur" : "empty"}
+                    blurDataURL={blurDataUrls[`large-${i}`]}
                     className={`object-contain transition-transform duration-300 ${
                       isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
                     }`}
@@ -190,8 +206,8 @@ export default function ProductCarousel({ displayProduct }) {
                 alt={`${displayProduct.name} صورة ${i + 1}`}
                 fill
                 className="object-cover transition-transform duration-200 group-hover:scale-110"
-                placeholder="blur"
-                blurDataURL={img.placeholder}
+                placeholder={blurDataUrls[`thumb-${i}`] ? "blur" : "empty"}
+                blurDataURL={blurDataUrls[`thumb-${i}`]}
                 priority={i === 0}
               />
               {currentDisplayIndex === i && (
