@@ -6,6 +6,7 @@ import { User, LogOut, ShoppingCart, List, Box, UserPlus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
+import { LayoutDashboard } from "lucide-react";
 
 export default function UserProfileDropdown() {
   const { data: session, status } = useSession();
@@ -15,6 +16,8 @@ export default function UserProfileDropdown() {
   const handleToggle = () => setOpen((prev) => !prev);
   const handleLogout = () => signOut();
   const closeDropdown = () => setOpen(false);
+
+  console.log("data:", session);
 
   // Handle click outside
   React.useEffect(() => {
@@ -77,7 +80,7 @@ export default function UserProfileDropdown() {
     <>
       {/* Overlay */}
       {open && (
-        <div className="fixed top-0 left-0 right-0 w-full h-screen bg-black opacity-10 -z-[1] p-0 m-0"></div>
+        <div className="fixed top-0 left-0 right-0 w-full h-screen bg-black opacity-10 -z-1 p-0 m-0"></div>
       )}
 
       <div ref={dropdownRef} className="relative inline-block z-50">
@@ -104,6 +107,16 @@ export default function UserProfileDropdown() {
                   </span>
                 </div>
                 <Separator className="my-2" />
+                {session.user.role === "admin" && (
+                  <Link
+                    href="/dashboard"
+                    className="px-4 py-2 hover:bg-muted transition-colors flex items-center gap-2"
+                    onClick={closeDropdown}
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    لوحة التحكم
+                  </Link>
+                )}
                 <Link
                   href="/cart"
                   className="px-4 py-2 hover:bg-muted transition-colors flex items-center gap-2"
