@@ -91,7 +91,7 @@ export default function ProductCarousel({ displayProduct }) {
               <CarouselItem key={i} className="w-full h-full">
                 <div className="relative w-full h-[500px] bg-muted/20 rounded-xl overflow-hidden">
                   <Image
-                    src={img.small}
+                    src={img.large}
                     alt={`${displayProduct.name} صورة ${i + 1}`}
                     fill
                     priority={i === 0}
