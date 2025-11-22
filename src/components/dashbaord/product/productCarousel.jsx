@@ -27,10 +27,9 @@ export default function ProductCarousel({ displayProduct }) {
       const urls = {};
       for (let i = 0; i < displayProduct.responsiveImageUrls.length; i++) {
         const img = displayProduct.responsiveImageUrls[i];
-        const largeBlur = await generateBlurPlaceholder(img.large);
-        const thumbBlur = await generateBlurPlaceholder(img.thumbnail);
-        urls[`large-${i}`] = largeBlur;
-        urls[`thumb-${i}`] = thumbBlur;
+        // Use thumbnail for blur placeholder (faster, smaller file)
+        const blurDataUrl = await generateBlurPlaceholder(img.thumbnail);
+        urls[`${i}`] = blurDataUrl;
       }
       setBlurDataUrls(urls);
     };
@@ -116,10 +115,9 @@ export default function ProductCarousel({ displayProduct }) {
                     alt={`${displayProduct.name} صورة ${i + 1}`}
                     fill
                     priority={i === 0}
-                    fetchPriority={i === 0 ? "high" : "low"}
-                    placeholder={blurDataUrls[`large-${i}`] ? "blur" : "empty"}
-                    blurDataURL={blurDataUrls[`large-${i}`]}
-                    className={`object-contain transition-transform duration-300 ${
+                    placeholder={blurDataUrls[`${i}`] ? "blur" : "empty"}
+                    blurDataURL={blurDataUrls[`${i}`]}
+                    className={`transition-transform duration-300 ${
                       isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
                     }`}
                     style={{
@@ -206,19 +204,10 @@ export default function ProductCarousel({ displayProduct }) {
                 alt={`${displayProduct.name} صورة ${i + 1}`}
                 fill
                 className="object-cover transition-transform duration-200 group-hover:scale-110"
-                placeholder={blurDataUrls[`thumb-${i}`] ? "blur" : "empty"}
-                blurDataURL={blurDataUrls[`thumb-${i}`]}
+                placeholder={blurDataUrls[`${i}`] ? "blur" : "empty"}
+                blurDataURL={blurDataUrls[`${i}`]}
                 priority={i === 0}
               />
-              {currentDisplayIndex === i && (
-                <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-                  <div
-                    className={`w-2 h-2 rounded-full animate-pulse ${
-                      hoveredIndex === i ? "bg-orange-500" : "bg-primary"
-                    }`}
-                  />
-                </div>
-              )}
             </div>
           </button>
         ))}
