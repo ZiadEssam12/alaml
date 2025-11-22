@@ -73,6 +73,11 @@ export default function ProductCarousel({ displayProduct }) {
 
   if (!displayProduct || !displayProduct.imageUrls) return null;
 
+  console.log(
+    "displayProduct.responsiveImageUrls:",
+    displayProduct.responsiveImageUrls
+  );
+
   return (
     <div className="space-y-4 selection:bg-transparent">
       {/* Main Image Display */}
@@ -171,7 +176,7 @@ export default function ProductCarousel({ displayProduct }) {
             onClick={() => handleThumbnailClick(i)}
             onMouseEnter={() => handleThumbnailHover(i)}
             onMouseLeave={handleThumbnailLeave}
-            className={`relative flex-shrink-0 border-2 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
+            className={`relative shrink-0 border-2 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
               currentDisplayIndex === i
                 ? "border-primary ring-2 ring-primary/20 shadow-lg scale-105"
                 : "border-muted hover:border-primary/50"

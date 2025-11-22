@@ -48,7 +48,7 @@ class ImageService {
   }
 
   generateBlurredPlaceholder(publicId) {
-    return `https://res.cloudinary.com/${this.config.cloudName}/image/upload/e_blur:200,q_10/${publicId}`;
+    return `https://res.cloudinary.com/${this.config.cloudName}/image/upload/e_blur:1000,q_5/${publicId}`;
   }
 
   generateResponsiveUrls(publicId) {
