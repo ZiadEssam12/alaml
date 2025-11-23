@@ -62,7 +62,6 @@ export default function ProductCartControls({
   if (!hasVariants) {
     return (
       <div className="space-y-4">
-        <PriceDisplay product={product} selectedVariant={null} variants={[]} />
         <AddToCartButton
           product={product}
           quantity={1}
