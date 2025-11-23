@@ -20,6 +20,7 @@ model Category {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @default(now()) @updatedAt
   products       Product[]
+  offers         Offer[]
 
   @@index([status])
   @@index([createdAt])
@@ -43,12 +44,13 @@ model Product {
   options            ProductOption[]
   variants           ProductVariant[]
   createdAt          DateTime         @default(now())
-  updatedAt          DateTime?        @updatedAt  
+  updatedAt          DateTime?        @updatedAt
 
   // Denormalized review stats
-  ratingCount   Int   @default(0)
-  ratingSum     Int   @default(0)
-  averageRating Float @default(0)
+  ratingCount   Int     @default(0)
+  ratingSum     Int     @default(0)
+  averageRating Float   @default(0)
+  offers        Offer[]
 
   @@index([isActive])
   @@index([price])
@@ -147,6 +149,7 @@ model Order {
   couponCode String?
 
   couponUsages CouponUsage[]
+  offerUsages  OfferUsage[]
 
   @@index([userId])
   @@index([status])
@@ -196,6 +199,7 @@ model User {
 
   couponUsages CouponUsage[]
   CustomOrder  CustomOrder[]
+  offerUsages  OfferUsage[]
 }
 
 model Cart {
@@ -227,6 +231,74 @@ model CartItem {
   @@index([cartId])
   @@index([productId])
   @@index([variantId])
+}
+
+model Offer {
+  id          String  @id @default(uuid()) @map("offer_id")
+  title       String
+  description String? @db.Text
+
+  // Targeting
+  scope      OfferScope
+  productId  String?
+  categoryId String?
+  product    Product?   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category?  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Type & value (reuse existing CouponType)
+  type  CouponType
+  value Decimal    @db.Decimal(10, 2)
+
+  // Behavior
+  isActive    Boolean @default(true) @map("is_active")
+  isAutoApply Boolean @default(true) @map("is_auto_apply")
+  code        String? @unique // for non-auto offers
+
+  // Limits & windows
+  maxUsageCount     Int?     @map("max_usage_count")
+  perUserUsageCount Int?     @map("per_user_usage_count")
+  maxDiscountAmount Decimal? @map("max_discount_amount") @db.Decimal(10, 2)
+  minCartAmount     Decimal? @default(0.00) @map("min_cart_amount") @db.Decimal(10, 2)
+  startDate         DateTime @map("start_date")
+  expirationDate    DateTime @map("expiration_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usages OfferUsage[]
+
+  @@index([isActive])
+  @@index([scope])
+  @@index([productId])
+  @@index([categoryId])
+  @@index([startDate])
+  @@index([expirationDate])
+  @@map("offers")
+}
+
+model OfferUsage {
+  usageId Int @id @default(autoincrement()) @map("usage_id")
+
+  offerId String @map("offer_id")
+  offer   Offer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  appliedAt DateTime @default(now()) @map("applied_at")
+
+  @@unique([offerId, userId, orderId])
+  @@index([offerId])
+  @@index([userId])
+  @@index([orderId])
+  @@map("offer_usages")
+}
+
+enum OfferScope {
+  product
+  category
 }
 
 model Coupon {
