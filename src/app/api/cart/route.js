@@ -56,7 +56,6 @@ export async function POST(request) {
           where: {
             cart: { userId: session.id },
             productId: String(item.productId),
-            variantId: String(item.variantId),
           },
         }),
       ]);
@@ -82,7 +81,7 @@ export async function POST(request) {
         );
       }
 
-      if (existingItem) {
+      if (existingItem && existingItem.variantId === item.variantId) {
         return NextResponse.json(
           { error: "هذا الخيار موجود بالفعل في السلة" },
           { status: 409 }
@@ -177,7 +176,6 @@ export async function POST(request) {
         where: {
           cart: { userId: session.id },
           productId: String(item.productId),
-          variantId: null,
         },
       }),
     ]);
@@ -189,7 +187,7 @@ export async function POST(request) {
       );
     }
 
-    if (existingItem) {
+    if (existingItem && !existingItem.variantId) {
       return NextResponse.json(
         { error: "العنصر موجود بالفعل في السلة" },
         { status: 409 }
@@ -251,6 +249,7 @@ export async function POST(request) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("خطأ في إضافة العنصر إلى السلة:", error.message);
     return NextResponse.json(
       { error: "فشل في إضافة العنصر إلى السلة" },
       { status: 500 }
