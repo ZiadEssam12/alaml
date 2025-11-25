@@ -1,0 +1,150 @@
+-- CreateEnum
+CREATE TYPE "public"."UserRole" AS ENUM ('user', 'admin');
+
+-- CreateEnum
+CREATE TYPE "public"."CategoryStatus" AS ENUM ('active', 'inactive');
+
+-- CreateEnum
+CREATE TYPE "public"."OrderStatus" AS ENUM ('pending', 'processing', 'shipped', 'delivered', 'cancelled');
+
+-- CreateEnum
+CREATE TYPE "public"."ReviewStatus" AS ENUM ('pending', 'approved', 'rejected');
+
+-- CreateTable
+CREATE TABLE "public"."Category" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "icon" TEXT NOT NULL,
+    "color" TEXT NOT NULL,
+    "parentCategoryID" TEXT,
+    "status" "public"."CategoryStatus" NOT NULL,
+    "seoTitle" TEXT NOT NULL,
+    "seoDescription" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Product" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "imageUrls" TEXT[],
+    "stockQuantity" INTEGER NOT NULL,
+    "maxQuantityPerUser" INTEGER NOT NULL DEFAULT 5,
+    "categoryID" TEXT NOT NULL,
+
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Order" (
+    "id" TEXT NOT NULL,
+    "customerName" TEXT NOT NULL,
+    "customerEmail" TEXT NOT NULL,
+    "customerPhone" TEXT NOT NULL,
+    "shippingStreet" TEXT NOT NULL,
+    "shippingCity" TEXT NOT NULL,
+    "shippingZipCode" TEXT,
+    "subtotal" DOUBLE PRECISION NOT NULL,
+    "shippingCost" DOUBLE PRECISION NOT NULL,
+    "discount" DOUBLE PRECISION NOT NULL,
+    "finalAmount" DOUBLE PRECISION NOT NULL,
+    "paymentMethod" TEXT NOT NULL,
+    "status" "public"."OrderStatus" NOT NULL DEFAULT 'pending',
+    "trackingNumber" TEXT,
+    "shippingCompanyURL" TEXT,
+    "notes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."OrderItem" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "productName" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "OrderItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Review" (
+    "id" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "productName" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
+    "rating" INTEGER NOT NULL,
+    "comment" TEXT NOT NULL,
+    "status" "public"."ReviewStatus" NOT NULL DEFAULT 'pending',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."User" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "role" "public"."UserRole" NOT NULL DEFAULT 'user',
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Cart" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Cart_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."CartItem" (
+    "id" TEXT NOT NULL,
+    "cartId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+
+    CONSTRAINT "CartItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_name_key" ON "public"."Category"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_seoTitle_key" ON "public"."Category"("seoTitle");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_slug_key" ON "public"."Product"("slug");
+
+-- AddForeignKey
+ALTER TABLE "public"."Category" ADD CONSTRAINT "Category_parentCategoryID_fkey" FOREIGN KEY ("parentCategoryID") REFERENCES "public"."Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Product" ADD CONSTRAINT "Product_categoryID_fkey" FOREIGN KEY ("categoryID") REFERENCES "public"."Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "public"."Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartId") REFERENCES "public"."Cart"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."CartItem" ADD CONSTRAINT "CartItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "public"."Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
