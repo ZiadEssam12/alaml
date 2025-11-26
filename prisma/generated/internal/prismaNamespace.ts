@@ -1903,6 +1903,7 @@ export const OfferScalarFieldEnum = {
   scope: 'scope',
   productId: 'productId',
   categoryId: 'categoryId',
+  variantId: 'variantId',
   type: 'type',
   value: 'value',
   isActive: 'isActive',

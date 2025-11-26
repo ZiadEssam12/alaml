@@ -49,6 +49,7 @@ export type OfferMinAggregateOutputType = {
   scope: $Enums.OfferScope | null
   productId: string | null
   categoryId: string | null
+  variantId: string | null
   type: $Enums.CouponType | null
   value: runtime.Decimal | null
   isActive: boolean | null
@@ -70,6 +71,7 @@ export type OfferMaxAggregateOutputType = {
   scope: $Enums.OfferScope | null
   productId: string | null
   categoryId: string | null
+  variantId: string | null
   type: $Enums.CouponType | null
   value: runtime.Decimal | null
   isActive: boolean | null
@@ -91,6 +93,7 @@ export type OfferCountAggregateOutputType = {
   scope: number
   productId: number
   categoryId: number
+  variantId: number
   type: number
   value: number
   isActive: number
@@ -130,6 +133,7 @@ export type OfferMinAggregateInputType = {
   scope?: true
   productId?: true
   categoryId?: true
+  variantId?: true
   type?: true
   value?: true
   isActive?: true
@@ -151,6 +155,7 @@ export type OfferMaxAggregateInputType = {
   scope?: true
   productId?: true
   categoryId?: true
+  variantId?: true
   type?: true
   value?: true
   isActive?: true
@@ -172,6 +177,7 @@ export type OfferCountAggregateInputType = {
   scope?: true
   productId?: true
   categoryId?: true
+  variantId?: true
   type?: true
   value?: true
   isActive?: true
@@ -280,6 +286,7 @@ export type OfferGroupByOutputType = {
   scope: $Enums.OfferScope
   productId: string | null
   categoryId: string | null
+  variantId: string | null
   type: $Enums.CouponType
   value: runtime.Decimal
   isActive: boolean
@@ -324,6 +331,7 @@ export type OfferWhereInput = {
   scope?: Prisma.EnumOfferScopeFilter<"Offer"> | $Enums.OfferScope
   productId?: Prisma.StringNullableFilter<"Offer"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Offer"> | string | null
+  variantId?: Prisma.StringNullableFilter<"Offer"> | string | null
   type?: Prisma.EnumCouponTypeFilter<"Offer"> | $Enums.CouponType
   value?: Prisma.DecimalFilter<"Offer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"Offer"> | boolean
@@ -339,6 +347,7 @@ export type OfferWhereInput = {
   usages?: Prisma.OfferUsageListRelationFilter
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
 }
 
 export type OfferOrderByWithRelationInput = {
@@ -348,6 +357,7 @@ export type OfferOrderByWithRelationInput = {
   scope?: Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   value?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -363,6 +373,7 @@ export type OfferOrderByWithRelationInput = {
   usages?: Prisma.OfferUsageOrderByRelationAggregateInput
   category?: Prisma.CategoryOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
+  variant?: Prisma.ProductVariantOrderByWithRelationInput
 }
 
 export type OfferWhereUniqueInput = Prisma.AtLeast<{
@@ -376,6 +387,7 @@ export type OfferWhereUniqueInput = Prisma.AtLeast<{
   scope?: Prisma.EnumOfferScopeFilter<"Offer"> | $Enums.OfferScope
   productId?: Prisma.StringNullableFilter<"Offer"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Offer"> | string | null
+  variantId?: Prisma.StringNullableFilter<"Offer"> | string | null
   type?: Prisma.EnumCouponTypeFilter<"Offer"> | $Enums.CouponType
   value?: Prisma.DecimalFilter<"Offer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"Offer"> | boolean
@@ -390,6 +402,7 @@ export type OfferWhereUniqueInput = Prisma.AtLeast<{
   usages?: Prisma.OfferUsageListRelationFilter
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
 }, "id" | "code">
 
 export type OfferOrderByWithAggregationInput = {
@@ -399,6 +412,7 @@ export type OfferOrderByWithAggregationInput = {
   scope?: Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   value?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -428,6 +442,7 @@ export type OfferScalarWhereWithAggregatesInput = {
   scope?: Prisma.EnumOfferScopeWithAggregatesFilter<"Offer"> | $Enums.OfferScope
   productId?: Prisma.StringNullableWithAggregatesFilter<"Offer"> | string | null
   categoryId?: Prisma.StringNullableWithAggregatesFilter<"Offer"> | string | null
+  variantId?: Prisma.StringNullableWithAggregatesFilter<"Offer"> | string | null
   type?: Prisma.EnumCouponTypeWithAggregatesFilter<"Offer"> | $Enums.CouponType
   value?: Prisma.DecimalWithAggregatesFilter<"Offer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Offer"> | boolean
@@ -462,6 +477,7 @@ export type OfferCreateInput = {
   usages?: Prisma.OfferUsageCreateNestedManyWithoutOfferInput
   category?: Prisma.CategoryCreateNestedOneWithoutOffersInput
   product?: Prisma.ProductCreateNestedOneWithoutOffersInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutOffersInput
 }
 
 export type OfferUncheckedCreateInput = {
@@ -471,6 +487,7 @@ export type OfferUncheckedCreateInput = {
   scope: $Enums.OfferScope
   productId?: string | null
   categoryId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -506,6 +523,7 @@ export type OfferUpdateInput = {
   usages?: Prisma.OfferUsageUpdateManyWithoutOfferNestedInput
   category?: Prisma.CategoryUpdateOneWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneWithoutOffersNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutOffersNestedInput
 }
 
 export type OfferUncheckedUpdateInput = {
@@ -515,6 +533,7 @@ export type OfferUncheckedUpdateInput = {
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -537,6 +556,7 @@ export type OfferCreateManyInput = {
   scope: $Enums.OfferScope
   productId?: string | null
   categoryId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -577,6 +597,7 @@ export type OfferUncheckedUpdateManyInput = {
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -608,6 +629,7 @@ export type OfferCountOrderByAggregateInput = {
   scope?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   value?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -637,6 +659,7 @@ export type OfferMaxOrderByAggregateInput = {
   scope?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   value?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -658,6 +681,7 @@ export type OfferMinOrderByAggregateInput = {
   scope?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   value?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -769,6 +793,48 @@ export type OfferUncheckedUpdateManyWithoutProductNestedInput = {
   deleteMany?: Prisma.OfferScalarWhereInput | Prisma.OfferScalarWhereInput[]
 }
 
+export type OfferCreateNestedManyWithoutVariantInput = {
+  create?: Prisma.XOR<Prisma.OfferCreateWithoutVariantInput, Prisma.OfferUncheckedCreateWithoutVariantInput> | Prisma.OfferCreateWithoutVariantInput[] | Prisma.OfferUncheckedCreateWithoutVariantInput[]
+  connectOrCreate?: Prisma.OfferCreateOrConnectWithoutVariantInput | Prisma.OfferCreateOrConnectWithoutVariantInput[]
+  createMany?: Prisma.OfferCreateManyVariantInputEnvelope
+  connect?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+}
+
+export type OfferUncheckedCreateNestedManyWithoutVariantInput = {
+  create?: Prisma.XOR<Prisma.OfferCreateWithoutVariantInput, Prisma.OfferUncheckedCreateWithoutVariantInput> | Prisma.OfferCreateWithoutVariantInput[] | Prisma.OfferUncheckedCreateWithoutVariantInput[]
+  connectOrCreate?: Prisma.OfferCreateOrConnectWithoutVariantInput | Prisma.OfferCreateOrConnectWithoutVariantInput[]
+  createMany?: Prisma.OfferCreateManyVariantInputEnvelope
+  connect?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+}
+
+export type OfferUpdateManyWithoutVariantNestedInput = {
+  create?: Prisma.XOR<Prisma.OfferCreateWithoutVariantInput, Prisma.OfferUncheckedCreateWithoutVariantInput> | Prisma.OfferCreateWithoutVariantInput[] | Prisma.OfferUncheckedCreateWithoutVariantInput[]
+  connectOrCreate?: Prisma.OfferCreateOrConnectWithoutVariantInput | Prisma.OfferCreateOrConnectWithoutVariantInput[]
+  upsert?: Prisma.OfferUpsertWithWhereUniqueWithoutVariantInput | Prisma.OfferUpsertWithWhereUniqueWithoutVariantInput[]
+  createMany?: Prisma.OfferCreateManyVariantInputEnvelope
+  set?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  disconnect?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  delete?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  connect?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  update?: Prisma.OfferUpdateWithWhereUniqueWithoutVariantInput | Prisma.OfferUpdateWithWhereUniqueWithoutVariantInput[]
+  updateMany?: Prisma.OfferUpdateManyWithWhereWithoutVariantInput | Prisma.OfferUpdateManyWithWhereWithoutVariantInput[]
+  deleteMany?: Prisma.OfferScalarWhereInput | Prisma.OfferScalarWhereInput[]
+}
+
+export type OfferUncheckedUpdateManyWithoutVariantNestedInput = {
+  create?: Prisma.XOR<Prisma.OfferCreateWithoutVariantInput, Prisma.OfferUncheckedCreateWithoutVariantInput> | Prisma.OfferCreateWithoutVariantInput[] | Prisma.OfferUncheckedCreateWithoutVariantInput[]
+  connectOrCreate?: Prisma.OfferCreateOrConnectWithoutVariantInput | Prisma.OfferCreateOrConnectWithoutVariantInput[]
+  upsert?: Prisma.OfferUpsertWithWhereUniqueWithoutVariantInput | Prisma.OfferUpsertWithWhereUniqueWithoutVariantInput[]
+  createMany?: Prisma.OfferCreateManyVariantInputEnvelope
+  set?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  disconnect?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  delete?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  connect?: Prisma.OfferWhereUniqueInput | Prisma.OfferWhereUniqueInput[]
+  update?: Prisma.OfferUpdateWithWhereUniqueWithoutVariantInput | Prisma.OfferUpdateWithWhereUniqueWithoutVariantInput[]
+  updateMany?: Prisma.OfferUpdateManyWithWhereWithoutVariantInput | Prisma.OfferUpdateManyWithWhereWithoutVariantInput[]
+  deleteMany?: Prisma.OfferScalarWhereInput | Prisma.OfferScalarWhereInput[]
+}
+
 export type EnumOfferScopeFieldUpdateOperationsInput = {
   set?: $Enums.OfferScope
 }
@@ -826,6 +892,7 @@ export type OfferCreateWithoutCategoryInput = {
   createdAt?: Date | string
   usages?: Prisma.OfferUsageCreateNestedManyWithoutOfferInput
   product?: Prisma.ProductCreateNestedOneWithoutOffersInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutOffersInput
 }
 
 export type OfferUncheckedCreateWithoutCategoryInput = {
@@ -834,6 +901,7 @@ export type OfferUncheckedCreateWithoutCategoryInput = {
   description?: string | null
   scope: $Enums.OfferScope
   productId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -885,6 +953,7 @@ export type OfferScalarWhereInput = {
   scope?: Prisma.EnumOfferScopeFilter<"Offer"> | $Enums.OfferScope
   productId?: Prisma.StringNullableFilter<"Offer"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Offer"> | string | null
+  variantId?: Prisma.StringNullableFilter<"Offer"> | string | null
   type?: Prisma.EnumCouponTypeFilter<"Offer"> | $Enums.CouponType
   value?: Prisma.DecimalFilter<"Offer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"Offer"> | boolean
@@ -918,6 +987,7 @@ export type OfferCreateWithoutProductInput = {
   createdAt?: Date | string
   usages?: Prisma.OfferUsageCreateNestedManyWithoutOfferInput
   category?: Prisma.CategoryCreateNestedOneWithoutOffersInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutOffersInput
 }
 
 export type OfferUncheckedCreateWithoutProductInput = {
@@ -926,6 +996,7 @@ export type OfferUncheckedCreateWithoutProductInput = {
   description?: string | null
   scope: $Enums.OfferScope
   categoryId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -967,6 +1038,76 @@ export type OfferUpdateManyWithWhereWithoutProductInput = {
   data: Prisma.XOR<Prisma.OfferUpdateManyMutationInput, Prisma.OfferUncheckedUpdateManyWithoutProductInput>
 }
 
+export type OfferCreateWithoutVariantInput = {
+  id?: string
+  title: string
+  description?: string | null
+  scope: $Enums.OfferScope
+  type: $Enums.CouponType
+  value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: boolean
+  isAutoApply?: boolean
+  code?: string | null
+  maxUsageCount?: number | null
+  perUserUsageCount?: number | null
+  maxDiscountAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minCartAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startDate: Date | string
+  expirationDate: Date | string
+  createdAt?: Date | string
+  usages?: Prisma.OfferUsageCreateNestedManyWithoutOfferInput
+  category?: Prisma.CategoryCreateNestedOneWithoutOffersInput
+  product?: Prisma.ProductCreateNestedOneWithoutOffersInput
+}
+
+export type OfferUncheckedCreateWithoutVariantInput = {
+  id?: string
+  title: string
+  description?: string | null
+  scope: $Enums.OfferScope
+  productId?: string | null
+  categoryId?: string | null
+  type: $Enums.CouponType
+  value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: boolean
+  isAutoApply?: boolean
+  code?: string | null
+  maxUsageCount?: number | null
+  perUserUsageCount?: number | null
+  maxDiscountAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minCartAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startDate: Date | string
+  expirationDate: Date | string
+  createdAt?: Date | string
+  usages?: Prisma.OfferUsageUncheckedCreateNestedManyWithoutOfferInput
+}
+
+export type OfferCreateOrConnectWithoutVariantInput = {
+  where: Prisma.OfferWhereUniqueInput
+  create: Prisma.XOR<Prisma.OfferCreateWithoutVariantInput, Prisma.OfferUncheckedCreateWithoutVariantInput>
+}
+
+export type OfferCreateManyVariantInputEnvelope = {
+  data: Prisma.OfferCreateManyVariantInput | Prisma.OfferCreateManyVariantInput[]
+  skipDuplicates?: boolean
+}
+
+export type OfferUpsertWithWhereUniqueWithoutVariantInput = {
+  where: Prisma.OfferWhereUniqueInput
+  update: Prisma.XOR<Prisma.OfferUpdateWithoutVariantInput, Prisma.OfferUncheckedUpdateWithoutVariantInput>
+  create: Prisma.XOR<Prisma.OfferCreateWithoutVariantInput, Prisma.OfferUncheckedCreateWithoutVariantInput>
+}
+
+export type OfferUpdateWithWhereUniqueWithoutVariantInput = {
+  where: Prisma.OfferWhereUniqueInput
+  data: Prisma.XOR<Prisma.OfferUpdateWithoutVariantInput, Prisma.OfferUncheckedUpdateWithoutVariantInput>
+}
+
+export type OfferUpdateManyWithWhereWithoutVariantInput = {
+  where: Prisma.OfferScalarWhereInput
+  data: Prisma.XOR<Prisma.OfferUpdateManyMutationInput, Prisma.OfferUncheckedUpdateManyWithoutVariantInput>
+}
+
 export type OfferCreateWithoutUsagesInput = {
   id?: string
   title: string
@@ -986,6 +1127,7 @@ export type OfferCreateWithoutUsagesInput = {
   createdAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutOffersInput
   product?: Prisma.ProductCreateNestedOneWithoutOffersInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutOffersInput
 }
 
 export type OfferUncheckedCreateWithoutUsagesInput = {
@@ -995,6 +1137,7 @@ export type OfferUncheckedCreateWithoutUsagesInput = {
   scope: $Enums.OfferScope
   productId?: string | null
   categoryId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -1044,6 +1187,7 @@ export type OfferUpdateWithoutUsagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutOffersNestedInput
   product?: Prisma.ProductUpdateOneWithoutOffersNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutOffersNestedInput
 }
 
 export type OfferUncheckedUpdateWithoutUsagesInput = {
@@ -1053,6 +1197,7 @@ export type OfferUncheckedUpdateWithoutUsagesInput = {
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1073,6 +1218,7 @@ export type OfferCreateManyCategoryInput = {
   description?: string | null
   scope: $Enums.OfferScope
   productId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -1106,6 +1252,7 @@ export type OfferUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usages?: Prisma.OfferUsageUpdateManyWithoutOfferNestedInput
   product?: Prisma.ProductUpdateOneWithoutOffersNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutOffersNestedInput
 }
 
 export type OfferUncheckedUpdateWithoutCategoryInput = {
@@ -1114,6 +1261,7 @@ export type OfferUncheckedUpdateWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1135,6 +1283,7 @@ export type OfferUncheckedUpdateManyWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1155,6 +1304,7 @@ export type OfferCreateManyProductInput = {
   description?: string | null
   scope: $Enums.OfferScope
   categoryId?: string | null
+  variantId?: string | null
   type: $Enums.CouponType
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
@@ -1188,6 +1338,7 @@ export type OfferUpdateWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usages?: Prisma.OfferUsageUpdateManyWithoutOfferNestedInput
   category?: Prisma.CategoryUpdateOneWithoutOffersNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutOffersNestedInput
 }
 
 export type OfferUncheckedUpdateWithoutProductInput = {
@@ -1196,6 +1347,7 @@ export type OfferUncheckedUpdateWithoutProductInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1216,6 +1368,93 @@ export type OfferUncheckedUpdateManyWithoutProductInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
+  value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoApply?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxUsageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  perUserUsageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDiscountAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minCartAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expirationDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OfferCreateManyVariantInput = {
+  id?: string
+  title: string
+  description?: string | null
+  scope: $Enums.OfferScope
+  productId?: string | null
+  categoryId?: string | null
+  type: $Enums.CouponType
+  value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: boolean
+  isAutoApply?: boolean
+  code?: string | null
+  maxUsageCount?: number | null
+  perUserUsageCount?: number | null
+  maxDiscountAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minCartAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startDate: Date | string
+  expirationDate: Date | string
+  createdAt?: Date | string
+}
+
+export type OfferUpdateWithoutVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
+  type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
+  value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoApply?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxUsageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  perUserUsageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDiscountAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minCartAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expirationDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usages?: Prisma.OfferUsageUpdateManyWithoutOfferNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutOffersNestedInput
+  product?: Prisma.ProductUpdateOneWithoutOffersNestedInput
+}
+
+export type OfferUncheckedUpdateWithoutVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
+  value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isAutoApply?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxUsageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  perUserUsageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxDiscountAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minCartAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expirationDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usages?: Prisma.OfferUsageUncheckedUpdateManyWithoutOfferNestedInput
+}
+
+export type OfferUncheckedUpdateManyWithoutVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scope?: Prisma.EnumOfferScopeFieldUpdateOperationsInput | $Enums.OfferScope
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCouponTypeFieldUpdateOperationsInput | $Enums.CouponType
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1269,6 +1508,7 @@ export type OfferSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   scope?: boolean
   productId?: boolean
   categoryId?: boolean
+  variantId?: boolean
   type?: boolean
   value?: boolean
   isActive?: boolean
@@ -1284,6 +1524,7 @@ export type OfferSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   usages?: boolean | Prisma.Offer$usagesArgs<ExtArgs>
   category?: boolean | Prisma.Offer$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Offer$productArgs<ExtArgs>
+  variant?: boolean | Prisma.Offer$variantArgs<ExtArgs>
   _count?: boolean | Prisma.OfferCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["offer"]>
 
@@ -1294,6 +1535,7 @@ export type OfferSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   scope?: boolean
   productId?: boolean
   categoryId?: boolean
+  variantId?: boolean
   type?: boolean
   value?: boolean
   isActive?: boolean
@@ -1308,6 +1550,7 @@ export type OfferSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   category?: boolean | Prisma.Offer$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Offer$productArgs<ExtArgs>
+  variant?: boolean | Prisma.Offer$variantArgs<ExtArgs>
 }, ExtArgs["result"]["offer"]>
 
 export type OfferSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1317,6 +1560,7 @@ export type OfferSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   scope?: boolean
   productId?: boolean
   categoryId?: boolean
+  variantId?: boolean
   type?: boolean
   value?: boolean
   isActive?: boolean
@@ -1331,6 +1575,7 @@ export type OfferSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   category?: boolean | Prisma.Offer$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Offer$productArgs<ExtArgs>
+  variant?: boolean | Prisma.Offer$variantArgs<ExtArgs>
 }, ExtArgs["result"]["offer"]>
 
 export type OfferSelectScalar = {
@@ -1340,6 +1585,7 @@ export type OfferSelectScalar = {
   scope?: boolean
   productId?: boolean
   categoryId?: boolean
+  variantId?: boolean
   type?: boolean
   value?: boolean
   isActive?: boolean
@@ -1354,20 +1600,23 @@ export type OfferSelectScalar = {
   createdAt?: boolean
 }
 
-export type OfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "scope" | "productId" | "categoryId" | "type" | "value" | "isActive" | "isAutoApply" | "code" | "maxUsageCount" | "perUserUsageCount" | "maxDiscountAmount" | "minCartAmount" | "startDate" | "expirationDate" | "createdAt", ExtArgs["result"]["offer"]>
+export type OfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "scope" | "productId" | "categoryId" | "variantId" | "type" | "value" | "isActive" | "isAutoApply" | "code" | "maxUsageCount" | "perUserUsageCount" | "maxDiscountAmount" | "minCartAmount" | "startDate" | "expirationDate" | "createdAt", ExtArgs["result"]["offer"]>
 export type OfferInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   usages?: boolean | Prisma.Offer$usagesArgs<ExtArgs>
   category?: boolean | Prisma.Offer$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Offer$productArgs<ExtArgs>
+  variant?: boolean | Prisma.Offer$variantArgs<ExtArgs>
   _count?: boolean | Prisma.OfferCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OfferIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Offer$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Offer$productArgs<ExtArgs>
+  variant?: boolean | Prisma.Offer$variantArgs<ExtArgs>
 }
 export type OfferIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Offer$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Offer$productArgs<ExtArgs>
+  variant?: boolean | Prisma.Offer$variantArgs<ExtArgs>
 }
 
 export type $OfferPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1376,6 +1625,7 @@ export type $OfferPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     usages: Prisma.$OfferUsagePayload<ExtArgs>[]
     category: Prisma.$CategoryPayload<ExtArgs> | null
     product: Prisma.$ProductPayload<ExtArgs> | null
+    variant: Prisma.$ProductVariantPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1384,6 +1634,7 @@ export type $OfferPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     scope: $Enums.OfferScope
     productId: string | null
     categoryId: string | null
+    variantId: string | null
     type: $Enums.CouponType
     value: runtime.Decimal
     isActive: boolean
@@ -1793,6 +2044,7 @@ export interface Prisma__OfferClient<T, Null = never, ExtArgs extends runtime.Ty
   usages<T extends Prisma.Offer$usagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Offer$usagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OfferUsagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   category<T extends Prisma.Offer$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Offer$categoryArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   product<T extends Prisma.Offer$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Offer$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  variant<T extends Prisma.Offer$variantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Offer$variantArgs<ExtArgs>>): Prisma.Prisma__ProductVariantClient<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1828,6 +2080,7 @@ export interface OfferFieldRefs {
   readonly scope: Prisma.FieldRef<"Offer", 'OfferScope'>
   readonly productId: Prisma.FieldRef<"Offer", 'String'>
   readonly categoryId: Prisma.FieldRef<"Offer", 'String'>
+  readonly variantId: Prisma.FieldRef<"Offer", 'String'>
   readonly type: Prisma.FieldRef<"Offer", 'CouponType'>
   readonly value: Prisma.FieldRef<"Offer", 'Decimal'>
   readonly isActive: Prisma.FieldRef<"Offer", 'Boolean'>
@@ -2295,6 +2548,25 @@ export type Offer$productArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.ProductInclude<ExtArgs> | null
   where?: Prisma.ProductWhereInput
+}
+
+/**
+ * Offer.variant
+ */
+export type Offer$variantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductVariant
+   */
+  select?: Prisma.ProductVariantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductVariant
+   */
+  omit?: Prisma.ProductVariantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductVariantInclude<ExtArgs> | null
+  where?: Prisma.ProductVariantWhereInput
 }
 
 /**

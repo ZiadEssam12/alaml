@@ -11,7 +11,8 @@
 
 export const OfferScope = {
   product: 'product',
-  category: 'category'
+  category: 'category',
+  variant: 'variant'
 } as const
 
 export type OfferScope = (typeof OfferScope)[keyof typeof OfferScope]
