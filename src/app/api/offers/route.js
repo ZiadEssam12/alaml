@@ -8,8 +8,9 @@ import { NextResponse } from "next/server";
  * GET /api/offers
  *
  * Purpose:
- * Fetch all categories that have active offers along with their associated offers.
- * Used on the main offers page to display available discount categories.
+ * Fetch all categories that have active offers along with their associated offers,
+ * PLUS the 10 most recent products that have active offers.
+ * Used on the main offers page to display available discount categories and featured products.
  *
  * Query Parameters:
  * - page?: number (default: 1) - Pagination page number
@@ -42,6 +43,21 @@ import { NextResponse } from "next/server";
  *         }
  *       }
  *     ],
+ *     productsWithOffers: [
+ *       {
+ *         id: string,
+ *         name: string,
+ *         description: string | null,
+ *         price: decimal,
+ *         image: string | null,
+ *         rating: decimal | null,
+ *         _count: {
+ *           reviews: number
+ *         },
+ *         offers: [...],
+ *         variants: [...]
+ *       }
+ *     ],
  *     pagination: {
  *       page: number,
  *       limit: number
@@ -60,6 +76,7 @@ import { NextResponse } from "next/server";
  *   - isActive: true
  *   - scope: "category"
  *   - Within the date window (startDate <= now <= expirationDate)
+ * - Products are the 10 most recent products with active offers (product or variant scope)
  *
  * Example Usage:
  * GET /api/offers?page=1&limit=10
@@ -122,6 +139,107 @@ export async function GET(request) {
       },
     });
 
+    // Get 10 most recent products with active offers
+    const productsWithOffers = await prisma.product.findMany({
+      where: {
+        OR: [
+          // Products with direct offers
+          {
+            offers: {
+              some: {
+                isActive: true,
+                startDate: { lte: now },
+                expirationDate: { gte: now },
+                scope: "product",
+              },
+            },
+          },
+          // Products with variant offers
+          {
+            variants: {
+              some: {
+                offers: {
+                  some: {
+                    isActive: true,
+                    startDate: { lte: now },
+                    expirationDate: { gte: now },
+                    scope: "variant",
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        image: true,
+        rating: true,
+        createdAt: true,
+        _count: {
+          select: {
+            reviews: true,
+          },
+        },
+        offers: {
+          where: {
+            isActive: true,
+            startDate: { lte: now },
+            expirationDate: { gte: now },
+            scope: "product",
+          },
+          select: {
+            id: true,
+            title: true,
+            value: true,
+            type: true,
+            description: true,
+            isAutoApply: true,
+            expirationDate: true,
+          },
+        },
+        variants: {
+          select: {
+            id: true,
+            offers: {
+              where: {
+                isActive: true,
+                startDate: { lte: now },
+                expirationDate: { gte: now },
+                scope: "variant",
+              },
+              select: {
+                id: true,
+                title: true,
+                value: true,
+                type: true,
+                description: true,
+                isAutoApply: true,
+                expirationDate: true,
+              },
+            },
+          },
+          where: {
+            offers: {
+              some: {
+                isActive: true,
+                startDate: { lte: now },
+                expirationDate: { gte: now },
+                scope: "variant",
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 10,
+    });
+
     const totalCategories = categoriesWithOffers.length;
     const totalPages = limit > 0 ? Math.ceil(totalCategories / limit) : 1;
 
@@ -129,6 +247,7 @@ export async function GET(request) {
       {
         data: {
           categoriesWithOffers,
+          productsWithOffers,
           pagination: { page, limit, maxPage: totalPages },
         },
       },

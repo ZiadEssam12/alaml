@@ -12,6 +12,7 @@ export default async function OffersPage({ searchParams }) {
 
   let initialData = {
     categoriesWithOffers: [],
+    productsWithOffers: [],
     pagination: { page: 1, limit: 10, maxPage: 1 },
   };
   let error = null;

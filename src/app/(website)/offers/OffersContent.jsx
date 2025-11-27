@@ -1,8 +1,20 @@
 import Link from "next/link";
 import { PaginationClient } from "@/components/Pagination";
-import { Sparkles, TrendingUp, Clock } from "lucide-react";
+import { Sparkles, TrendingUp, Clock, ChevronRight, Star } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
-export default function OffersContent({ initialData, currentPage, error }) {
+export default function OffersContent({
+  initialData,
+  currentPage,
+  error,
+  productsWithOffers = [],
+}) {
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("ar-EG", {
       day: "numeric",
@@ -14,14 +26,157 @@ export default function OffersContent({ initialData, currentPage, error }) {
     if (offer.type === "percentage") {
       return `${offer.value}%`;
     } else if (offer.type === "fixed") {
-      return `${offer.value} ر.س`;
+      return `${offer.value} ج.م  `;
     } else if (offer.type === "free_shipping") {
       return "شحن مجاني";
     }
     return offer.title;
   };
 
-  const { categoriesWithOffers = [], pagination = {} } = initialData || {};
+  // Fake data for UI preview
+  const fakeData = {
+    categoriesWithOffers: [
+      {
+        id: "1",
+        name: "الملابس والأحذية",
+        icon: "👕",
+        color: "#3B82F6",
+        _count: { offers: 5 },
+        offers: [
+          {
+            id: "offer-1",
+            title: "خصم على الملابس",
+            description: "خصم 30% على جميع الملابس الصيفية",
+            type: "percentage",
+            value: 30,
+            expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+          {
+            id: "offer-2",
+            title: "شحن مجاني",
+            description: "شحن مجاني على الأحذية",
+            type: "free_shipping",
+            value: 0,
+            expirationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+          {
+            id: "offer-3",
+            title: "خصم ثابت",
+            description: "خصم 50 ريال على الملابس الرسمية",
+            type: "fixed",
+            value: 50,
+            expirationDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+            isAutoApply: false,
+          },
+        ],
+      },
+      {
+        id: "2",
+        name: "الإلكترونيات",
+        icon: "📱",
+        color: "#10B981",
+        _count: { offers: 3 },
+        offers: [
+          {
+            id: "offer-4",
+            title: "خصم الإلكترونيات",
+            description: "خصم 25% على جميع الأجهزة الإلكترونية",
+            type: "percentage",
+            value: 25,
+            expirationDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+          {
+            id: "offer-5",
+            title: "عرض الهواتف الذكية",
+            description: "خصم 200 ريال على الهواتف",
+            type: "fixed",
+            value: 200,
+            expirationDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+          {
+            id: "offer-6",
+            title: "شحن مجاني للأجهزة",
+            description: "شحن مجاني على أجهزة الكمبيوتر",
+            type: "free_shipping",
+            value: 0,
+            expirationDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+            isAutoApply: false,
+          },
+        ],
+      },
+      {
+        id: "3",
+        name: "المنزل والديكور",
+        icon: "🛋️",
+        color: "#F59E0B",
+        _count: { offers: 4 },
+        offers: [
+          {
+            id: "offer-7",
+            title: "خصم الأثاث",
+            description: "خصم 40% على الأثاث المختار",
+            type: "percentage",
+            value: 40,
+            expirationDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+          {
+            id: "offer-8",
+            title: "عرض الديكور",
+            description: "خصم 100 ريال على ديكورات المنزل",
+            type: "fixed",
+            value: 100,
+            expirationDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+          {
+            id: "offer-9",
+            title: "شحن مجاني المنزل",
+            description: "شحن مجاني على طلبات المنزل فوق 500 ريال",
+            type: "free_shipping",
+            value: 0,
+            expirationDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+            isAutoApply: false,
+          },
+          {
+            id: "offer-10",
+            title: "خصم إضافي",
+            description: "خصم 15% على مقتنيات المنزل",
+            type: "percentage",
+            value: 15,
+            expirationDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
+            isAutoApply: true,
+          },
+        ],
+      },
+    ],
+    pagination: {
+      currentPage: 1,
+      maxPage: 2,
+      itemsPerPage: 3,
+      total: 6,
+    },
+  };
+
+  let {
+    categoriesWithOffers = [],
+    productsWithOffers: initialProducts = [],
+    pagination = {},
+  } = initialData || {};
+
+  // Use fake data if no real data available
+  if (categoriesWithOffers.length === 0 && !error) {
+    categoriesWithOffers = fakeData.categoriesWithOffers;
+    pagination = fakeData.pagination;
+  }
+
+  // Use fallback prop if no products in initialData
+  const productsToDisplay =
+    initialProducts.length > 0 ? initialProducts : productsWithOffers;
 
   // Show error state if there's an error and no data
   if (error && categoriesWithOffers.length === 0) {
@@ -39,133 +194,257 @@ export default function OffersContent({ initialData, currentPage, error }) {
   }
 
   return (
-    <div className="min-h-screen relative w-screen my-0! -mt-10!  right-1/2 translate-x-1/2 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-white">
       {/* Header Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8" />
-            <span className="text-blue-200 font-semibold">العروض الحصرية</span>
-          </div>
-          <h1 className="text-5xl font-bold mb-4">احصل على أفضل الخصومات</h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            اكتشف عروضنا المميزة والخصومات الحصرية على جميع الفئات
-          </p>
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold mb-2">تسوق العروض حسب الفئات</h1>
+          <p className="text-slate-300">احصل على أفضل العروض والخصومات</p>
         </div>
       </div>
 
-      {/* Categories Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* Categories Carousel */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {categoriesWithOffers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categoriesWithOffers.map((category) => (
-              <Link key={category.id} href={`/offers/${category.id}`}>
-                <div className="group h-full bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer hover:scale-105 transform">
-                  {/* Category Header */}
-                  <div
-                    className="p-8 text-white text-center relative overflow-hidden"
-                    style={{ backgroundColor: category.color || "#3B82F6" }}
-                  >
-                    <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent"></div>
-                    </div>
-
-                    <div className="relative">
-                      <div className="text-6xl mb-3 transform group-hover:scale-110 transition-transform duration-300">
-                        {category.icon}
-                      </div>
-                      <h2 className="text-2xl font-bold">{category.name}</h2>
-                      <p className="text-sm text-white/80 mt-1">
-                        {category._count.offers} عرض نشط
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Offers List */}
-                  <div className="p-6">
-                    {category.offers && category.offers.length > 0 ? (
-                      <div className="space-y-4">
-                        {category.offers.slice(0, 3).map((offer) => (
+          <>
+            {/* Category Cards Carousel */}
+            <div className="mb-12">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                التسوق حسب الفئة
+              </h3>
+              <Carousel>
+                <CarouselContent className="items-stretch">
+                  {categoriesWithOffers.map((category) => (
+                    <CarouselItem
+                      key={category.id}
+                      className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5"
+                    >
+                      <Link href={`/offers/${category.id}`}>
+                        <div className="flex flex-col items-center gap-3 cursor-pointer group h-full">
                           <div
-                            key={offer.id}
-                            className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200 hover:border-blue-300 transition-colors"
+                            className="w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg group-hover:shadow-xl "
+                            style={{
+                              backgroundColor: category.color || "#3B82F6",
+                            }}
                           >
-                            {/* Discount Badge */}
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex-1">
-                                <h3 className="font-semibold text-gray-800 text-sm mb-1">
-                                  {offer.title}
-                                </h3>
-                                {offer.description && (
-                                  <p className="text-xs text-gray-600 line-clamp-1">
-                                    {offer.description}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="bg-red-500 text-white rounded-lg px-3 py-2 font-bold text-sm whitespace-nowrap mr-2 shadow-md">
-                                {getDiscountBadge(offer)}
-                              </div>
-                            </div>
-
-                            {/* Meta Info */}
-                            <div className="flex items-center gap-3 text-xs text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                <span>
-                                  حتى {formatDate(offer.expirationDate)}
-                                </span>
-                              </div>
-                              {offer.isAutoApply && (
-                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
-                                  تطبيق تلقائي
-                                </span>
-                              )}
-                            </div>
+                            {category.icon}
                           </div>
-                        ))}
-
-                        {category.offers.length > 3 && (
-                          <div className="text-center pt-2">
-                            <span className="text-xs text-blue-600 font-semibold">
-                              +{category.offers.length - 3} عروض أخرى
-                            </span>
+                          <div className="text-center">
+                            <p className="text-xs font-semibold text-gray-800 line-clamp-2 max-w-[90px]">
+                              {category.name}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {category._count.offers} عرض
+                            </p>
                           </div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-center text-sm">
-                        لا توجد عروض متاحة
+                        </div>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselNext />
+                <CarouselPrevious />
+              </Carousel>
+            </div>
+
+            {/* "View All Offers" Banner */}
+            <div className="mb-12">
+              <Link href="/offers/all">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-8 shadow-lg hover:shadow-xl  cursor-pointer">
+                  <div className="flex items-center justify-between">
+                    <div className="text-white">
+                      <h2 className="text-2xl font-bold mb-2">
+                        جميع العروض والخصومات
+                      </h2>
+                      <p className="text-blue-100">
+                        اكتشف أكثر من{" "}
+                        {categoriesWithOffers.reduce(
+                          (sum, cat) => sum + (cat._count.offers || 0),
+                          0
+                        )}{" "}
+                        عرض حصري
                       </p>
-                    )}
-
-                    {/* View All Button */}
-                    <Link href={`/offers/${category.id}`}>
-                      <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 group/btn">
-                        <span>عرض جميع العروض</span>
-                        <TrendingUp className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                      </button>
-                    </Link>
+                    </div>
+                    <ChevronRight className="w-8 h-8 text-white" />
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
+            </div>
+
+            {/* Featured Offers Section - Recent Products with Offers */}
+            {productsToDisplay.length > 0 && (
+              <div>
+                <h2 className="text-lg font-bold text-gray-800 mb-6">
+                  أحدث المنتجات بعروض خاصة
+                </h2>
+                <Carousel autoPlay autoPlayDelay={"10000"}>
+                  <CarouselContent className="items-stretch">
+                    {productsToDisplay.map((product) => (
+                      <CarouselItem
+                        key={product.id}
+                        className="md:basis-1/2 lg:basis-1/4"
+                      >
+                        <Link href={`/products/${product.id}`}>
+                          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group h-full flex flex-col">
+                            {/* Product Image */}
+                            <div className="h-40 bg-gray-100 overflow-hidden flex items-center justify-center relative">
+                              {product.image ? (
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="text-gray-400 text-4xl">📦</div>
+                              )}
+                              {/* Discount Badge */}
+                              {(product.offers?.length > 0 ||
+                                product.variants?.some(
+                                  (v) => v.offers?.length > 0
+                                )) && (
+                                <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg font-bold text-sm">
+                                  {product.offers && product.offers.length > 0
+                                    ? product.offers[0].type === "percentage"
+                                      ? `${product.offers[0].value}%`
+                                      : product.offers[0].type === "fixed"
+                                      ? `${product.offers[0].value} ج.م`
+                                      : "عرض خاص"
+                                    : product.variants?.[0]?.offers?.[0]
+                                    ? product.variants[0].offers[0].type ===
+                                      "percentage"
+                                      ? `${product.variants[0].offers[0].value}%`
+                                      : "عرض خاص"
+                                    : "عرض خاص"}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-4 flex-1 flex flex-col">
+                              <h3 className="font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2 text-sm">
+                                {product.name}
+                              </h3>
+
+                              {/* Rating and Reviews */}
+                              <div className="flex items-center gap-1 mb-3">
+                                {product.rating ? (
+                                  <>
+                                    <div className="flex items-center">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`w-3 h-3 ${
+                                            i < Math.round(product.rating)
+                                              ? "fill-yellow-400 text-yellow-400"
+                                              : "text-gray-300"
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <span className="text-xs text-gray-600">
+                                      ({product._count?.reviews || 0})
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-gray-500">
+                                    لا توجد تقييمات
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Price */}
+                              <p className="text-lg font-bold text-gray-800 mb-3">
+                                {product.price} ر.س
+                              </p>
+
+                              {/* Top Offers */}
+                              {(product.offers?.length > 0 ||
+                                product.variants?.some(
+                                  (v) => v.offers?.length > 0
+                                )) && (
+                                <div className="bg-blue-50 p-2 rounded-lg mb-3">
+                                  <p className="text-xs font-semibold text-blue-700 mb-1">
+                                    عروض متاحة:
+                                  </p>
+                                  <div className="space-y-1">
+                                    {product.offers
+                                      ?.slice(0, 1)
+                                      .map((offer) => (
+                                        <p
+                                          key={offer.id}
+                                          className="text-xs text-gray-700"
+                                        >
+                                          • {offer.title}
+                                        </p>
+                                      ))}
+                                    {product.variants?.[0]?.offers
+                                      ?.slice(0, 1)
+                                      .map((offer) => (
+                                        <p
+                                          key={offer.id}
+                                          className="text-xs text-gray-700"
+                                        >
+                                          • {offer.title}
+                                        </p>
+                                      ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Add to Cart Button */}
+                              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors text-sm">
+                                إضافة للسلة
+                              </button>
+                            </div>
+                          </div>
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselNext />
+                  <CarouselPrevious />
+                </Carousel>
+              </div>
+            )}
+
+            {/* Stats Section */}
+            <div className="mt-16 bg-gray-50 rounded-xl p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div>
+                  <div className="text-4xl font-bold text-blue-600 mb-2">
+                    {categoriesWithOffers.length}
+                  </div>
+                  <p className="text-gray-600">فئات بعروض نشطة</p>
+                </div>
+                <div>
+                  <div className="text-4xl font-bold text-green-600 mb-2">
+                    {categoriesWithOffers.reduce(
+                      (sum, cat) => sum + (cat._count.offers || 0),
+                      0
+                    )}
+                  </div>
+                  <p className="text-gray-600">إجمالي العروض النشطة</p>
+                </div>
+                <div>
+                  <div className="text-4xl font-bold text-purple-600 mb-2">
+                    100%
+                  </div>
+                  <p className="text-gray-600">تطبيق تلقائي للخصومات</p>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="text-center py-16">
             <Sparkles className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               لا توجد عروض متاحة حالياً
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 mb-8">
               يرجى العودة لاحقاً للاطلاع على العروض الجديدة
             </p>
 
-            <div className="flex items-center justify-center gap-4 mt-8">
+            <div className="flex items-center justify-center gap-4">
               <Link
                 href="/"
                 className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors"
@@ -183,49 +462,6 @@ export default function OffersContent({ initialData, currentPage, error }) {
           </div>
         )}
       </div>
-
-      {/* Pagination */}
-      {categoriesWithOffers.length > 0 && pagination?.maxPage > 1 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <PaginationClient
-            pagination={pagination}
-            currentPage={currentPage}
-            basePath="/offers"
-            maxPage={pagination.maxPage}
-          />
-        </div>
-      )}
-
-      {/* Stats Section */}
-      {categoriesWithOffers.length > 0 && (
-        <div className="bg-white border-t border-slate-200 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-4xl font-bold text-blue-600 mb-2">
-                  {categoriesWithOffers.length}
-                </div>
-                <p className="text-gray-600">فئات بعروض نشطة</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-green-600 mb-2">
-                  {categoriesWithOffers.reduce(
-                    (sum, cat) => sum + (cat._count.offers || 0),
-                    0
-                  )}
-                </div>
-                <p className="text-gray-600">إجمالي العروض النشطة</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-purple-600 mb-2">
-                  100%
-                </div>
-                <p className="text-gray-600">تطبيق تلقائي للخصومات</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
