@@ -122,11 +122,14 @@ export async function GET(request) {
       },
     });
 
+    const totalCategories = categoriesWithOffers.length;
+    const totalPages = limit > 0 ? Math.ceil(totalCategories / limit) : 1;
+
     return NextResponse.json(
       {
         data: {
           categoriesWithOffers,
-          pagination: { page, limit },
+          pagination: { page, limit, maxPage: totalPages },
         },
       },
       { status: 200 }
