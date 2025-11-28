@@ -56,7 +56,7 @@ export default async function RootLayout({ children }) {
           importance="high"
         />
       </head>
-      <body className={`no-scroll`}>
+      <body className={``}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
