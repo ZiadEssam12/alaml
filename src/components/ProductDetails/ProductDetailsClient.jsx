@@ -5,28 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import { ProductCartControlsWrapper } from "@/components/ProductCard/ProductCartControlsWrapper";
 import { Package, Truck, Shield, Star } from "lucide-react";
 import PriceDisplay from "@/components/Product/PriceDisplay";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export function ProductDetailsClient({ displayProduct, options, variants }) {
   const [selectedVariant, setSelectedVariant] = useState(null);
 
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   // Find variant based on selected option values
-  const handleVariantChange = useCallback(
-    (variant) => {
-      setSelectedVariant(variant);
+  const handleVariantChange = useCallback((variant) => {
+    setSelectedVariant(variant);
 
-      // Append variant ID to URL
-      if (variant?.id) {
-        const params = new URLSearchParams(searchParams);
-        params.set("variant", variant.id);
-        router.replace(`?${params.toString()}`);
-      }
-    },
-    [searchParams, router]
-  );
+    // Append variant ID to URL without triggering re-render
+    if (variant?.id) {
+      const url = new URL(window.location);
+      url.searchParams.set("variant", variant.id);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, []);
 
   const currentVariantId = searchParams.get("variant");
 

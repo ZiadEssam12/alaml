@@ -7,6 +7,7 @@ import PriceDisplay from "@/components/Product/PriceDisplay";
 import useVariantSelection from "@/hooks/useVariantSelection";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function ProductCartControls({
   product,
@@ -18,10 +19,27 @@ export default function ProductCartControls({
     useVariantSelection(options, variants);
 
   const hasVariants = options.length > 0 && variants.length > 0;
+  const searchParams = useSearchParams();
+  const variantIdFromUrl = searchParams.get("variant");
 
-  // Automatically select first available value for each option
+  // Automatically select variant from URL or first available option
   useEffect(() => {
-    if (hasVariants && !selectedVariant && options.length > 0) {
+    if (!hasVariants || options.length === 0) return;
+
+    // If variant ID is in URL, find it and select its options
+    if (variantIdFromUrl) {
+      const variantFromUrl = variants.find((v) => v.id === variantIdFromUrl);
+      if (variantFromUrl) {
+        // Select options from this variant
+        variantFromUrl.options?.forEach((variantOption) => {
+          setSelected(variantOption.optionId, variantOption.valueId);
+        });
+        return;
+      }
+    }
+
+    // Only auto-select first available if no variant ID in URL and no variant selected yet
+    if (!variantIdFromUrl && !selectedVariant) {
       // Build a map of available value IDs per option
       const availableValuesByOption = new Map();
 
@@ -49,7 +67,7 @@ export default function ProductCartControls({
         }
       });
     }
-  }, [hasVariants, options, variants, selectedVariant, setSelected]);
+  }, [variantIdFromUrl]);
 
   // Notify parent when variant changes
   useEffect(() => {
