@@ -1,18 +1,46 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ProductCartControlsWrapper } from "@/components/ProductCard/ProductCartControlsWrapper";
 import { Package, Truck, Shield, Star } from "lucide-react";
 import PriceDisplay from "@/components/Product/PriceDisplay";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export function ProductDetailsClient({ displayProduct, options, variants }) {
   const [selectedVariant, setSelectedVariant] = useState(null);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   // Find variant based on selected option values
-  const handleVariantChange = useCallback((variant) => {
-    setSelectedVariant(variant);
-  }, []);
+  const handleVariantChange = useCallback(
+    (variant) => {
+      setSelectedVariant(variant);
+
+      // Append variant ID to URL
+      if (variant?.id) {
+        const params = new URLSearchParams(searchParams);
+        params.set("variant", variant.id);
+        router.replace(`?${params.toString()}`);
+      }
+    },
+    [searchParams, router]
+  );
+
+  const currentVariantId = searchParams.get("variant");
+
+  // On initial load, set the selected variant if specified in URL
+  useEffect(() => {
+    if (currentVariantId && variants.length > 0) {
+      const initialVariant = variants.find(
+        (variant) => variant.id === currentVariantId
+      );
+      if (initialVariant) {
+        setSelectedVariant(initialVariant);
+      }
+    }
+  }, [currentVariantId, variants]);
 
   return (
     <div className="space-y-6 lg:col-span-3">
