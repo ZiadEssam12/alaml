@@ -5,6 +5,8 @@ import { loadingContext } from "@/Context/LoadinContext";
 import React, { useContext, useEffect } from "react";
 
 export default function Loading() {
+  return;
+
   const { loading, setLoading } = useContext(loadingContext);
 
   useEffect(() => {
