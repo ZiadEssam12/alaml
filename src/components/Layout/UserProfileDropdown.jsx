@@ -17,8 +17,6 @@ export default function UserProfileDropdown() {
   const handleLogout = () => signOut();
   const closeDropdown = () => setOpen(false);
 
-  console.log("data:", session);
-
   // Handle click outside
   React.useEffect(() => {
     const handleClickOutside = (event) => {
@@ -73,7 +71,13 @@ export default function UserProfileDropdown() {
   }, [open]);
 
   if (status === "loading") {
-    return <Skeleton className="w-5 h-5" />;
+    return (
+      <>
+        <div className="">
+          <Skeleton className="w-8 h-8" />
+        </div>
+      </>
+    );
   }
 
   return (

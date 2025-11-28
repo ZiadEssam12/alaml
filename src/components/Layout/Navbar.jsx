@@ -49,11 +49,7 @@ export default function Navbar() {
             <UserProfileDropdown />
             {/* Cart */}
             <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                <CartItemsCount />
-                <span className="sr-only">عربة التسوق</span>
-              </Button>
+              <CartItemsCount />
             </Link>
             {/* Mobile Menu Toggle */}
             <MobileMenuToggle />
