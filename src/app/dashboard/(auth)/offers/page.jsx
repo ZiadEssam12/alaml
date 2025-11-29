@@ -18,13 +18,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
-// Dynamic import for AddingOfferForm with skeleton loader
-const AddingOfferForm = dynamic(() => import("./AddingOfferForm"), {
-  loading: () => <OfferFormSkeleton />,
-  ssr: false,
-});
+// // Dynamic import for AddingOfferForm with skeleton loader
+// const AddingOfferForm = dynamic(() => import("./AddingOfferForm"), {
+//   loading: () => <OfferFormSkeleton />,
+//   ssr: false,
+// });
+const AddingOfferForm = () => {};
 
 // OfferFormSkeleton component for loading state
 function OfferFormSkeleton() {
