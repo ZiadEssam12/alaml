@@ -21,11 +21,10 @@ import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 
 // // Dynamic import for AddingOfferForm with skeleton loader
-// const AddingOfferForm = dynamic(() => import("./AddingOfferForm"), {
-//   loading: () => <OfferFormSkeleton />,
-//   ssr: false,
-// });
-const AddingOfferForm = () => {};
+const ManagingOffersForm = dynamic(() => import("./ManagingOffersForm"), {
+  loading: () => <OfferFormSkeleton />,
+  ssr: false,
+});
 
 // OfferFormSkeleton component for loading state
 function OfferFormSkeleton() {
@@ -133,8 +132,7 @@ function OffersManagementContent() {
     fetchDataWrapper();
   }, [q, page, pageSize]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
     try {
       // TODO: Implement offer creation/update logic
       toast.success("تم حفظ العرض بنجاح");
@@ -250,16 +248,17 @@ function OffersManagementContent() {
           إضافة عرض جديد
         </Button>
 
-        <AddingOfferForm
-          dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
-          editingOffer={editingOffer}
-          formData={formData}
-          setFormData={setFormData}
+        <ManagingOffersForm
+          open={dialogOpen}
+          onCancel={() => {
+            setDialogOpen(false);
+            resetForm();
+          }}
+          offer={editingOffer}
           products={products}
           categories={categories}
-          handleSubmit={handleSubmit}
-          resetForm={resetForm}
+          variants={[]}
+          onSubmit={handleSubmit}
         />
       </div>
 
@@ -406,11 +405,13 @@ function OffersManagementContent() {
         </>
       )}
 
-      <PaginationClient
-        basePath="/dashboard/offers"
-        currentPage={pagination.currentPage}
-        maxPage={pagination.totalPages}
-      />
+      {offers.length > 0 && pagination.totalPages > 1 && (
+        <PaginationClient
+          basePath="/dashboard/offers"
+          currentPage={pagination.currentPage}
+          maxPage={pagination.totalPages}
+        />
+      )}
     </div>
   );
 }

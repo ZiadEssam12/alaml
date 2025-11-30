@@ -92,7 +92,14 @@ export default function ManagingOffersForm({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onCancel}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onCancel();
+        }
+      }}
+    >
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{offer ? "تعديل العرض" : "إنشاء عرض جديد"}</DialogTitle>
