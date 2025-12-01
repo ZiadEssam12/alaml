@@ -46,7 +46,7 @@ export default function ManagingOffersForm({
     : {
         title: "",
         description: "",
-        scope: "product",
+        scope: "category",
         productId: "",
         categoryId: "",
         variantId: "",
@@ -171,7 +171,7 @@ export default function ManagingOffersForm({
           </div>
 
           {/* Product ID - Conditional */}
-          {values.scope === "product" && (
+          {(values.scope === "product" || values.scope === "variant") && (
             <div className="space-y-2">
               <Label htmlFor="productId">المنتج *</Label>
               <select
@@ -278,24 +278,26 @@ export default function ManagingOffersForm({
               <p className="text-sm text-red-500">{errors.type}</p>
             )}
           </div>
-
           {/* Value */}
-          <div className="space-y-2">
-            <Label htmlFor="value">القيمة *</Label>
-            <Input
-              id="value"
-              name="value"
-              type="number"
-              value={values.value}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="أدخل قيمة العرض"
-              className={getErrorMessage("value") ? "border-red-500" : ""}
-            />
-            {getErrorMessage("value") && (
-              <p className="text-sm text-red-500">{errors.value}</p>
-            )}
-          </div>
+
+          {values.type !== "free_shipping" && (
+            <div className="space-y-2">
+              <Label htmlFor="value">القيمة *</Label>
+              <Input
+                id="value"
+                name="value"
+                type="number"
+                value={values.value}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="أدخل قيمة العرض"
+                className={getErrorMessage("value") ? "border-red-500" : ""}
+              />
+              {getErrorMessage("value") && (
+                <p className="text-sm text-red-500">{errors.value}</p>
+              )}
+            </div>
+          )}
 
           {/* Code */}
           <div className="space-y-2">

@@ -21,7 +21,7 @@ import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 
 // // Dynamic import for AddingOfferForm with skeleton loader
-const ManagingOffersForm = dynamic(() => import("./ManagingOffersForm"), {
+const ManagingOffersForm = dynamic(() => import("./managingOffersForm"), {
   loading: () => <OfferFormSkeleton />,
   ssr: false,
 });
@@ -87,7 +87,7 @@ function OffersManagementContent() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    scope: "product", // product, category, variant
+    scope: "category", // product, category, variant
     productId: "",
     categoryId: "",
     variantId: "",
