@@ -40,3 +40,4 @@ export default function DynamicIcons({ icon, color, size = 24 }) {
     </div>
   );
 }
+  
