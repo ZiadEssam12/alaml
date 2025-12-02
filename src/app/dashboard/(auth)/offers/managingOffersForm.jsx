@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import SearchDropdown from "../../../../components/searchbar/SearchDropdown";
 
 export default function ManagingOffersForm({
   offer = null,
@@ -89,6 +90,15 @@ export default function ManagingOffersForm({
 
   const getErrorMessage = (field) => {
     return touched[field] && errors[field] ? errors[field] : "";
+  };
+
+  const handleCaterotyQueryChange = (query) => {
+    // Calling api to fetch categories based on query
+    const result = () => {};
+  };
+
+  const handleSelectCategory = (category) => {
+    setFieldValue("categoryId", category.id);
   };
 
   return (
@@ -200,28 +210,20 @@ export default function ManagingOffersForm({
           )}
 
           {/* Category ID - Conditional */}
+          {/* Category ID - Conditional */}
           {values.scope === "category" && (
             <div className="space-y-2">
-              <Label htmlFor="categoryId">الفئة *</Label>
-              <select
-                id="categoryId"
-                name="categoryId"
-                value={values.categoryId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none ${
-                  getErrorMessage("categoryId")
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-              >
-                <option value="">اختر فئة</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <SearchDropdown
+                onInputChange={handleCaterotyQueryChange}
+                onResultSelect={handleSelectCategory}
+                isCollapsed={false}
+                placeholder="ابحث عن فئة"
+                selectedResult={
+                  values.categoryId
+                    ? categories.find((cat) => cat.id === values.categoryId)
+                    : null
+                }
+              />
               {getErrorMessage("categoryId") && (
                 <p className="text-sm text-red-500">{errors.categoryId}</p>
               )}
