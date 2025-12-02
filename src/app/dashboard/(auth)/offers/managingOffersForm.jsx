@@ -92,13 +92,42 @@ export default function ManagingOffersForm({
     return touched[field] && errors[field] ? errors[field] : "";
   };
 
-  const handleCaterotyQueryChange = (query) => {
-    // Calling api to fetch categories based on query
-    const result = () => {};
+  const handleCaterotyQueryChange = async (query) => {
+    // TODO: Call API to fetch categories based on query
+    const filteredCategories = categories.filter((cat) =>
+      cat.name.toLowerCase().includes(query.toLowerCase())
+    );
+    return filteredCategories;
+  };
+
+  const handleProductQueryChange = async (query) => {
+    const selectedCategoryId = values.categoryId;
+    // TODO: Call API to fetch products based on query
+    const filteredProducts = products.filter((prod) =>
+      prod.name.toLowerCase().includes(query.toLowerCase())
+    );
+    return filteredProducts;
+  };
+
+  const handleVariantQueryChange = async (query) => {
+    const selectedProductId = values.productId;
+    // TODO: Call API to fetch variants based on query
+    const filteredVariants = variants.filter((var_) =>
+      var_.name.toLowerCase().includes(query.toLowerCase())
+    );
+    return filteredVariants;
   };
 
   const handleSelectCategory = (category) => {
     setFieldValue("categoryId", category.id);
+  };
+
+  const handleSelectProduct = (product) => {
+    setFieldValue("productId", product.id);
+  };
+
+  const handleSelectVariant = (variant) => {
+    setFieldValue("variantId", variant.id);
   };
 
   return (
@@ -183,26 +212,17 @@ export default function ManagingOffersForm({
           {/* Product ID - Conditional */}
           {(values.scope === "product" || values.scope === "variant") && (
             <div className="space-y-2">
-              <Label htmlFor="productId">المنتج *</Label>
-              <select
-                id="productId"
-                name="productId"
-                value={values.productId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none ${
-                  getErrorMessage("productId")
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-              >
-                <option value="">اختر منتجًا</option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name}
-                  </option>
-                ))}
-              </select>
+              <SearchDropdown
+                onInputChange={handleProductQueryChange}
+                onResultSelect={handleSelectProduct}
+                isCollapsed={false}
+                placeholder="ابحث عن منتج"
+                selectedResult={
+                  values.productId
+                    ? products.find((prod) => prod.id === values.productId)
+                    : null
+                }
+              />
               {getErrorMessage("productId") && (
                 <p className="text-sm text-red-500">{errors.productId}</p>
               )}
@@ -233,26 +253,17 @@ export default function ManagingOffersForm({
           {/* Variant ID - Conditional */}
           {values.scope === "variant" && (
             <div className="space-y-2">
-              <Label htmlFor="variantId">المتغير *</Label>
-              <select
-                id="variantId"
-                name="variantId"
-                value={values.variantId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none ${
-                  getErrorMessage("variantId")
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-              >
-                <option value="">اختر متغيرًا</option>
-                {variants.map((variant) => (
-                  <option key={variant.id} value={variant.id}>
-                    {variant.name}
-                  </option>
-                ))}
-              </select>
+              <SearchDropdown
+                onInputChange={handleVariantQueryChange}
+                onResultSelect={handleSelectVariant}
+                isCollapsed={false}
+                placeholder="ابحث عن متغير"
+                selectedResult={
+                  values.variantId
+                    ? variants.find((var_) => var_.id === values.variantId)
+                    : null
+                }
+              />
               {getErrorMessage("variantId") && (
                 <p className="text-sm text-red-500">{errors.variantId}</p>
               )}
