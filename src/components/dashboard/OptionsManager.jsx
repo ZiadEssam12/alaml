@@ -34,6 +34,7 @@ import {
 import { Plus, Edit, Trash2, GripVertical } from "lucide-react";
 import toast from "react-hot-toast";
 import { imageService } from "@/lib/image-service";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 // OptionValueDialog: Add/Edit value dialog as a separate component
 function OptionValueDialog({
