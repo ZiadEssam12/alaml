@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
+import SearchBox from "@/components/dashbaord/SearchBox";
 
 // // Dynamic import for AddingOfferForm with skeleton loader
 const ManagingOffersForm = dynamic(() => import("./managingOffersForm"), {
@@ -261,6 +262,7 @@ function OffersManagementContent() {
           onSubmit={handleSubmit}
         />
       </div>
+      <SearchBox placeholder="البحث في العروض..." />
 
       {loading ? (
         <>

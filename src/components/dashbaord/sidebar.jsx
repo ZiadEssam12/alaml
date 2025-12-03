@@ -7,6 +7,7 @@ import {
   Users,
   MessageSquare,
   ShoppingCart,
+  Percent,
 } from "lucide-react";
 
 import {
@@ -58,6 +59,11 @@ const items = [
     title: "الكوبونات",
     url: "/dashboard/coupons",
     icon: Package,
+  },
+  {
+    title: "العروض والخصومات",
+    url: "/dashboard/offers",
+    icon: Percent,
   },
   {
     title: "التقييمات",
