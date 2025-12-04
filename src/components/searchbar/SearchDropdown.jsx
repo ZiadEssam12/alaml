@@ -136,7 +136,7 @@ export default function SearchDropdown({
       {/* Search Input - Hidden when collapsed */}
       {!isCollapsed && (
         <div className="relative z-50">
-          <div className="relative">
+          <div className="relative z-50">
             {isLoading ? (
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
             ) : (
@@ -173,16 +173,7 @@ export default function SearchDropdown({
                     )}
                   >
                     <div className="font-medium text-sm flex justify-between items-center">
-                      <div className="flex flex-col gap-1 flex-1">
-                        <p className="font-semibold">{result.name}</p>
-                      </div>
-
-                      <div className="flex items-center gap-1 ml-4">
-                        <p className="text-primary font-semibold">
-                          {result.price}
-                        </p>
-                        <p className="text-xs">جنيه</p>
-                      </div>
+                      <p className="font-semibold">{result.name}</p>
                     </div>
                   </div>
                 ))}
