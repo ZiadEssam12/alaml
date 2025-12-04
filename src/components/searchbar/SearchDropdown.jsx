@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
-import Link from "next/link";
 
 export default function SearchDropdown({
   onInputChange,
@@ -14,6 +13,7 @@ export default function SearchDropdown({
   placeholder = "ابحث...",
   onResultSelect = null,
   selectedResult = null,
+  disabled = false,
 }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -21,8 +21,8 @@ export default function SearchDropdown({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
 
+  const containerRef = useRef(null);
   const inputRef = useRef(null);
-  const resultsRef = useRef(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
@@ -82,7 +82,6 @@ export default function SearchDropdown({
       return;
     }
 
-    // Call the callback if provided
     if (onResultSelect && typeof onResultSelect === "function") {
       onResultSelect(result);
     }
@@ -94,12 +93,9 @@ export default function SearchDropdown({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Close if clicking outside the dropdown or its children
       if (
-        resultsRef.current &&
-        !resultsRef.current.contains(event.target) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target)
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
       ) {
         setIsOpen(false);
         setSelectedIndex(-1);
@@ -113,7 +109,7 @@ export default function SearchDropdown({
   const safeQuery = query || "";
 
   return (
-    <div className="w-full" ref={resultsRef}>
+    <div className="w-full relative" ref={containerRef}>
       {/* Collapsible Header */}
       {onToggleCollapse && (
         <div className="flex items-center justify-between mb-2">
@@ -153,8 +149,9 @@ export default function SearchDropdown({
 
       {/* Search Input - Hidden when collapsed */}
       {!isCollapsed && (
-        <div className="relative z-50">
-          <div className="relative z-50">
+        <>
+          {/* Input Container */}
+          <div className="relative">
             {isLoading ? (
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
             ) : (
@@ -173,19 +170,23 @@ export default function SearchDropdown({
                 }
               }}
               className="pr-2 h-10 text-base rounded-lg border-2 focus:border-primary transition-colors"
+              disabled={disabled}
             />
           </div>
 
-          {/* Search Results Dropdown */}
+          {/* Search Results Dropdown - Rendered via Portal Pattern */}
           {isOpen && results.length > 0 && (
-            <div className="absolute w-full right-0 -mt-10 pt-10 bg-popover border border-border rounded-lg shadow-lg z-40">
+            <div
+              className="absolute w-full mt-1 bg-popover border border-border rounded-lg shadow-lg"
+              style={{ zIndex: 9999 }}
+            >
               <div className="max-h-80 overflow-y-auto">
                 {results.map((result, index) => (
                   <div
                     key={result.id || index}
                     onClick={() => handleResultClick(result)}
                     className={cn(
-                      "block w-full text-left px-4 py-5 hover:bg-accent hover:text-accent-foreground transition-colors border-b border-border last:border-b-0 cursor-pointer focus:outline-none",
+                      "block w-full text-left px-4 py-3 hover:bg-accent hover:text-accent-foreground transition-colors border-b border-border last:border-b-0 cursor-pointer focus:outline-none",
                       selectedIndex === index &&
                         "bg-accent text-accent-foreground"
                     )}
@@ -201,13 +202,16 @@ export default function SearchDropdown({
 
           {/* No Results */}
           {isOpen && safeQuery.trim() && results.length === 0 && !isLoading && (
-            <div className="absolute w-full right-0 -mt-10 pt-10 bg-popover border border-border rounded-lg shadow-lg z-40">
+            <div
+              className="absolute w-full mt-1 bg-popover border border-border rounded-lg shadow-lg"
+              style={{ zIndex: 9999 }}
+            >
               <div className="max-h-80 overflow-y-auto p-4 text-center text-muted-foreground">
                 لا يوجد نتائج لـ "{query}"
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

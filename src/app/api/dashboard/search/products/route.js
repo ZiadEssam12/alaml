@@ -22,7 +22,7 @@ export async function GET(request) {
         name: true,
         slug: true,
         price: true,
-        image: true,
+        imageUrls: true,
       },
       take: 10,
     });

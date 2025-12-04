@@ -129,7 +129,9 @@ export default function ManagingOffersForm({
     if (!query.trim()) return [];
     try {
       const response = await fetch(
-        `/api/dashboard/search/variants?q=${encodeURIComponent(query)}`
+        `/api/dashboard/search/variants?q=${encodeURIComponent(
+          query
+        )}&productId=${selectedProduct?.id || ""}`
       );
       const data = await response.json();
       return data.results || [];
@@ -147,7 +149,7 @@ export default function ManagingOffersForm({
 
   const handleSelectProduct = (product) => {
     console.log("Selected product:", product);
-    setSelectedProduct(product);
+    setSelectedProduct(product ?? null);
     setFieldValue("productId", product?.id || "");
   };
 
@@ -277,6 +279,7 @@ export default function ManagingOffersForm({
                 isCollapsed={false}
                 placeholder="ابحث عن متغير"
                 selectedResult={selectedVariant}
+                disabled={!selectedProduct}
               />
               {getErrorMessage("variantId") && (
                 <p className="text-sm text-red-500">{errors.variantId}</p>

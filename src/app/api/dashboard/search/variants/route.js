@@ -5,37 +5,79 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q") || "";
+    const productId = searchParams.get("productId") || "";
 
-    if (!query.trim()) {
+    // If no productId, return empty results (variants must be filtered by product)
+    if (!productId) {
       return NextResponse.json({ results: [] }, { status: 200 });
     }
 
-    const variants = await prisma.productVariant.findMany({
-      where: {
-        name: {
-          contains: query,
-          mode: "insensitive",
+    // Build the where clause - filter by productId first
+    const whereClause = {
+      productId: productId,
+    };
+
+    // Add search filters if query is provided
+    if (query.trim()) {
+      whereClause.OR = [
+        // Search by SKU
+        {
+          sku: {
+            contains: query,
+            mode: "insensitive",
+          },
         },
-      },
+        // Search by option values (e.g., "Red", "Large")
+        {
+          options: {
+            some: {
+              value: {
+                value: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+        },
+      ];
+    }
+
+    const variants = await prisma.productVariant.findMany({
+      where: whereClause,
       select: {
         id: true,
-        name: true,
+        sku: true,
         price: true,
         product: {
           select: {
             name: true,
           },
         },
+        options: {
+          select: {
+            value: {
+              select: {
+                value: true,
+              },
+            },
+          },
+        },
       },
       take: 10,
     });
 
-    // Format the response to include product name
-    const formattedVariants = variants.map((variant) => ({
-      id: variant.id,
-      name: `${variant.product.name} - ${variant.name}`,
-      price: variant.price,
-    }));
+    // Format the response to include product name and variant options
+    const formattedVariants = variants.map((variant) => {
+      const optionValues = variant.options
+        .map((opt) => opt.value.value)
+        .join(" / ");
+      return {
+        id: variant.id,
+        name: `${variant.product.name} - ${optionValues}`,
+        price: variant.price,
+      };
+    });
 
     return NextResponse.json({ results: formattedVariants }, { status: 200 });
   } catch (error) {
