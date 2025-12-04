@@ -93,29 +93,45 @@ export default function ManagingOffersForm({
   };
 
   const handleCaterotyQueryChange = async (query) => {
-    // TODO: Call API to fetch categories based on query
-    const filteredCategories = categories.filter((cat) =>
-      cat.name.toLowerCase().includes(query.toLowerCase())
-    );
-    return filteredCategories;
+    if (!query.trim()) return [];
+    try {
+      const response = await fetch(
+        `/api/dashboard/search/categories?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
+      return data.results || [];
+    } catch (error) {
+      console.error("Error searching categories:", error);
+      return [];
+    }
   };
 
   const handleProductQueryChange = async (query) => {
-    const selectedCategoryId = values.categoryId;
-    // TODO: Call API to fetch products based on query
-    const filteredProducts = products.filter((prod) =>
-      prod.name.toLowerCase().includes(query.toLowerCase())
-    );
-    return filteredProducts;
+    if (!query.trim()) return [];
+    try {
+      const response = await fetch(
+        `/api/dashboard/search/products?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
+      return data.results || [];
+    } catch (error) {
+      console.error("Error searching products:", error);
+      return [];
+    }
   };
 
   const handleVariantQueryChange = async (query) => {
-    const selectedProductId = values.productId;
-    // TODO: Call API to fetch variants based on query
-    const filteredVariants = variants.filter((var_) =>
-      var_.name.toLowerCase().includes(query.toLowerCase())
-    );
-    return filteredVariants;
+    if (!query.trim()) return [];
+    try {
+      const response = await fetch(
+        `/api/dashboard/search/variants?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
+      return data.results || [];
+    } catch (error) {
+      console.error("Error searching variants:", error);
+      return [];
+    }
   };
 
   const handleSelectCategory = (category) => {
