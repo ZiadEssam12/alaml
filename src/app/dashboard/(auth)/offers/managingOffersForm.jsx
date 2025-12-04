@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { OfferFormSchema } from "@/schema/dashboard/managingOffers";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,11 @@ export default function ManagingOffersForm({
   onCancel,
   open = false,
 }) {
+  // State to track selected items for display
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+
   const initialValues = offer
     ? {
         title: offer.title,
@@ -135,15 +140,21 @@ export default function ManagingOffersForm({
   };
 
   const handleSelectCategory = (category) => {
-    setFieldValue("categoryId", category.id);
+    console.log("Selected category:", category);
+    setSelectedCategory(category);
+    setFieldValue("categoryId", category?.id || "");
   };
 
   const handleSelectProduct = (product) => {
-    setFieldValue("productId", product.id);
+    console.log("Selected product:", product);
+    setSelectedProduct(product);
+    setFieldValue("productId", product?.id || "");
   };
 
   const handleSelectVariant = (variant) => {
-    setFieldValue("variantId", variant.id);
+    console.log("Selected variant:", variant);
+    setSelectedVariant(variant);
+    setFieldValue("variantId", variant?.id || "");
   };
 
   return (
@@ -233,11 +244,7 @@ export default function ManagingOffersForm({
                 onResultSelect={handleSelectProduct}
                 isCollapsed={false}
                 placeholder="ابحث عن منتج"
-                selectedResult={
-                  values.productId
-                    ? products.find((prod) => prod.id === values.productId)
-                    : null
-                }
+                selectedResult={selectedProduct}
               />
               {getErrorMessage("productId") && (
                 <p className="text-sm text-red-500">{errors.productId}</p>
@@ -246,7 +253,6 @@ export default function ManagingOffersForm({
           )}
 
           {/* Category ID - Conditional */}
-          {/* Category ID - Conditional */}
           {values.scope === "category" && (
             <div className="space-y-2">
               <SearchDropdown
@@ -254,11 +260,7 @@ export default function ManagingOffersForm({
                 onResultSelect={handleSelectCategory}
                 isCollapsed={false}
                 placeholder="ابحث عن فئة"
-                selectedResult={
-                  values.categoryId
-                    ? categories.find((cat) => cat.id === values.categoryId)
-                    : null
-                }
+                selectedResult={selectedCategory}
               />
               {getErrorMessage("categoryId") && (
                 <p className="text-sm text-red-500">{errors.categoryId}</p>
@@ -274,11 +276,7 @@ export default function ManagingOffersForm({
                 onResultSelect={handleSelectVariant}
                 isCollapsed={false}
                 placeholder="ابحث عن متغير"
-                selectedResult={
-                  values.variantId
-                    ? variants.find((var_) => var_.id === values.variantId)
-                    : null
-                }
+                selectedResult={selectedVariant}
               />
               {getErrorMessage("variantId") && (
                 <p className="text-sm text-red-500">{errors.variantId}</p>

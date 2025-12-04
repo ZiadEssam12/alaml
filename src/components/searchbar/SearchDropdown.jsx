@@ -133,6 +133,24 @@ export default function SearchDropdown({
         </div>
       )}
 
+      {/* Selected Result Display */}
+      {selectedResult && !isCollapsed && (
+        <div className="flex items-center justify-between mb-2 p-2 bg-accent/50 rounded-md border">
+          <span className="text-sm font-medium">{selectedResult.name}</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (onResultSelect) {
+                onResultSelect(null);
+              }
+            }}
+            className="text-muted-foreground hover:text-destructive text-xs"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Search Input - Hidden when collapsed */}
       {!isCollapsed && (
         <div className="relative z-50">
@@ -145,7 +163,7 @@ export default function SearchDropdown({
             <Input
               ref={inputRef}
               type="text"
-              placeholder={placeholder}
+              placeholder={selectedResult ? "تغيير الاختيار..." : placeholder}
               value={safeQuery}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
