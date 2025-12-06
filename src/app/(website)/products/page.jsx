@@ -115,7 +115,15 @@ export default async function Page({ searchParams }) {
           </aside>
           <div className="lg:w-3/4">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold mb-2">جميع المنتجات</h1>
+              {q.length > 0 ? (
+                <p className="text-muted-foreground mb-2">
+                  نتائج البحث عن: <span className="font-medium">{q}</span>
+                </p>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold mb-2">جميع المنتجات</h1>
+                </>
+              )}
               <p className="text-muted-foreground">
                 {products.length} منتج متاح
               </p>
