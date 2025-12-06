@@ -2,6 +2,7 @@
 // GET /api/offers -> Get all categories with active offers + all offers
 
 import prisma from "@/lib/prisma";
+import { validateOfferForm } from "@/schema/dashboard/managingOffers";
 import { NextResponse } from "next/server";
 
 /**
@@ -256,5 +257,149 @@ export async function GET(request) {
   } catch (error) {
     console.error("Error fetching offers:", error);
     return NextResponse.json({ error: "فشل في جلب العروض" }, { status: 500 });
+  }
+}
+
+// title
+// description
+// scope
+// productId
+// categoryId
+// variantId
+// type
+// value
+// code
+// isActive
+// isAutoApply
+// maxUsageCount
+// perUserUsageCount
+// maxDiscountAmount
+// minCartAmount
+// startDate
+// expirationDate
+export async function POST(request) {
+  try {
+    const data = await request.json();
+    const validatedData = validateOfferForm(data);
+
+    if (!validatedData.isValid) {
+      return NextResponse.json(
+        {
+          error: "بيانات غير صالحة لإنشاء العرض",
+          fieldsWithErrors: validatedData.errors || {},
+        },
+        { status: 400 }
+      );
+    }
+
+    // Existence checks
+
+    // Category existence check
+    if (validatedData.data.scope === "category") {
+      // check if the category exists
+      const existsCategory = await prisma.category.findUnique({
+        where: { id: validatedData.data.categoryId },
+      });
+
+      // else return error response
+      if (!existsCategory) {
+        return NextResponse.json(
+          { error: "الفئة المحددة غير موجودة" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Product existence check
+    if (validatedData.data.scope === "product") {
+      // check if the product exists
+      const existsProduct = await prisma.product.findUnique({
+        where: { id: validatedData.data.productId },
+      });
+      // else return error response
+      if (!existsProduct) {
+        return NextResponse.json(
+          { error: "المنتج المحدد غير موجود" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Variant existence check
+    if (validatedData.data.scope === "variant") {
+      // check if the variant exists
+      const existsVariant = await prisma.productVariant.findUnique({
+        where: { id: validatedData.data.variantId },
+      });
+      // else return error response
+      if (!existsVariant) {
+        return NextResponse.json(
+          { error: "المتغير المحدد غير موجود" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Overlapping date window check
+    // based on the scope and the associated entity (categoryId, productId, variantId)
+    const entityFilter = {
+      ...(validatedData.data.scope === "category" && {
+        categoryId: validatedData.data.categoryId,
+      }),
+      ...(validatedData.data.scope === "product" && {
+        productId: validatedData.data.productId,
+      }),
+      ...(validatedData.data.scope === "variant" && {
+        variantId: validatedData.data.variantId,
+      }),
+    };
+    const overlapOffer = await prisma.offer.findFirst({
+      where: {
+        scope: validatedData.data.scope,
+        isActive: true,
+        ...entityFilter,
+        NOT: [
+          { expirationDate: { lt: validatedData.data.startDate } },
+          { startDate: { gt: validatedData.data.expirationDate } },
+        ],
+      },
+    });
+
+    // If overlapping offer found, return error response
+    if (overlapOffer) {
+      return NextResponse.json(
+        {
+          error: "يوجد عرض آخر لنفس الكيان في نفس الفترة الزمنية.",
+          existingOfferId: overlapOffer.id,
+        },
+        { status: 409 }
+      );
+    }
+
+    const newOffer = await prisma.offer.create({
+      data: {
+        title: validatedData.data.title,
+        description: validatedData.data.description,
+        scope: validatedData.data.scope,
+        productId: validatedData.data.productId || null,
+        categoryId: validatedData.data.categoryId || null,
+        variantId: validatedData.data.variantId || null,
+        type: validatedData.data.type,
+        value: validatedData.data.value,
+        isActive: validatedData.data.isActive,
+        isAutoApply: validatedData.data.isAutoApply,
+        maxUsageCount: validatedData.data.maxUsageCount || null,
+        perUserUsageCount: validatedData.data.perUserUsageCount || null,
+        maxDiscountAmount: validatedData.data.maxDiscountAmount || null,
+        minCartAmount: validatedData.data.minCartAmount || null,
+        startDate: validatedData.data.startDate || new Date(),
+        expirationDate: validatedData.data.expirationDate,
+      },
+    });
+
+    return NextResponse.json({ data: newOffer }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating offer:", error);
+    return NextResponse.json({ error: "فشل في إنشاء العرض" }, { status: 500 });
   }
 }

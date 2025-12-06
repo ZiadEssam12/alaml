@@ -6,7 +6,7 @@ export function OfferFormSchema() {
     description: Yup.string().required("مطلوب"),
     scope: Yup.string().required("مطلوب"),
     productId: Yup.string().when("scope", {
-      is: (value) => value === "product",
+      is: (value) => value === "product" || value === "variant",
       then: () => Yup.string().required("مطلوب"),
       otherwise: () => Yup.string().notRequired(),
     }),
@@ -35,6 +35,19 @@ export function OfferFormSchema() {
 
 export function validateOfferForm(values) {
   const schema = OfferFormSchema();
-  const isValid = schema.isValidSync(values);
-  return { isValid, validationSchema: schema };
+  let errors = {};
+  let isValid = true;
+  try {
+    schema.validateSync(values, { abortEarly: false });
+  } catch (validationError) {
+    isValid = false;
+    if (validationError && validationError.inner) {
+      validationError.inner.forEach((err) => {
+        if (err.path) {
+          errors[err.path] = err.message;
+        }
+      });
+    }
+  }
+  return { isValid, errors };
 }
