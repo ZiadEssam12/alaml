@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Check, LogIn, Minus, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { cartContext } from "@/Context/Cart";
+import { useRouter } from "next/navigation";
 
 /**
  * Standalone Add to Cart Button Component
@@ -43,6 +44,7 @@ export default function AddToCartButton({
   const isInStock = product.stockQuantity > 0;
   const maxReached = quantityNumber >= product.maxQuantityPerUser;
   const stockLimitReached = quantityNumber >= product.stockQuantity;
+  const router = useRouter();
 
   // Quantity controls
   const addQuantity = () => {
@@ -68,7 +70,7 @@ export default function AddToCartButton({
 
     // Check if user is authenticated
     if (status === "unauthenticated") {
-      signIn();
+      router.push("/login");
       return;
     }
 
