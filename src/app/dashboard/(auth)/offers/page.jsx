@@ -184,7 +184,7 @@ function OffersManagementContent() {
 
     setIsProcessing(true);
     try {
-      const response = await fetch(`/api/offers/${selectedOffer.id}`, {
+      const response = await fetch(`/api/offers/${selectedOffer.id}/toggle`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !selectedOffer.isActive }),

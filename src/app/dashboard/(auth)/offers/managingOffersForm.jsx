@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import SearchDropdown from "../../../../components/searchbar/SearchDropdown";
+import toast from "react-hot-toast";
 
 export default function ManagingOffersForm({
   offer = null,
@@ -76,9 +77,42 @@ export default function ManagingOffersForm({
     validateOnBlur: true,
     onSubmit: async (values) => {
       try {
+        if (offer) {
+          // Update existing offer
+          const response = await fetch(`/api/offers/${offer.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "فشل في تحديث العرض");
+          }
+
+          await response.json();
+          toast.success("تم تحديث العرض بنجاح");
+        } else {
+          // Create new offer
+          const response = await fetch("/api/offers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "فشل في إنشاء العرض");
+          }
+
+          await response.json();
+          toast.success("تم إنشاء العرض بنجاح");
+        }
+
         await onSubmit(values);
       } catch (error) {
         console.error("Form submission error:", error);
+        toast.error(error.message || "خطأ في حفظ العرض");
       }
     },
   });
