@@ -20,6 +20,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import SearchBox from "@/components/dashbaord/SearchBox";
+import DeleteOfferModal from "./deleteOfferModal";
 
 // // Dynamic import for AddingOfferForm with skeleton loader
 const ManagingOffersForm = dynamic(() => import("./managingOffersForm"), {
@@ -84,6 +85,9 @@ function OffersManagementContent() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -170,34 +174,65 @@ function OffersManagementContent() {
   };
 
   const handleToggleStatus = async (offerId, currentStatus) => {
-    const action = currentStatus ? "إلغاء تنشيط" : "تنشيط";
-    const confirmMessage = `هل أنت متأكد من ${action} هذا العرض؟`;
+    const offer = offers.find((o) => o.id === offerId);
+    setSelectedOffer(offer);
+    setDeleteModalOpen(true);
+  };
 
-    if (confirm(confirmMessage)) {
-      try {
-        // TODO: Implement toggle offer status logic
-        toast.success(
-          `تم ${!currentStatus ? "تنشيط" : "إلغاء تنشيط"} العرض بنجاح`
-        );
+  const handleConfirmToggle = async () => {
+    if (!selectedOffer) return;
 
-        setOffers(
-          offers.map((offer) =>
-            offer.id === offerId
-              ? { ...offer, isActive: !currentStatus }
-              : offer
-          )
-        );
-      } catch (error) {
-        console.error("Error toggling offer status:", error);
-        toast.error("خطأ في تغيير حالة العرض");
+    setIsProcessing(true);
+    try {
+      const response = await fetch(`/api/offers/${selectedOffer.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !selectedOffer.isActive }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        toast.error(error.error || "فشل في تحديث حالة العرض");
+        return;
       }
+
+      const updatedOffer = await response.json();
+
+      setOffers(
+        offers.map((offer) =>
+          offer.id === updatedOffer.id
+            ? { ...offer, isActive: updatedOffer.isActive }
+            : offer
+        )
+      );
+
+      toast.success(
+        `تم ${updatedOffer.isActive ? "تنشيط" : "إلغاء تنشيط"} العرض بنجاح`
+      );
+      setDeleteModalOpen(false);
+      setSelectedOffer(null);
+    } catch (error) {
+      console.error("Error toggling offer status:", error);
+      toast.error("خطأ في تغيير حالة العرض");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleDelete = async (offerId) => {
-    if (confirm("هل أنت متأكد من حذف هذا العرض؟")) {
+    if (confirm("هل أنت متأكد من حذف هذا العرض نهائياً؟")) {
       try {
-        // TODO: Implement delete offer logic
+        const response = await fetch(`/api/offers/${offerId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          toast.error(error.error || "فشل في حذف العرض");
+          return;
+        }
+
+        setOffers(offers.filter((offer) => offer.id !== offerId));
         toast.success("تم حذف العرض بنجاح");
       } catch (error) {
         console.error("Error deleting offer:", error);
@@ -260,6 +295,17 @@ function OffersManagementContent() {
           categories={categories}
           variants={[]}
           onSubmit={handleSubmit}
+        />
+
+        <DeleteOfferModal
+          open={deleteModalOpen}
+          offer={selectedOffer}
+          isProcessing={isProcessing}
+          onCancel={() => {
+            setDeleteModalOpen(false);
+            setSelectedOffer(null);
+          }}
+          onConfirm={handleConfirmToggle}
         />
       </div>
       <SearchBox placeholder="البحث في العروض..." />
