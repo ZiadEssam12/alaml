@@ -119,13 +119,19 @@ function OffersManagementContent() {
     const fetchDataWrapper = async () => {
       try {
         setLoading(true);
-        // TODO: Implement fetchOffersDataClient function
-        // const { offers, products, categories, pagination } =
-        //   await fetchOffersDataClient({
-        //     q,
-        //     page,
-        //     pageSize,
-        //   });
+        const response = await fetch(
+          `/api/offers?page=${page}&pageSize=${pageSize}${
+            q ? `&q=${encodeURIComponent(q)}` : ""
+          }`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setOffers(data.offers || []);
+          setPagination(data.pagination || {});
+        } else {
+          toast.error("فشل في جلب العروض");
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("خطأ في جلب البيانات");
@@ -139,13 +145,26 @@ function OffersManagementContent() {
 
   const handleSubmit = async (values) => {
     try {
-      // TODO: Implement offer creation/update logic
-      toast.success("تم حفظ العرض بنجاح");
+      // Refresh offers list after successful create/update
+      setLoading(true);
+      const response = await fetch(
+        `/api/offers?page=${page}&pageSize=${pageSize}${
+          q ? `&q=${encodeURIComponent(q)}` : ""
+        }`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setOffers(data.offers || []);
+        setPagination(data.pagination || {});
+      }
+
       setDialogOpen(false);
       resetForm();
     } catch (error) {
-      console.error("Error saving offer:", error);
-      toast.error("خطأ في حفظ العرض");
+      console.error("Error refreshing offers:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
