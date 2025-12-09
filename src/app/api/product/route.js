@@ -1,6 +1,49 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+// Helper function to calculate discounted price
+function calculateDiscountedPrice(originalPrice, offer) {
+  if (!offer) return null;
+
+  const price = parseFloat(originalPrice);
+  const value = parseFloat(offer.value);
+
+  if (offer.type === "percentage") {
+    const discount = price * (value / 100);
+    const maxDiscount = offer.maxDiscountAmount
+      ? parseFloat(offer.maxDiscountAmount)
+      : null;
+    const actualDiscount = maxDiscount
+      ? Math.min(discount, maxDiscount)
+      : discount;
+    return Math.max(0, price - actualDiscount);
+  } else if (offer.type === "fixed") {
+    return Math.max(0, price - value);
+  }
+
+  return price;
+}
+
+// Helper function to get the best offer (highest discount)
+function getBestOffer(offers, price) {
+  if (!offers || offers.length === 0) return null;
+
+  let bestOffer = null;
+  let bestDiscount = 0;
+
+  for (const offer of offers) {
+    const discountedPrice = calculateDiscountedPrice(price, offer);
+    const discount = price - discountedPrice;
+
+    if (discount > bestDiscount) {
+      bestDiscount = discount;
+      bestOffer = offer;
+    }
+  }
+
+  return bestOffer;
+}
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -80,6 +123,7 @@ export async function GET(request) {
           stockQuantity: true,
           maxQuantityPerUser: true,
           isActive: true,
+          categoryID: true,
           category: {
             select: {
               seoTitle: true,
@@ -95,11 +139,87 @@ export async function GET(request) {
       }),
     ]);
 
-    // Products already have denormalized rating values, just add totalSales
-    let products = productsData.map((product) => ({
-      ...product,
-      totalSales: product.ratingCount,
-    }));
+    // Get product IDs and category IDs for offer lookup
+    const productIds = productsData.map((p) => p.id);
+    const categoryIds = [...new Set(productsData.map((p) => p.categoryID))];
+
+    // Fetch active offers for these products and categories
+    const now = new Date();
+    const activeOffers = await prisma.offer.findMany({
+      where: {
+        isActive: true,
+        isAutoApply: true,
+        startDate: { lte: now },
+        expirationDate: { gte: now },
+        OR: [
+          { scope: "product", productId: { in: productIds } },
+          { scope: "category", categoryId: { in: categoryIds } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        scope: true,
+        type: true,
+        value: true,
+        maxDiscountAmount: true,
+        productId: true,
+        categoryId: true,
+      },
+    });
+
+    // Group offers by product and category
+    const productOffers = {};
+    const categoryOffers = {};
+
+    for (const offer of activeOffers) {
+      if (offer.scope === "product" && offer.productId) {
+        if (!productOffers[offer.productId]) {
+          productOffers[offer.productId] = [];
+        }
+        productOffers[offer.productId].push(offer);
+      } else if (offer.scope === "category" && offer.categoryId) {
+        if (!categoryOffers[offer.categoryId]) {
+          categoryOffers[offer.categoryId] = [];
+        }
+        categoryOffers[offer.categoryId].push(offer);
+      }
+    }
+
+    // Enhance products with offer data
+    let products = productsData.map((product) => {
+      const price = parseFloat(product.price);
+
+      // Combine product-level and category-level offers
+      const applicableOffers = [
+        ...(productOffers[product.id] || []),
+        ...(categoryOffers[product.categoryID] || []),
+      ];
+
+      // Get the best offer
+      const bestOffer = getBestOffer(applicableOffers, price);
+      const discountedPrice = bestOffer
+        ? calculateDiscountedPrice(price, bestOffer)
+        : null;
+
+      return {
+        ...product,
+        totalSales: product.ratingCount,
+        offer: bestOffer
+          ? {
+              id: bestOffer.id,
+              title: bestOffer.title,
+              description: bestOffer.description,
+              type: bestOffer.type,
+              value: parseFloat(bestOffer.value),
+              originalPrice: price,
+              discountedPrice,
+              savings: discountedPrice ? price - discountedPrice : 0,
+            }
+          : null,
+      };
+    });
 
     // Filter by rating if provided (must be done before Prisma query for best performance)
     if (rating) {
