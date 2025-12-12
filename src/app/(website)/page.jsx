@@ -91,7 +91,8 @@ export const viewport = {
 };
 
 export default async function Home() {
-  const { categories, products } = await getCachedHomeData();
+  const { categories, products, productsWithOffers } =
+    await getCachedHomeData();
 
   // Generate JSON-LD schemas
   const localBusinessSchema = generateLocalBusinessSchema();
@@ -127,9 +128,11 @@ export default async function Home() {
         <Categories data={categories} />
         <ProductsList data={products} />
 
-        <section>
-          <ProductsList data={products} title="المنتجات المقترحة" />
-        </section>
+        {productsWithOffers && productsWithOffers.length > 0 && (
+          <section>
+            <ProductsList data={productsWithOffers} title="عروض وخصومات" />
+          </section>
+        )}
 
         <section className="grid grid-cols-1 lg:grid-cols-3 place-items-center text-center my-20!">
           <div className="flex flex-col justify-center items-center gap-4">

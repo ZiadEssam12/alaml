@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useContext } from "react";
@@ -28,6 +28,16 @@ export default function ProductCard({ product }) {
 
   const ImagePlaceholder =
     imageService.generateBlurredPlaceholder(imagePublicId);
+
+  // Check if product has an active offer
+  const hasOffer = product.offer && product.offer.discountedPrice !== null;
+  const discountPercent = hasOffer
+    ? Math.round(
+        ((product.offer.originalPrice - product.offer.discountedPrice) /
+          product.offer.originalPrice) *
+          100
+      )
+    : 0;
 
   return (
     <div
@@ -60,6 +70,14 @@ export default function ProductCard({ product }) {
             />
           </div>
 
+          {/* Offer Badge */}
+          {hasOffer && (
+            <Badge className="absolute top-2 left-2 bg-green-600 text-white border-green-700 flex items-center gap-1">
+              <Tag className="h-3 w-3" />
+              {discountPercent}% خصم
+            </Badge>
+          )}
+
           {/* Stock Badge */}
           {isOutOfStock && (
             <Badge
@@ -86,9 +104,20 @@ export default function ProductCard({ product }) {
         <div className="flex flex-col justify-start gap-1">
           {/* Price */}
           <div className="flex items-center justify-between order-1">
-            <span className="text-2xl font-bold text-primary">
-              {product.price} جنيه
-            </span>
+            {hasOffer ? (
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-primary">
+                  {product.offer.discountedPrice.toLocaleString()} جنيه
+                </span>
+                <span className="text-sm text-muted-foreground line-through">
+                  {product.offer.originalPrice.toLocaleString()} جنيه
+                </span>
+              </div>
+            ) : (
+              <span className="text-2xl font-bold text-primary">
+                {product.price} جنيه
+              </span>
+            )}
             {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
               <Badge
                 variant="outline"
@@ -107,7 +136,7 @@ export default function ProductCard({ product }) {
             </span>
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="text-sm font-bold text-muted-foreground dark:text-slate-400">
-              ({product.totalSales || 0})
+              ({product.ratingCount || product.totalSales || 0})
             </span>
           </div>
         </div>

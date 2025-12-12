@@ -19,10 +19,15 @@ export async function getHomeData() {
     }
 
     const response = await res.json();
-    const { categories, products } = response.data || response;
-    return { categories: categories || [], products: products || [] };
+    const { categories, products, productsWithOffers } =
+      response.data || response;
+    return {
+      categories: categories || [],
+      products: products || [],
+      productsWithOffers: productsWithOffers || [],
+    };
   } catch (error) {
     console.error("Error fetching home data:", error);
-    return { categories: [], products: [] };
+    return { categories: [], products: [], productsWithOffers: [] };
   }
 }
