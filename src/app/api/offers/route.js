@@ -177,8 +177,8 @@ export async function GET(request) {
         name: true,
         description: true,
         price: true,
-        image: true,
-        rating: true,
+        imageUrls: true,
+        averageRating: true,
         createdAt: true,
         _count: {
           select: {
@@ -205,6 +205,7 @@ export async function GET(request) {
         variants: {
           select: {
             id: true,
+            price: true,
             offers: {
               where: {
                 isActive: true,
@@ -244,11 +245,51 @@ export async function GET(request) {
     const totalCategories = categoriesWithOffers.length;
     const totalPages = limit > 0 ? Math.ceil(totalCategories / limit) : 1;
 
+    // Map categories to handle Decimal serialization
+    const formattedCategories = categoriesWithOffers.map((category) => ({
+      ...category,
+      offers: category.offers.map((offer) => ({
+        ...offer,
+        value: Number(offer.value),
+        maxDiscountAmount: offer.maxDiscountAmount
+          ? Number(offer.maxDiscountAmount)
+          : null,
+      })),
+    }));
+
+    // Map products to match frontend expectations and handle Decimal serialization
+    const formattedProducts = productsWithOffers.map((product) => ({
+      ...product,
+      image:
+        product.imageUrls && product.imageUrls.length > 0
+          ? product.imageUrls[0]
+          : null,
+      rating: product.averageRating,
+      offers: product.offers.map((offer) => ({
+        ...offer,
+        value: Number(offer.value),
+        maxDiscountAmount: offer.maxDiscountAmount
+          ? Number(offer.maxDiscountAmount)
+          : null,
+      })),
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        price: Number(variant.price),
+        offers: variant.offers.map((offer) => ({
+          ...offer,
+          value: Number(offer.value),
+          maxDiscountAmount: offer.maxDiscountAmount
+            ? Number(offer.maxDiscountAmount)
+            : null,
+        })),
+      })),
+    }));
+
     return NextResponse.json(
       {
         data: {
-          categoriesWithOffers,
-          productsWithOffers,
+          categoriesWithOffers: formattedCategories,
+          productsWithOffers: formattedProducts,
           pagination: { page, limit, maxPage: totalPages },
         },
       },

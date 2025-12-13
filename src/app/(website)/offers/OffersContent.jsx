@@ -33,133 +33,25 @@ export default function OffersContent({
     return offer.title;
   };
 
-  // Fake data for UI preview
-  const fakeData = {
-    categoriesWithOffers: [
-      {
-        id: "1",
-        name: "الملابس والأحذية",
-        icon: "👕",
-        color: "#3B82F6",
-        _count: { offers: 5 },
-        offers: [
-          {
-            id: "offer-1",
-            title: "خصم على الملابس",
-            description: "خصم 30% على جميع الملابس الصيفية",
-            type: "percentage",
-            value: 30,
-            expirationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-          {
-            id: "offer-2",
-            title: "شحن مجاني",
-            description: "شحن مجاني على الأحذية",
-            type: "free_shipping",
-            value: 0,
-            expirationDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-          {
-            id: "offer-3",
-            title: "خصم ثابت",
-            description: "خصم 50 ريال على الملابس الرسمية",
-            type: "fixed",
-            value: 50,
-            expirationDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-            isAutoApply: false,
-          },
-        ],
-      },
-      {
-        id: "2",
-        name: "الإلكترونيات",
-        icon: "📱",
-        color: "#10B981",
-        _count: { offers: 3 },
-        offers: [
-          {
-            id: "offer-4",
-            title: "خصم الإلكترونيات",
-            description: "خصم 25% على جميع الأجهزة الإلكترونية",
-            type: "percentage",
-            value: 25,
-            expirationDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-          {
-            id: "offer-5",
-            title: "عرض الهواتف الذكية",
-            description: "خصم 200 ريال على الهواتف",
-            type: "fixed",
-            value: 200,
-            expirationDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-          {
-            id: "offer-6",
-            title: "شحن مجاني للأجهزة",
-            description: "شحن مجاني على أجهزة الكمبيوتر",
-            type: "free_shipping",
-            value: 0,
-            expirationDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
-            isAutoApply: false,
-          },
-        ],
-      },
-      {
-        id: "3",
-        name: "المنزل والديكور",
-        icon: "🛋️",
-        color: "#F59E0B",
-        _count: { offers: 4 },
-        offers: [
-          {
-            id: "offer-7",
-            title: "خصم الأثاث",
-            description: "خصم 40% على الأثاث المختار",
-            type: "percentage",
-            value: 40,
-            expirationDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-          {
-            id: "offer-8",
-            title: "عرض الديكور",
-            description: "خصم 100 ريال على ديكورات المنزل",
-            type: "fixed",
-            value: 100,
-            expirationDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-          {
-            id: "offer-9",
-            title: "شحن مجاني المنزل",
-            description: "شحن مجاني على طلبات المنزل فوق 500 ريال",
-            type: "free_shipping",
-            value: 0,
-            expirationDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
-            isAutoApply: false,
-          },
-          {
-            id: "offer-10",
-            title: "خصم إضافي",
-            description: "خصم 15% على مقتنيات المنزل",
-            type: "percentage",
-            value: 15,
-            expirationDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
-            isAutoApply: true,
-          },
-        ],
-      },
-    ],
-    pagination: {
-      currentPage: 1,
-      maxPage: 2,
-      itemsPerPage: 3,
-      total: 6,
-    },
+  const calculateDiscountedPrice = (originalPrice, offers) => {
+    if (!offers || offers.length === 0) return null;
+    const offer = offers[0];
+    const price = parseFloat(originalPrice);
+    const value = parseFloat(offer.value);
+
+    if (offer.type === "percentage") {
+      const discount = price * (value / 100);
+      const maxDiscount = offer.maxDiscountAmount
+        ? parseFloat(offer.maxDiscountAmount)
+        : null;
+      const actualDiscount = maxDiscount
+        ? Math.min(discount, maxDiscount)
+        : discount;
+      return Math.max(0, price - actualDiscount);
+    } else if (offer.type === "fixed") {
+      return Math.max(0, price - value);
+    }
+    return null;
   };
 
   let {
@@ -167,12 +59,6 @@ export default function OffersContent({
     productsWithOffers: initialProducts = [],
     pagination = {},
   } = initialData || {};
-
-  // Use fake data if no real data available
-  if (categoriesWithOffers.length === 0 && !error) {
-    categoriesWithOffers = fakeData.categoriesWithOffers;
-    pagination = fakeData.pagination;
-  }
 
   // Use fallback prop if no products in initialData
   const productsToDisplay =
@@ -353,9 +239,49 @@ export default function OffersContent({
                               </div>
 
                               {/* Price */}
-                              <p className="text-lg font-bold text-gray-800 mb-3">
-                                {product.price} ر.س
-                              </p>
+                              <div className="mb-3">
+                                {(() => {
+                                  const productOffer = product.offers?.[0];
+                                  const variantOffer =
+                                    product.variants?.[0]?.offers?.[0];
+                                  const activeOffer =
+                                    productOffer || variantOffer;
+
+                                  // Use variant price if the offer is on a variant
+                                  const basePrice =
+                                    (productOffer
+                                      ? product.price
+                                      : product.variants?.[0]?.price) ||
+                                    product.price;
+
+                                  const discountedPrice = activeOffer
+                                    ? calculateDiscountedPrice(basePrice, [
+                                        activeOffer,
+                                      ])
+                                    : null;
+
+                                  if (
+                                    discountedPrice !== null &&
+                                    discountedPrice < basePrice
+                                  ) {
+                                    return (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-lg font-bold text-red-600">
+                                          {discountedPrice.toFixed(2)} ر.س
+                                        </span>
+                                        <span className="text-sm text-gray-500 line-through">
+                                          {basePrice} ر.س
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                  return (
+                                    <p className="text-lg font-bold text-gray-800">
+                                      {product.price} ر.س
+                                    </p>
+                                  );
+                                })()}
+                              </div>
 
                               {/* Top Offers */}
                               {(product.offers?.length > 0 ||
