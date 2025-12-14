@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Tag } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -108,7 +108,30 @@ export default function SearchBar() {
     setQuery("");
     setIsOpen(false);
     setSelectedIndex(-1);
-    router.push(`/products/${result.slug}`);
+
+    if (result.entityType === "offer") {
+      if (result.scope === "product" && result.product?.slug) {
+        router.push(`/products/${result.product.slug}`);
+      } else if (result.scope === "category" && result.categoryId) {
+        router.push(`/offers/${result.categoryId}`);
+      } else {
+        router.push("/offers");
+      }
+    } else {
+      router.push(`/products/${result.slug}`);
+    }
+  };
+
+  const getResultHref = (result) => {
+    if (result.entityType === "offer") {
+      if (result.scope === "product" && result.product?.slug) {
+        return `/products/${result.product.slug}`;
+      } else if (result.scope === "category" && result.categoryId) {
+        return `/offers/${result.categoryId}`;
+      }
+      return "/offers";
+    }
+    return `/products/${result.slug}`;
   };
 
   useEffect(() => {
@@ -154,27 +177,47 @@ export default function SearchBar() {
           <div className=" max-h-80 overflow-y-auto">
             {results.map((result, index) => (
               <Link
-                href={`/products/${result.slug}`}
+                href={getResultHref(result)}
                 key={result.id}
                 className={cn(
                   "block w-full text-left px-4 py-5 hover:bg-accent hover:text-accent-foreground transition-colors border-b border-border last:border-b-0 focus:outline-none focus:bg-accent focus:text-accent-foreground",
                   selectedIndex === index && "bg-accent text-accent-foreground"
                 )}
               >
-                <div className="font-medium text-sm flex justify-between items-center">
-                  <div className="flex flex-col lg:flex-row items-start lg:items-center gap-1">
-                    <p>{result.name}</p>
-                    <div className="flex gap-1">
-                      <p>في</p>
-                      <p className="text-primary">{result.category.name}</p>
+                {result.entityType === "offer" ? (
+                  <div className="flex items-center gap-3">
+                    <Tag className="w-4 h-4 text-green-600 shrink-0" />
+                    <div>
+                      <p className="font-medium text-sm">{result.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {result.type === "percentage"
+                          ? `${result.value}% خصم`
+                          : `${result.value} ج.م خصم`}
+                        {result.scope === "product" &&
+                          result.product &&
+                          ` على ${result.product.name}`}
+                        {result.scope === "category" &&
+                          result.category &&
+                          ` على قسم ${result.category.name}`}
+                      </p>
                     </div>
                   </div>
+                ) : (
+                  <div className="font-medium text-sm flex justify-between items-center">
+                    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-1">
+                      <p>{result.name}</p>
+                      <div className="flex gap-1">
+                        <p>في</p>
+                        <p className="text-primary">{result.category.name}</p>
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-1">
-                    <p className="text-primary">{result.price}</p>
-                    <p>جنيه</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-primary">{result.price}</p>
+                      <p>جنيه</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </Link>
             ))}
           </div>
